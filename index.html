@@ -376,30 +376,30 @@ function updateSidebar(){
   h+=buildCommentLog(calLote);
   // Mensaje
   const msg=localStorage.getItem('agropac_msg')||'';
-  h+='<div class="clog" id="msg-box" style="margin-top:10px">'
-    +'<div class="clog-title">💬 Mensaje</div>'
-    +(msg?'<div id="msg-alerta" style="background:#c62828;color:#fff;border-radius:8px;padding:8px 10px;font-size:.75rem;font-weight:700;margin-bottom:6px;white-space:pre-wrap">⚠️ '+msg+'</div>':'<div id="msg-alerta" style="display:none"></div>')
-    +'<textarea id="msg-ta" rows="2" style="width:100%;box-sizing:border-box;font-size:.72rem;border:1px solid #c8e6c9;border-radius:6px;padding:6px;resize:vertical;font-family:inherit;color:#333" placeholder="Escribe un mensaje...">'+(msg.replace(/</g,'&lt;'))+'</textarea>'
-    +'<div style="display:flex;gap:6px;margin-top:5px">'
-    +'<button onclick="guardarMsg()" style="flex:1;background:#1b5e20;color:#fff;border:none;border-radius:6px;padding:5px;font-size:.7rem;cursor:pointer">Guardar</button>'
-    +'<button onclick="borrarMsg()" style="flex:1;background:#eee;color:#555;border:none;border-radius:6px;padding:5px;font-size:.7rem;cursor:pointer">Borrar</button>'
-    +'</div></div>';
+  if(msg){
+    h+='<div class="clog" id="msg-box" style="margin-top:10px">'
+      +'<div class="clog-title">💬 Mensaje</div>'
+      +'<div id="msg-alerta" style="background:#c62828;color:#fff;border-radius:8px;padding:8px 10px;font-size:.75rem;font-weight:700;margin-bottom:6px;white-space:pre-wrap">⚠️ '+msg+'</div>'
+      +'<button onclick="borrarMsg()" style="width:100%;background:#eee;color:#555;border:none;border-radius:6px;padding:6px;font-size:.7rem;cursor:pointer">🗑️ Eliminar mensaje</button>'
+      +'</div>';
+  } else {
+    h+='<div class="clog" id="msg-box" style="margin-top:10px">'
+      +'<div class="clog-title">💬 Mensaje</div>'
+      +'<textarea id="msg-ta" rows="2" style="width:100%;box-sizing:border-box;font-size:.72rem;border:1px solid #c8e6c9;border-radius:6px;padding:6px;resize:vertical;font-family:inherit;color:#333" placeholder="Escribe un mensaje..."></textarea>'
+      +'<button onclick="guardarMsg()" style="width:100%;margin-top:5px;background:#1b5e20;color:#fff;border:none;border-radius:6px;padding:6px;font-size:.7rem;cursor:pointer">Guardar</button>'
+      +'</div>';
+  }
   el.innerHTML=h;
 }
 function guardarMsg(){
   const t=document.getElementById('msg-ta');
-  if(!t)return;
-  const v=t.value.trim();
-  localStorage.setItem('agropac_msg',v);
-  const a=document.getElementById('msg-alerta');
-  if(a){if(v){a.style.display='';a.textContent='⚠️ '+v;}else{a.style.display='none';}}
+  if(!t||!t.value.trim())return;
+  localStorage.setItem('agropac_msg',t.value.trim());
+  updateSide();
 }
 function borrarMsg(){
-  const t=document.getElementById('msg-ta');
-  if(t)t.value='';
   localStorage.removeItem('agropac_msg');
-  const a=document.getElementById('msg-alerta');
-  if(a){a.style.display='none';a.textContent='';}
+  updateSide();
 }
 function drawCal(){
   const hoy=new Date(),ml=document.getElementById('mes-lbl');
