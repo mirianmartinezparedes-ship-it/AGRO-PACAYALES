@@ -375,31 +375,14 @@ function updateSidebar(){
   // Comment log
   h+=buildCommentLog(calLote);
   // Mensaje
-  const msg=localStorage.getItem('agropac_msg')||'';
+  const msg=window.MENSAJE_GLOBAL||'';
   if(msg){
-    h+='<div class="clog" id="msg-box" style="margin-top:10px">'
+    h+='<div class="clog" style="margin-top:10px">'
       +'<div class="clog-title">💬 Mensaje</div>'
-      +'<div id="msg-alerta" style="background:#c62828;color:#fff;border-radius:8px;padding:8px 10px;font-size:.75rem;font-weight:700;margin-bottom:6px;white-space:pre-wrap">⚠️ '+msg+'</div>'
-      +'<button onclick="borrarMsg()" style="width:100%;background:#eee;color:#555;border:none;border-radius:6px;padding:6px;font-size:.7rem;cursor:pointer">🗑️ Eliminar mensaje</button>'
-      +'</div>';
-  } else {
-    h+='<div class="clog" id="msg-box" style="margin-top:10px">'
-      +'<div class="clog-title">💬 Mensaje</div>'
-      +'<textarea id="msg-ta" rows="2" style="width:100%;box-sizing:border-box;font-size:.72rem;border:1px solid #c8e6c9;border-radius:6px;padding:6px;resize:vertical;font-family:inherit;color:#333" placeholder="Escribe un mensaje..."></textarea>'
-      +'<button onclick="guardarMsg()" style="width:100%;margin-top:5px;background:#1b5e20;color:#fff;border:none;border-radius:6px;padding:6px;font-size:.7rem;cursor:pointer">Guardar</button>'
+      +'<div style="background:#c62828;color:#fff;border-radius:8px;padding:8px 10px;font-size:.75rem;font-weight:700;white-space:pre-wrap">⚠️ '+msg+'</div>'
       +'</div>';
   }
   el.innerHTML=h;
-}
-function guardarMsg(){
-  const t=document.getElementById('msg-ta');
-  if(!t||!t.value.trim())return;
-  localStorage.setItem('agropac_msg',t.value.trim());
-  updateSide();
-}
-function borrarMsg(){
-  localStorage.removeItem('agropac_msg');
-  updateSide();
 }
 function drawCal(){
   const hoy=new Date(),ml=document.getElementById('mes-lbl');
@@ -1004,6 +987,20 @@ function buildCommentLog(lote){
 }
 
 buildTotales();
+
+/* ── MENSAJE GLOBAL (desde GitHub) ── */
+window.MENSAJE_GLOBAL='';
+fetch('https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/mensaje.txt?_='+Date.now())
+  .then(r=>r.text()).then(t=>{window.MENSAJE_GLOBAL=t.trim();if(t.trim()&&calLote)updateSide();}).catch(()=>{});
+
+/* ── BITÁCORA REMOTA (desde GitHub, solo en github.io) ── */
+if(window.location.hostname.includes('github.io')){
+  fetch('https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/bitacora_campo.json?_='+Date.now())
+    .then(r=>r.json()).then(data=>{
+      saveAllStatus(data);
+      if(calLote)updateSide();
+    }).catch(()=>{});
+}
 
 /* ── REPORTE DE COSTOS ── */
 function openCostReport(loteName){
