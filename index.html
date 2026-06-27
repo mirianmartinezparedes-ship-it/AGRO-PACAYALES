@@ -560,14 +560,13 @@ function drawCal(){
     if(calLote){
       const loteInfo=DATA.resumen.find(l=>l.lote===calLote);
       if(loteInfo&&loteInfo.siembra){
-        const sp=loteInfo.siembra.split('-');
+        const sd=new Date(loteInfo.siembra);
         const cellMs=Date.UTC(calAnio,calMes,d);
-        const sMs=Date.UTC(+sp[0],+sp[1]-1,+sp[2]);
+        const sMs=Date.UTC(sd.getFullYear(),sd.getMonth(),sd.getDate());
         const ddsVal=Math.round((cellMs-sMs)/86400000);
-        if(ddsVal>=0){
-          const ddsBg=esH?'#000':'#333';
-          ddsBadge='<span style="font-size:.62rem;background:'+ddsBg+';color:#fff;padding:2px 6px;border-radius:5px;margin-left:5px;font-weight:900">D'+ddsVal+'</span>';
-        }
+        const ddsBg=esH?'#000':'#333';
+        const ddsColor=ddsVal<0?'#555':ddsBg;
+        ddsBadge='<span style="font-size:.62rem;background:'+ddsColor+';color:#fff;padding:2px 6px;border-radius:5px;margin-left:5px;font-weight:900">D'+ddsVal+'</span>';
       }
     }
     h+='<div class="cd'+(esH?' hoy':'')+(esSiembra?' siembra-day':'')+(esCosecha?' cosecha-day':'')+'"><div class="dn'+(esH?' hoy-n':'')+(esPas&&!esH?' pas':'')+'">'
@@ -991,15 +990,14 @@ buildTotales();
 /* ── MENSAJE GLOBAL (desde GitHub) ── */
 window.MENSAJE_GLOBAL='';
 fetch('https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/mensaje.txt?_='+Date.now())
-  .then(r=>r.text()).then(t=>{window.MENSAJE_GLOBAL=t.trim();if(t.trim()&&calLote)updateSide();}).catch(()=>{});
+  .then(r=>{if(!r.ok)throw new Error();return r.text();}).then(t=>{window.MENSAJE_GLOBAL=t.trim();if(t.trim()&&calLote)updateSide();}).catch(()=>{});
 
 /* ── BITÁCORA REMOTA (desde GitHub, solo en github.io) ── */
 if(window.location.hostname.includes('github.io')){
-  fetch('https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/bitacora_campo.json?_='+Date.now())
-    .then(r=>r.json()).then(data=>{
-      saveAllStatus(data);
-      if(calLote)updateSide();
-    }).catch(()=>{});
+  const BASE='https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/';
+  const tryFetch=urls=>urls.reduce((p,url)=>p.catch(()=>fetch(url).then(r=>{if(!r.ok)throw new Error();return r.json();})),Promise.reject());
+  tryFetch([BASE+'bitacora_campo.json?_='+Date.now(), BASE+'bit%C3%A1cora_campo.json?_='+Date.now()])
+    .then(data=>{saveAllStatus(data);if(calLote)updateSide();}).catch(()=>{});
 }
 
 /* ── REPORTE DE COSTOS ── */
