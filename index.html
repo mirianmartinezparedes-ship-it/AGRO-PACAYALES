@@ -574,7 +574,7 @@ function drawCal(){
       const dia=f.getDate();
       if(!pmo[dia])pmo[dia]={};
       if(!pmo[dia][l.lote])pmo[dia][l.lote]=[];
-      mo[fIso].forEach(entry=>{pmo[dia][l.lote].push({cat:entry.cat,subs:entry.subs,costo:entry.costo,ha:l.ha||1,lote:l.lote,fecha:fIso});});
+      mo[fIso].forEach(entry=>{pmo[dia][l.lote].push({cat:entry.cat,subs:entry.subs||(entry.sub?[entry.sub]:[]),costo:entry.costo,ha:l.ha||1,lote:l.lote,fecha:fIso});});
     });
     // TRABAJOS MAQUINARIA (tractor externo) per lote/day
     const maq=DATA.maquinaria&&DATA.maquinaria[l.lote]||{};
@@ -1621,15 +1621,28 @@ function openCostReport(loteName){
       h+='<div style="padding:10px 12px;border-right:1px solid #e0e0e0;background:#f3f8ff">';
       h+='<div style="font-size:.7rem;font-weight:800;color:#1565c0;margin-bottom:6px">📋 PRESUPUESTO</div>';
       if(pp){
-        pp.items.forEach(it=>{
-          h+='<div style="font-size:.71rem;border-bottom:1px solid #e3f2fd;padding:4px 0">';
-          h+='<div style="color:#888;font-size:.63rem;margin-bottom:1px">DDS '+it.dds+(sDate?' · '+fmtFecha(addDays(sDate,it.dds).toISOString().slice(0,10)):'')+'</div>';
-          h+='<div style="font-weight:600">'+toTitle(it.label)+'</div>';
-          h+='<div style="display:flex;gap:8px;margin-top:2px;flex-wrap:wrap"><span style="color:#1565c0;font-weight:700;font-size:.72rem">'+Fv(Math.round(it.costo/ha*100)/100)+'/ha</span><span style="color:#5c85c9;font-size:.68rem">Total: '+Fv(it.costo)+'</span>';
-          if(it.jrn)h+='<span style="color:#5c85c9;font-size:.68rem">'+it.jrn.toFixed(2)+' jrn</span>';
-          h+='</div></div>';
+        let ppRun=0;
+        pp.items.forEach((it,ci)=>{
+          ppRun+=it.costo;
+          const ppCph=ha>0?Math.round(it.costo/ha*100)/100:0;
+          h+='<div style="font-size:.71rem;border:1px solid #bbdefb;border-radius:7px;margin-bottom:7px;overflow:hidden">';
+          h+='<div style="background:#dbeafe;padding:4px 8px;font-weight:800;font-size:.7rem;display:flex;align-items:center;gap:6px">';
+          h+='<span style="background:#1565c0;color:#fff;border-radius:4px;padding:1px 6px;font-size:.65rem">Aplic. '+(ci+1)+'</span>';
+          h+='<span style="flex:1;color:#0d47a1">'+(sDate?fmtFecha(addDays(sDate,it.dds).toISOString().slice(0,10)):'DDS '+it.dds)+'</span>';
+          h+='<span style="color:#666;font-size:.62rem">DDS '+it.dds+'</span>';
+          h+='</div>';
+          h+='<div style="padding:3px 8px;border-top:1px solid #dbeafe;font-size:.68rem">';
+          h+='<span style="font-weight:600">'+toTitle(it.label)+'</span>';
+          if(it.jrn)h+='<span style="color:#5c85c9;margin-left:6px">'+it.jrn.toFixed(2)+' jrn</span>';
+          h+='</div>';
+          h+='<div style="padding:3px 8px;background:#eff6ff;font-size:.7rem;border-top:1px solid #bbdefb;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
+          h+='<strong style="color:#1565c0">Costo x cilindro: '+Fv(Math.round(it.costo*100)/100)+'</strong>';
+          h+=' &ndash; <span style="color:#1565c0">'+Fv(ppCph)+'/ha</span>';
+          h+=' &ndash; <span style="margin-left:auto;font-weight:700;color:#1565c0">Gasto total: '+Fv(Math.round(ppRun*100)/100)+'</span>';
+          h+='</div>';
+          h+='</div>';
         });
-        h+='<div style="font-size:.75rem;font-weight:800;color:#1565c0;margin-top:7px;border-top:2px solid #bbdefb;padding-top:5px">Total: '+Fv(pc);
+        h+='<div style="font-size:.75rem;font-weight:800;color:#1565c0;margin-top:4px;border-top:2px solid #bbdefb;padding-top:5px">Total: '+Fv(pc);
         if(jp)h+='<span style="font-weight:500;font-size:.68rem;color:#5c85c9;margin-left:8px">'+jp.toFixed(1)+' jrn</span>';
         h+='</div>';
       }else{h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin dato presupuestado</div>';}
@@ -1638,6 +1651,7 @@ function openCostReport(loteName){
       h+='<div style="padding:10px 12px;background:#f1f8e9">';
       h+='<div style="font-size:.7rem;font-weight:800;color:#2e7d32;margin-bottom:6px">✅ REAL</div>';
       if(rr&&rr.clusters&&rr.clusters.length>0){
+        let rrRun=0;
         rr.clusters.forEach((cl,ci)=>{
           const clDds=sDate?Math.round((new Date(cl.startDate+'T12:00:00')-sDate)/86400000):null;
           const sameDayCluster=cl.startDate===cl.lastDate;
@@ -1649,22 +1663,30 @@ function openCostReport(loteName){
           h+='<span style="flex:1;color:#1b5e20">'+dateLabel+'</span>';
           if(clDds!==null)h+='<span style="color:#666;font-size:.62rem">DDS '+(clDds>=0?clDds:clDds)+'</span>';
           h+='</div>';
-          // Sub-items
+          // Sub-items — aggregate by label (avoid showing per-worker duplicates)
+          const clAgg={};
           cl.items.forEach(it=>{
+            const k=it.label;
+            if(!clAgg[k]){clAgg[k]={label:it.label,costo:0,jrn:0,fechas:new Set()};}
+            clAgg[k].costo+=it.costo;clAgg[k].jrn+=it.jrn;clAgg[k].fechas.add(it.fecha);
+          });
+          Object.values(clAgg).forEach(ag=>{
             h+='<div style="padding:3px 8px;border-top:1px solid #dcedc8;font-size:.68rem">';
-            if(!sameDayCluster)h+='<span style="color:#888;font-size:.62rem">'+fmtFecha(it.fecha)+' · </span>';
-            h+='<span style="font-weight:600">'+toTitle(it.label)+'</span>';
-            h+='<span style="color:#2e7d32;font-weight:700;margin-left:6px">'+Fv(it.costo)+'</span>';
-            if(it.jrn)h+='<span style="color:#558b2f;margin-left:4px">'+it.jrn.toFixed(1)+' jrn</span>';
+            h+='<span style="font-weight:600">'+toTitle(ag.label)+'</span>';
+            h+='<span style="color:#2e7d32;font-weight:700;margin-left:6px">'+Fv(Math.round(ag.costo*100)/100)+'</span>';
+            if(ag.jrn)h+='<span style="color:#558b2f;margin-left:4px">'+ag.jrn.toFixed(1)+' jrn</span>';
+            if(ag.fechas.size>1)h+='<span style="color:#aaa;font-size:.6rem;margin-left:4px">('+ag.fechas.size+' días)</span>';
             h+='</div>';
           });
-          // Cluster total (only if multi-day)
-          if(cl.items.length>1){
-            h+='<div style="padding:3px 8px;background:#e8f5e9;font-size:.7rem;font-weight:700;color:#1b5e20;border-top:1px solid #a5d6a7">';
-            h+='Subtotal: '+Fv(Math.round(cl.total*100)/100);
-            if(cl.totalJrn)h+='<span style="font-weight:500;color:#558b2f;margin-left:6px">'+cl.totalJrn.toFixed(1)+' jrn</span>';
-            h+='</div>';
-          }
+          // Cluster footer: Costo x cilindro – /ha – Gasto total
+          rrRun+=cl.total;
+          const clCph=ha>0?Math.round(cl.total/ha*100)/100:0;
+          h+='<div style="padding:3px 8px;background:#e8f5e9;font-size:.7rem;border-top:1px solid #a5d6a7;display:flex;align-items:center;gap:4px;flex-wrap:wrap">';
+          h+='<strong style="color:#1b5e20">Costo x cilindro: '+Fv(Math.round(cl.total*100)/100)+'</strong>';
+          h+=' &ndash; <span style="color:#2e7d32">'+Fv(clCph)+'/ha</span>';
+          if(cl.totalJrn)h+=' &ndash; <span style="color:#558b2f">'+cl.totalJrn.toFixed(1)+' jrn</span>';
+          h+=' &ndash; <span style="margin-left:auto;font-weight:700;color:#1b5e20">Gasto total: '+Fv(Math.round(rrRun*100)/100)+'</span>';
+          h+='</div>';
           h+='</div>';
         });
         h+='<div style="font-size:.75rem;font-weight:800;color:#2e7d32;margin-top:4px;border-top:2px solid #c8e6c9;padding-top:5px">Total: '+Fv(rc);
@@ -1781,11 +1803,11 @@ function openCostReport(loteName){
     const by={};
     Object.entries(raw).forEach(([cat,items])=>{
       items.sort((a,b)=>a.fecha.localeCompare(b.fecha));
-      const GAP=10*86400000;
+      const GAP=2*86400000;
       const clusters=[];let cur=null;
       items.forEach(it=>{
         const d=new Date(it.fecha+'T12:00:00');
-        if(!cur||(d-new Date(cur.lastDate+'T12:00:00'))>GAP){
+        if(!cur||(d-new Date(cur.lastDate+'T12:00:00'))>=GAP){
           cur={startDate:it.fecha,lastDate:it.fecha,items:[],total:0,totalJrn:0};
           clusters.push(cur);
         }
