@@ -465,6 +465,8 @@ function buildCalUI(){
     +'<div class="cal-layout"><div class="cal-side" id="cal-side"><div class="si-empty">Selecciona un lote para ver su información</div></div>'
     +'<div class="cal-main"><div id="cal-cont"></div></div></div>';
   drawCal();
+  // Apply sync status now that toolbar exists
+  setTimeout(()=>{if(!getGHToken())setSyncStatus('notoken');else setSyncStatus('idle');},200);
 }
 function navM(d){calMes+=d;if(calMes<0){calMes=11;calAnio--;}if(calMes>11){calMes=0;calAnio++;}drawCal();}
 function updateSidebar(forceLote){
@@ -775,7 +777,8 @@ async function syncFromGitHub(){
       if(typeof drawCal==='function')drawCal();
     }
   }catch(e){}
-  if(!getGHToken())setSyncStatus('notoken');
+  // Status indicator only exists after calendar tab is opened — handled in buildCal
+  setSyncStatus(getGHToken()?'idle':'notoken');
 }
 
 async function pushToGitHub(data){
