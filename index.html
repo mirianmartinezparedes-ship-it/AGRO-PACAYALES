@@ -1314,8 +1314,8 @@ function openCostReport(loteName){
     entries.forEach(e=>{
       if(e.tipo==='AGROQUIMICO'){
         if(!byDate[fecha])byDate[fecha]={fecha,items:[],total:0};
-        byDate[fecha].items.push({nombre:e.nombre,clase:e.clase||'',cant_ha:e.cant_ha||0,um:e.um||'',cilindro:e.cilindro||0,costo_xha:e.costo_xha||0,costo_total:e.costo_total||0});
-        byDate[fecha].total+=(e.costo_total||0);
+        byDate[fecha].items.push({nombre:e.nombre,clase:e.clase||'',cant_ha:e.cant_ha||0,um:e.um||'',cilindro:e.cilindro||0,costo_xha:e.costo_xha||e.costo||0,costo_total:e.costo_total||e.costo||0});
+        byDate[fecha].total+=(e.costo_total||e.costo||0);
       }
     });
   });
@@ -1389,7 +1389,8 @@ function openCostReport(loteName){
       if(rr){
         rr.items.forEach(item=>{
           h+='<div style="font-size:.71rem;display:flex;justify-content:space-between;border-bottom:1px solid #dcedc8;padding:3px 0">';
-          h+='<span style="font-weight:600;flex:1;padding-right:4px">'+toTitle(item.nombre)+'<span style="font-weight:400;color:#777;font-size:.67rem"> '+Number(item.cilindro||item.cant_ha).toFixed(2)+' '+item.um+'</span></span>';
+          const qty=(item.cilindro||item.cant_ha)||0;
+          h+='<span style="font-weight:600;flex:1;padding-right:4px">'+toTitle(item.nombre)+(qty>0?'<span style="font-weight:400;color:#777;font-size:.67rem"> '+qty.toFixed(2)+' '+(item.um||'')+'</span>':'')+'</span>';
           h+='<span style="color:#555;white-space:nowrap">'+Fv(item.costo_total)+'</span></div>';
         });
         h+='<div style="font-size:.75rem;font-weight:800;color:#2e7d32;margin-top:7px">Total: '+Fv(rc)+'<span style="font-weight:500;font-size:.68rem;color:#558b2f;margin-left:8px">('+Fv(rc/ha)+'/ha)</span></div>';
