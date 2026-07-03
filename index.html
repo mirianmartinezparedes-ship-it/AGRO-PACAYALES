@@ -445,6 +445,7 @@ function buildCalUI(){
     +'<button class="nav-btn" style="background:#e8f5e9;border-color:#81c784;font-size:.75rem" onclick="exportarBitacora()" title="Guardar todos los comentarios en un archivo">💾 Guardar</button>'
 
     +'<button class="nav-btn" style="background:#fff3e0;border-color:#ffb74d;font-size:.75rem" onclick="abrirMensaje()" title="Escribir un mensaje visible para todos">💬 Mensaje</button>'
+    +'<span id="gh-sync-indicator" style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap"></span>'
     +'</div></div>'
     +'<div id="mensaje-form" style="display:none;background:#fff8e1;border:1.5px solid #ffb74d;border-radius:10px;padding:10px 14px;margin:8px 0;gap:8px;flex-direction:column">'
     +'<div style="font-size:.75rem;font-weight:700;color:#e65100;margin-bottom:4px">💬 Escribir mensaje (visible para todos)</div>'
@@ -732,7 +733,78 @@ function drawCal(){
 /* ── STATUS (localStorage) ── */
 const ST_KEY='agropac_status';
 function loadStatus(){try{return JSON.parse(localStorage.getItem(ST_KEY)||'{}')}catch(e){return{}}}
-function saveAllStatus(data){localStorage.setItem(ST_KEY,JSON.stringify(data))}
+function saveAllStatus(data){
+  localStorage.setItem(ST_KEY,JSON.stringify(data));
+  pushToGitHub(data);
+}
+
+/* ── GITHUB SYNC ── */
+const GH_OWNER='mirianmartinezparedes-ship-it';
+const GH_REPO_NAME='AGRO-PACAYALES';
+const GH_FILE='comentarios.json';
+const GH_TOKEN_KEY='agropac_ghtoken';
+const GH_RAW_URL='https://raw.githubusercontent.com/'+GH_OWNER+'/'+GH_REPO_NAME+'/main/'+GH_FILE;
+const GH_API_URL='https://api.github.com/repos/'+GH_OWNER+'/'+GH_REPO_NAME+'/contents/'+GH_FILE;
+
+function getGHToken(){return localStorage.getItem(GH_TOKEN_KEY)||'';}
+function setGHToken(t){localStorage.setItem(GH_TOKEN_KEY,t);}
+
+function setSyncStatus(state){
+  const el=document.getElementById('gh-sync-indicator');
+  if(!el)return;
+  const map={
+    syncing:{txt:'🔄 Sincronizando...',color:'#f57c00',click:''},
+    ok:{txt:'☁️ Guardado en la nube',color:'#2e7d32',click:''},
+    error:{txt:'⚠️ Error al sincronizar',color:'#e53935',click:''},
+    notoken:{txt:'🔑 Configurar sincronización',color:'#e65100',click:'openTokenModal()'},
+    idle:{txt:'',color:'',click:''}
+  };
+  const s=map[state]||map.idle;
+  el.textContent=s.txt;
+  el.style.color=s.color;
+  el.style.cursor=s.click?'pointer':'default';
+  el.onclick=s.click?new Function(s.click):null;
+}
+
+async function syncFromGitHub(){
+  try{
+    const resp=await fetch(GH_RAW_URL+'?t='+Date.now());
+    if(resp.ok){
+      const data=await resp.json();
+      localStorage.setItem(ST_KEY,JSON.stringify(data));
+      if(typeof drawCal==='function')drawCal();
+    }
+  }catch(e){}
+  if(!getGHToken())setSyncStatus('notoken');
+}
+
+async function pushToGitHub(data){
+  const token=getGHToken();
+  if(!token){setSyncStatus('notoken');return;}
+  setSyncStatus('syncing');
+  try{
+    const getResp=await fetch(GH_API_URL,{headers:{'Authorization':'token '+token,'Accept':'application/vnd.github.v3+json'}});
+    let sha;
+    if(getResp.ok){sha=(await getResp.json()).sha;}
+    else if(getResp.status!==404){throw new Error('API '+getResp.status);}
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+    const body={message:'Comentarios actualizados',content:encoded,branch:'main'};
+    if(sha)body.sha=sha;
+    const putResp=await fetch(GH_API_URL,{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(putResp.ok){setSyncStatus('ok');setTimeout(()=>setSyncStatus('idle'),4000);}
+    else{throw new Error('PUT '+putResp.status);}
+  }catch(e){setSyncStatus('error');console.error('GH sync:',e);}
+}
+
+function openTokenModal(){document.getElementById('token-modal-bg').style.display='flex';document.getElementById('token-input').value=getGHToken();}
+function closeTokenModal(){document.getElementById('token-modal-bg').style.display='none';}
+function saveToken(){
+  const t=document.getElementById('token-input').value.trim();
+  if(t){setGHToken(t);closeTokenModal();pushToGitHub(loadStatus());}
+  else{localStorage.removeItem(GH_TOKEN_KEY);closeTokenModal();setSyncStatus('notoken');}
+}
+
+window.addEventListener('load',()=>{syncFromGitHub();});
 function statusKey(ev){
   if(ev.tipo==='real') return 'real|'+ev.lote+'|'+ev.fecha+'|'+ev.sc;
   if(ev.tipo==='mo') return 'mo|'+ev.lote+'|'+ev.fecha+'|'+ev.cat;
@@ -1706,7 +1778,7 @@ function cerrarBitacoraCompleta(){document.getElementById('bitlog-bg').style.dis
         <div style="font-size:.72rem;opacity:.75;margin-top:2px">Real vs Presupuesto</div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="goToCalendar(document.getElementById('cost-report-lote').textContent);cerrarCostReport()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.8rem">📅 Ver Calendario</button>
+        <button onclick="goToCalendar(document.getElementById('cost-report-lote').textContent.replace(/\s*\(.*\)$/,''));cerrarCostReport()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.8rem">📅 Ver Calendario</button>
         <button onclick="cerrarCostReport()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem">✕ Cerrar</button>
       </div>
     </div>
@@ -1725,6 +1797,28 @@ function cerrarBitacoraCompleta(){document.getElementById('bitlog-bg').style.dis
       <button onclick="cerrarBitacoraCompleta()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.85rem">✕ Cerrar</button>
     </div>
     <div id="bitlog-body"></div>
+  </div>
+</div>
+
+<!-- MODAL TOKEN GITHUB -->
+<div id="token-modal-bg" onclick="if(event.target===this)closeTokenModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:28px 32px;max-width:480px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.25)">
+    <div style="font-size:1.05rem;font-weight:800;color:#2e7d32;margin-bottom:6px">🔑 Configurar sincronización en la nube</div>
+    <p style="font-size:.82rem;color:#555;margin:0 0 14px">Para que tus comentarios sean visibles para <strong>todos los que abran el link</strong>, necesito un Token de GitHub. Solo tú lo ingresas una vez en esta computadora.</p>
+    <div style="background:#f1f8e9;border:1.5px solid #a5d6a7;border-radius:10px;padding:12px 14px;font-size:.78rem;color:#2e7d32;margin-bottom:16px;line-height:1.7">
+      <strong>Cómo crear tu token (2 min):</strong><br>
+      1. Abre <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#1565c0;font-weight:700">github.com/settings/tokens/new</a><br>
+      2. <strong>Note:</strong> escribe <em>Agro Pacayales</em><br>
+      3. <strong>Expiration:</strong> No expiration<br>
+      4. <strong>Scopes:</strong> marca solo ✅ <strong>repo</strong><br>
+      5. Clic en <strong>Generate token</strong> → copia el código que empieza con <code>ghp_</code>
+    </div>
+    <input id="token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx"
+      style="width:100%;border:1.5px solid #ccc;border-radius:8px;padding:10px 12px;font-size:.85rem;box-sizing:border-box;margin-bottom:14px;outline:none;font-family:monospace">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeTokenModal()" style="border:1px solid #ccc;background:#fff;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:.83rem">Cancelar</button>
+      <button onclick="saveToken()" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-weight:700;font-size:.83rem">Guardar y sincronizar</button>
+    </div>
   </div>
 </div>
 
