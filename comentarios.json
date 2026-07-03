@@ -14,5 +14,9 @@
       "status": null,
       "note": "Aplicación no está en el presupuesto."
     }
+  },
+  "ppto|MOD 9C-26|4|app": {
+    "status": null,
+    "note": "Prueba sync"
   }
 }
