@@ -1450,9 +1450,22 @@ function buildCronoSummary(l){
     realMap[broad][act]=(realMap[broad][act]||0)+costo/ha;
   };
 
-  /* MO → MANO DE OBRA */
+  /* MO → MANO DE OBRA (normalizar sub-labor a categoría PPTO) */
+  const normMO=sub=>{const u=(sub||'').toUpperCase();
+    if(u.includes('DESHIERB'))return'Deshierbo';
+    if(u.includes('FUMIG')||u.includes('MOCHILA')||u.includes('FITOSAN')||u.includes('CONTROL FITO'))return'Control fitosanitario';
+    if(u.includes('SIEMBR')||u.includes('PLANTIN')||u.includes('BANDEJA')||u.includes('DESCARGA'))return'Siembra';
+    if(u.includes('FERTILIZ'))return'Fertilizacion';
+    if(u.includes('COSECHA'))return'Cosecha';
+    if(u.includes('RIEGO'))return'Riego';
+    if(u.includes('PREPARAC')||u.includes('TAPADO')||u.includes('CULTIVO/TAP'))return'Preparacion de terreno';
+    if(u.includes('GUANO')||u.includes('ROSIAD')||u.includes('HUMYS')||u.includes('VACIAR'))return'Guano/abono';
+    if(u.includes('SUPERV'))return'Supervision';
+    if(u.includes('PLASTICO')||u.includes('SACADO'))return'Labores varias';
+    return sub||'Otras labores';
+  };
   Object.values((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(es=>{
-    es.forEach(e=>addReal('MANO DE OBRA',e.cat||'LABOR',e.costo||0));
+    es.forEach(e=>addReal('MANO DE OBRA',normMO(e.sub||e.cat||'LABOR'),e.costo||0));
   });
 
   /* MAQ → ESTAB or TRABAJO CON MAQUINARIA */
