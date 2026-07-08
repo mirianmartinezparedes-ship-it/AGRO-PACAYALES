@@ -613,7 +613,7 @@ function drawCal(){
         if(!preal[dia][grupoKey][sc])preal[dia][grupoKey][sc]={productos:[],lote:l.lote};
         const entry=preal[dia][grupoKey][sc];
         if(!entry.productos.find(x=>x.nombre===ev.nombre))
-          entry.productos.push({nombre:ev.nombre,clase:ev.clase,cant_ha:ev.cant_ha,um:ev.um,ha:ev.ha,costo_xha:ev.costo_xha||0,precio_unit:ev.precio_unit||0,costo_total:ev.costo_total||0,cilindros:ev.cilindros||0,cil_ha:ev.cil_ha||0});
+          entry.productos.push({nombre:ev.nombre,clase:ev.clase,cant_ha:ev.cant_ha||0,um:ev.um||'',ha:ev.ha||1,costo_xha:ev.costo_xha||ev.costo_ha||0,precio_unit:ev.precio_unit||0,costo_total:ev.costo_total||ev.costo||0,cilindros:ev.cilindros||0,cil_ha:ev.cil_ha||0});
       });
     });
     // MANO DE OBRA real per lote/day
@@ -954,22 +954,20 @@ function openModal(idx){
     Object.keys(byClase).forEach(cl=>{
       det+='<div class="ms">'+cl+'</div>';
       byClase[cl].forEach(p=>{
-        const cantHaRnd=p.cant_ha?parseFloat(p.cant_ha).toFixed(3):'';
-        const dosis=cantHaRnd?cantHaRnd+' '+p.um+'/ha':'';
-        const importe=p.precio_unit>0&&p.cant_ha>0?parseFloat(p.precio_unit*p.cant_ha).toFixed(2):0;
-        const precioTag=p.precio_unit>0
-          ?'<span style="display:inline-block;background:#ffebee;color:#c62828;font-weight:700;font-size:.62rem;border:1px solid #ef9a9a;border-radius:4px;padding:1px 5px;margin-left:5px;white-space:nowrap">'+Fmt(p.precio_unit)+' Precio x '+p.um+'</span>'
+        const cXha=p.costo_xha||0;
+        const cTot=p.costo_total||0;
+        const cXhaTag=cXha>0
+          ?'<span style="display:inline-block;background:#e8f5e9;color:#1b5e20;font-weight:700;font-size:.62rem;border:1px solid #a5d6a7;border-radius:4px;padding:1px 5px;margin-left:5px;white-space:nowrap">'+Fmt(cXha)+'/ha</span>'
           :'';
-        const importeTag=importe>0
-          ?'<span style="display:inline-block;background:#e8f5e9;color:#1b5e20;font-weight:700;font-size:.62rem;border:1px solid #a5d6a7;border-radius:4px;padding:1px 5px;margin-left:3px;white-space:nowrap">= '+Fmt(importe)+'/ha</span>'
+        const cTotTag=cTot>0
+          ?'<span style="display:inline-block;background:#f5f5f5;color:#37474f;font-weight:700;font-size:.62rem;border:1px solid #cfd8dc;border-radius:4px;padding:1px 5px;margin-left:3px;white-space:nowrap">'+Fmt(cTot)+' total</span>'
           :'';
         det+='<div class="mi" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">• <b>'+p.nombre+'</b>'
-          +(dosis?' <span style="color:#888;font-weight:400;font-size:.7rem">'+dosis+'</span>':'')
-          +precioTag+importeTag
+          +cXhaTag+cTotTag
           +'</div>';
       });
     });
-    const totalXha=ev.costoTotal||0;
+    const totalXha=ev.productos?ev.productos.reduce((s,p)=>s+(p.costo_xha||0),0):(ev.costoTotal||0);
     const totalAll=ev.productos?ev.productos.reduce((s,p)=>s+(p.costo_total||0),0):0;
     const haVal=ev.productos&&ev.productos[0]?ev.productos[0].ha||1:1;
     if(totalXha>0){
@@ -1431,13 +1429,24 @@ function buildCronoSummary(l){
 
   /* ── 1. PPTO: group by cat_broad → cat → sum cph ── */
   const pptoMap={};  /* pptoMap[cat_broad][cat] = total_cph */
+  const pptoActDet={};  /* pptoActDet[broad][catK][dds]=[{sub,cph,costo}] */
   if(DATA.ppto[pk]){
-    Object.values(DATA.ppto[pk]).forEach(cats=>{
+    Object.entries(DATA.ppto[pk]).forEach(([ddsStr,cats])=>{
+      const dds=parseInt(ddsStr);
       Object.entries(cats).forEach(([cat,items])=>{
         items.forEach(it=>{
-          const broad=it.cat_broad||cat;
+          let broad=it.cat_broad||cat;
+          const catK=cat.toUpperCase();
+          // Reclasificar SEMILLA/SIEMBRA de COSTOS DE ESTABLECIMIENTO → MANO DE OBRA
+          if((catK==='SEMILLA/SIEMBRA'||catK==='SIEMBRA')&&broad.toUpperCase().includes('ESTABLECIMIENTO')){
+            broad='MANO DE OBRA';
+          }
           if(!pptoMap[broad])pptoMap[broad]={};
-          pptoMap[broad][cat]=(pptoMap[broad][cat]||0)+(it.cph||0);
+          pptoMap[broad][catK]=(pptoMap[broad][catK]||0)+(it.cph||0);
+          if(!pptoActDet[broad])pptoActDet[broad]={};
+          if(!pptoActDet[broad][catK])pptoActDet[broad][catK]={};
+          if(!pptoActDet[broad][catK][dds])pptoActDet[broad][catK][dds]=[];
+          pptoActDet[broad][catK][dds].push({sub:it.sub||cat,cph:it.cph||0,costo:(it.cph||0)*ha});
         });
       });
     });
@@ -1445,44 +1454,59 @@ function buildCronoSummary(l){
 
   /* ── 2. REAL: group by cat_broad → act → sum per ha ── */
   const realMap={};  /* realMap[cat_broad][act] = total_cost_per_ha */
+  const realActDet={};  /* realActDet[broad][act][fecha]=[{nombre,costo,...}] */
   const addReal=(broad,act,costo)=>{
     if(!realMap[broad])realMap[broad]={};
     realMap[broad][act]=(realMap[broad][act]||0)+costo/ha;
   };
-
-  /* MO → MANO DE OBRA (normalizar sub-labor a categoría PPTO) */
-  const normMO=sub=>{const u=(sub||'').toUpperCase();
-    if(u.includes('DESHIERB'))return'Deshierbo';
-    if(u.includes('FUMIG')||u.includes('MOCHILA')||u.includes('FITOSAN')||u.includes('CONTROL FITO'))return'Control fitosanitario';
-    if(u.includes('SIEMBR')||u.includes('PLANTIN')||u.includes('BANDEJA')||u.includes('DESCARGA'))return'Siembra';
-    if(u.includes('FERTILIZ'))return'Fertilizacion';
-    if(u.includes('COSECHA'))return'Cosecha';
-    if(u.includes('RIEGO'))return'Riego';
-    if(u.includes('PREPARAC')||u.includes('TAPADO')||u.includes('CULTIVO/TAP'))return'Preparacion de terreno';
-    if(u.includes('GUANO')||u.includes('ROSIAD')||u.includes('HUMYS')||u.includes('VACIAR'))return'Guano/abono';
-    if(u.includes('SUPERV'))return'Supervision';
-    if(u.includes('PLASTICO')||u.includes('SACADO'))return'Labores varias';
-    return sub||'Otras labores';
+  const addRealDet=(broad,act,fecha,item)=>{
+    if(!realActDet[broad])realActDet[broad]={};
+    if(!realActDet[broad][act])realActDet[broad][act]={};
+    if(!realActDet[broad][act][fecha])realActDet[broad][act][fecha]=[];
+    realActDet[broad][act][fecha].push(item);
   };
-  Object.values((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(es=>{
-    es.forEach(e=>addReal('MANO DE OBRA',normMO(e.sub||e.cat||'LABOR'),e.costo||0));
+
+  /* MO → MANO DE OBRA (normalizar sub-labor a categoría PPTO — claves en MAYÚSCULAS) */
+  const normMO=sub=>{const u=(sub||'').toUpperCase();
+    if(u.includes('DESHIERB'))return'DESHIERBO';
+    if(u.includes('FUMIG')||u.includes('MOCHILA')||u.includes('FITOSAN'))return'CONTROL FITOSANITARIO';
+    if(u.includes('SIEMBR')||u.includes('PLANTIN')||u.includes('BANDEJA')||u.includes('DESCARGA'))return'SIEMBRA';
+    if(u.includes('FERTILIZ'))return'FERTILIZACION';
+    if(u.includes('COSECHA'))return'COSECHA';
+    if(u.includes('RIEGO'))return'RIEGO';
+    if(u.includes('PREPARAC')||u.includes('TAPADO')||u.includes('CULTIVO/TAP'))return'PREPARACION DE TERRENO';
+    if(u.includes('GUANO')||u.includes('ROSIAD')||u.includes('HUMYS')||u.includes('VACIAR'))return'GUANO/ABONO';
+    if(u.includes('SUPERV'))return'SUPERVISOR';
+    if(u.includes('PLASTICO')||u.includes('SACADO'))return'LABORES VARIAS';
+    if(u.includes('COSTOS')||u.includes('HERRAM'))return'HERRAMIENTAS';
+    return u||'OTRAS LABORES';
+  };
+  Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([fecha,es])=>{
+    es.forEach(e=>{
+      const act=normMO(e.sub||e.cat||'LABOR');
+      addReal('MANO DE OBRA',act,e.costo||0);
+      addRealDet('MANO DE OBRA',act,fecha,{nombre:e.sub||e.cat||'Labor',costo:e.costo||0,jrn:e.jrn||0});
+    });
   });
 
   /* MAQ → ESTAB or TRABAJO CON MAQUINARIA */
-  Object.values((DATA.maquinaria&&DATA.maquinaria[loteName])||{}).forEach(es=>{
+  Object.entries((DATA.maquinaria&&DATA.maquinaria[loteName])||{}).forEach(([fecha,es])=>{
     es.forEach(e=>{
       const act=(e.actividad||'MAQUINARIA').toUpperCase();
       const broad=isEstab(act)?'COSTOS DE ESTABLECIMIENTO':'TRABAJO CON MAQUINARIA';
       addReal(broad,e.actividad||'Maquinaria',e.costo_total||0);
+      addRealDet(broad,act,fecha,{nombre:e.desc||e.subs||e.actividad||'Maquinaria',costo:e.costo_total||0});
     });
   });
 
   /* VALES → by tipo */
-  Object.values((DATA.vales&&DATA.vales[loteName])||{}).forEach(es=>{
+  Object.entries((DATA.vales&&DATA.vales[loteName])||{}).forEach(([fecha,es])=>{
     es.forEach(e=>{
       const tp=(e.tipo||'INSUMO').toUpperCase();
       const broad=tp.includes('AGROQUIM')?'AGROQUIMICO':tp.includes('FERTIL')?'FERTILIZANTE':'INSUMOS';
-      addReal(broad,e.clase||e.tipo||'Insumo',e.costo||0);
+      const actKey=(e.clase||e.tipo||'Insumo').toUpperCase();
+      addReal(broad,actKey,e.costo||0);
+      addRealDet(broad,actKey,fecha,{nombre:e.nombre,clase:e.clase,costo:e.costo||0,costo_ha:e.costo_ha||0});
     });
   });
 
@@ -1492,6 +1516,62 @@ function buildCronoSummary(l){
   const broads=[...ORDER.filter(b=>allBroads.has(b)),...[...allBroads].filter(b=>!ORDER.includes(b))];
 
   /* ── 4. Build table ── */
+  /* Date helpers for detail panel */
+  const _sD=l.siembra?new Date(l.siembra+'T12:00:00'):null;
+  const _fmtF=f=>{try{return new Date(f+'T12:00:00').toLocaleDateString('es-PE',{day:'2-digit',month:'short'});}catch(x){return f;}};
+  const _ddsLbl=d=>(d>=0?'D+'+d:'D'+d);
+  const _ddsToDate=d=>_sD?_fmtF(new Date(_sD.getTime()+d*86400000).toISOString().slice(0,10)):'';
+  const _dFromFecha=f=>_sD?_ddsLbl(Math.round((new Date(f+'T12:00:00')-_sD)/86400000)):'';
+
+  const buildActDetailHTML=(ppDds,rrDates)=>{
+    let d='<div style="display:grid;grid-template-columns:1fr 1fr">';
+    /* PPTO column — gray */
+    d+='<div style="background:#f5f5f5;padding:10px 14px;border-right:1px solid #ddd">';
+    d+='<div style="font-size:.62rem;font-weight:800;color:#546e7a;margin-bottom:8px;letter-spacing:.4px">📋 PRESUPUESTO — por aplicación</div>';
+    if(!ppDds||!Object.keys(ppDds).length){d+='<div style="color:#aaa;font-size:.7rem;font-style:italic">Sin datos presupuestados</div>';}
+    else Object.keys(ppDds).map(Number).sort((a,b)=>a-b).forEach((dds,i,arr)=>{
+      const items=ppDds[dds];
+      const dateStr=_ddsToDate(dds);
+      d+='<div style="padding:5px 0'+(i<arr.length-1?';border-bottom:1px solid #ddd':'')+'">';
+      d+='<div style="font-size:.72rem;font-weight:800;color:#37474f;margin-bottom:3px">'+_ddsLbl(dds)+(dateStr?' · '+dateStr:'')+'</div>';
+      let dayTot=0;
+      items.forEach(it=>{
+        dayTot+=it.costo;
+        d+='<div style="display:flex;justify-content:space-between;font-size:.68rem;padding:1px 0">';
+        d+='<span style="color:#546e7a">'+tit(it.sub)+'</span>';
+        d+='<span style="color:#607d8b;font-weight:700">'+Fv2(Math.round(it.costo*100)/100)+'</span></div>';
+        if(it.cph&&ha>1)d+='<div style="font-size:.6rem;color:#90a4ae">'+Fv2(it.cph)+'/ha</div>';
+      });
+      if(items.length>1)d+='<div style="font-size:.66rem;font-weight:800;color:#546e7a;border-top:1px dashed #ccc;padding-top:2px;margin-top:2px">Subtotal: '+Fv2(Math.round(dayTot*100)/100)+'</div>';
+      d+='</div>';
+    });
+    d+='</div>';
+    /* REAL column — green */
+    d+='<div style="background:#f1f8f4;padding:10px 14px">';
+    d+='<div style="font-size:.62rem;font-weight:800;color:#2e7d32;margin-bottom:8px;letter-spacing:.4px">✅ REAL — ejecutado</div>';
+    if(!rrDates||!Object.keys(rrDates).length){d+='<div style="color:#aaa;font-size:.7rem;font-style:italic">Sin registros reales</div>';}
+    else Object.keys(rrDates).sort().forEach((fecha,i,arr)=>{
+      const items=rrDates[fecha];
+      const dFromS=_dFromFecha(fecha);
+      d+='<div style="padding:5px 0'+(i<arr.length-1?';border-bottom:1px solid #c8e6c9':'')+'">';
+      d+='<div style="font-size:.72rem;font-weight:800;color:#1b5e20;margin-bottom:3px">'+(dFromS?dFromS+' · ':'')+_fmtF(fecha)+'</div>';
+      let dayTot=0;
+      items.forEach(it=>{
+        dayTot+=it.costo;
+        d+='<div style="display:flex;justify-content:space-between;font-size:.68rem;padding:1px 0">';
+        d+='<span style="color:#2e7d32">'+tit(it.nombre||it.clase||'—')+'</span>';
+        d+='<span style="color:#388e3c;font-weight:700">'+Fv2(Math.round(it.costo*100)/100)+'</span></div>';
+        if(it.costo_ha&&ha>1)d+='<div style="font-size:.6rem;color:#81c784">'+Fv2(it.costo_ha)+'/ha</div>';
+        if(it.jrn)d+='<div style="font-size:.6rem;color:#81c784">'+it.jrn.toFixed(1)+' jrn</div>';
+      });
+      if(items.length>1)d+='<div style="font-size:.66rem;font-weight:800;color:#2e7d32;border-top:1px dashed #a5d6a7;padding-top:2px;margin-top:2px">Subtotal: '+Fv2(Math.round(dayTot*100)/100)+'</div>';
+      d+='</div>';
+    });
+    d+='</div></div>';
+    return d;
+  };
+
+  let actUid=0;
   /* Colors: PPTO = plomo/gray (#607d8b), REAL = verde claro (#43a047) */
   let h='<div style="overflow-x:auto">';
   h+='<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:560px">';
@@ -1534,8 +1614,18 @@ function buildCronoSummary(l){
       const epct=pv>0?rv/pv*100:null;
       const ec=epct===null?'#607d8b':epct>110?'#e53935':epct>100?'#f57c00':epct>=80?'#2e7d32':'#1565c0';
       const epctTxt=epct===null?'—':(epct.toFixed(1)+'%');
-      h+='<tr style="border-bottom:1px solid #eeeeee" onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'">';
-      h+='<td style="padding:7px 14px 7px 32px;color:#424242">'+tit(act)+'</td>';
+      /* Build detail data */
+      const ppD=pptoActDet[broad]&&pptoActDet[broad][act]?pptoActDet[broad][act]:null;
+      const rrActKey=Object.keys(realActDet[broad]||{}).find(k=>k===act||k.toUpperCase()===act)||(act);
+      const rrD=realActDet[broad]&&realActDet[broad][rrActKey]?realActDet[broad][rrActKey]:null;
+      const hasDet=!!(ppD||rrD);
+      const uid='ad'+(actUid++);
+      h+='<tr style="border-bottom:1px solid #eeeeee;cursor:'+(hasDet?'pointer':'default')+'" '
+        +(hasDet?'onclick="var el=document.getElementById(\''+uid+'\');if(el){var open=el.style.display!==\'none\';el.style.display=open?\'none\':\'table-row\';this.querySelector(\'.adarrow\').textContent=open?\'▶\':\'▼\';}" ':'')
+        +'onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'">';
+      h+='<td style="padding:7px 14px 7px 32px;color:#424242">';
+      if(hasDet)h+='<span class="adarrow" style="color:#1565c0;font-size:.65rem;margin-right:5px;display:inline-block;width:10px">▶</span>';
+      h+=tit(act)+'</td>';
       /* PPTO (gray/plomo) — first */
       h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(pv>0?'700':'400')+';color:'+(pv>0?'#546e7a':'#bdbdbd')+'">';
       h+=(pv>0?Fv2(Math.round(pv*100)/100):'—')+'</td>';
@@ -1548,6 +1638,8 @@ function buildCronoSummary(l){
       /* % Ejecución */
       h+='<td style="padding:7px 14px;text-align:right;font-weight:700;color:'+ec+'">'+epctTxt+'</td>';
       h+='</tr>';
+      /* Expandable detail row */
+      if(hasDet)h+='<tr id="'+uid+'" style="display:none"><td colspan="5" style="padding:0">'+buildActDetailHTML(ppD,rrD)+'</td></tr>';
     });
 
     /* Category total row */
@@ -1803,93 +1895,64 @@ function openCostReport(loteName){
   const maxApps=Math.max(pptoApps.length,realApps.length);
   let h='';
 
-  if(maxApps===0){
+  /* ── Dual independent lists: PPTO (gray) | REAL (green) ── */
+  let totFP=0,totFR=0;
+  pptoApps.forEach(g=>totFP+=g.total||0);
+  realApps.forEach(g=>totFR+=g.total||0);
+  if(pptoApps.length===0&&realApps.length===0){
     h='<div style="text-align:center;color:#888;padding:40px;font-size:.9rem">Sin aplicaciones de control fitosanitario registradas</div>';
-  } else {
-    let totalPpto=0,totalReal=0;
-    for(let i=0;i<maxApps;i++){
-      const pp=pptoApps[i]||null;
-      const rr=realApps[i]||null;
-      const pc=pp?pp.total:null;
-      const rc=rr?rr.total:null;
-      if(pc!==null)totalPpto+=pc;
-      if(rc!==null)totalReal+=rc;
-      const diff=(pc!==null&&rc!==null)?rc-pc:null;
-      const diffColor=diff===null?'#888':diff>0?'#e53935':'#2e7d32';
-
-      /* PPTO date & DDS */
-      const ppDds=pp?(pp.dds>=0?'D+'+pp.dds:'D'+pp.dds):null;
-      const ppDate=pp&&sDate?fmtFecha(addDays(sDate,pp.dds).toISOString().slice(0,10)):null;
-
-      /* Real date & DDS */
-      const rrDate=rr?fmtFecha(rr.fecha):null;
-      const rrDds=rr&&sDate?'D'+(Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000)>=0?'+':'')+Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000):null;
-
-      /* Header bar */
-      h+='<div style="margin-bottom:14px;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden">';
-      h+='<div style="background:#37474f;color:#fff;padding:7px 14px;font-weight:800;font-size:.82rem;display:flex;align-items:center;flex-wrap:wrap;gap:4px">';
-      h+='<span>Aplicación '+(i+1)+'</span>';
-      if(ppDds)h+=badge(ppDds,'#1565c0','#fff');
-      if(ppDate)h+=badge(ppDate,'#bbdefb','#1565c0');
-      h+='<span style="flex:1"></span>';
-      if(rrDds)h+=badge(rrDds,'#2e7d32','#fff');
-      if(rrDate)h+=badge(rrDate,'#c8e6c9','#1b5e20');
+  }else{
+    h='<div style="display:grid;grid-template-columns:1fr 1fr;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:10px">';
+    h+='<div style="background:#607d8b;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">📋 PRESUPUESTO<span style="font-weight:400;font-size:.65rem;margin-left:8px;opacity:.8">'+pptoApps.length+' aplic. — '+Fv(totFP)+'</span></div>';
+    h+='<div style="background:#388e3c;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">✅ REAL<span style="font-weight:400;font-size:.65rem;margin-left:8px;opacity:.8">'+realApps.length+' aplic. — '+Fv(totFR)+'</span></div>';
+    /* PPTO list – gray */
+    h+='<div style="padding:8px 12px;background:#f5f5f5;border-right:1px solid #e0e0e0;vertical-align:top">';
+    if(pptoApps.length===0){h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin datos presupuestados</div>';}
+    else pptoApps.forEach((pp,i)=>{
+      const ppDds=pp.dds>=0?'D+'+pp.dds:'D'+pp.dds;
+      const ppDate=sDate?fmtFecha(addDays(sDate,pp.dds).toISOString().slice(0,10)):'';
+      h+='<div style="border-bottom:2px solid #90a4ae;padding:8px 0'+(i===pptoApps.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:#37474f;margin-bottom:5px;letter-spacing:.02em">'+ppDds+(ppDate?' · '+ppDate:'')+'</div>';
+      pp.items.forEach(it=>{
+        if(!it.costo)return;
+        h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
+        h+='<span style="color:#37474f;font-weight:600;flex:1">'+toTitle(it.sub||'Fumigación')+'</span>';
+        h+='<span style="color:#546e7a;font-weight:700;white-space:nowrap">'+Fv(it.costo)+'</span></div>';
+        if(it.cph)h+='<div style="font-size:.64rem;color:#90a4ae;padding-bottom:1px">S/. '+Number(it.cph).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})+'/ha</div>';
+      });
+      h+='<div style="font-size:.67rem;font-weight:800;color:#546e7a;margin-top:3px">Total: '+Fv(pp.total)+'<span style="font-weight:400;color:#90a4ae;margin-left:6px">('+Fv(pp.total/ha)+'/ha)</span></div>';
       h+='</div>';
-      h+='<div style="display:grid;grid-template-columns:1fr 1fr">';
-
-      /* PPTO side */
-      h+='<div style="padding:10px 12px;border-right:1px solid #e0e0e0;background:#f3f8ff">';
-      h+='<div style="font-size:.7rem;font-weight:800;color:#1565c0;margin-bottom:6px">📋 PRESUPUESTO</div>';
-      if(pp){
-        pp.items.forEach(item=>{
-          if(!item.costo)return;
-          h+='<div style="font-size:.71rem;border-bottom:1px solid #e3f2fd;padding:3px 0">';
-          h+='<div style="font-weight:600">'+toTitle(item.sub)+'</div>';
-          h+='<div style="color:#1565c0;font-weight:700;font-size:.72rem">'+Fv(item.costo)+'</div></div>';
-        });
-        h+='<div style="font-size:.75rem;font-weight:800;color:#1565c0;margin-top:7px">Total: '+Fv(pc)+'<span style="font-weight:500;font-size:.68rem;color:#5c85c9;margin-left:8px">('+Fv(pc/ha)+'/ha)</span></div>';
-      } else {
-        h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin aplicación presupuestada</div>';
-      }
+    });
+    h+='</div>';
+    /* REAL list – green */
+    h+='<div style="padding:8px 12px;background:#f1f8f4;vertical-align:top">';
+    if(realApps.length===0){h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin registros reales</div>';}
+    else realApps.forEach((rr,i)=>{
+      const rrDate=fmtFecha(rr.fecha);
+      const rrDds=sDate?'D'+(Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000)>=0?'+':'')+Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000):'';
+      h+='<div style="border-bottom:2px solid #4caf50;padding:8px 0'+(i===realApps.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:#1b5e20;margin-bottom:5px;letter-spacing:.02em">'+(rrDds?rrDds+' · ':'')+rrDate+'</div>';
+      rr.items.forEach(it=>{
+        const qty=it.cant_ha||it.cilindro||0;
+        h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
+        h+='<span style="color:#37474f;font-weight:600;flex:1">'+toTitle(it.nombre||it.clase||'Agroquímico');
+        if(qty>0)h+='<span style="color:#888;font-size:.64rem"> ('+qty.toFixed(2)+' '+(it.um||'')+')</span>';
+        h+='</span><span style="color:#2e7d32;font-weight:700;white-space:nowrap">'+Fv(it.costo_total||it.costo_xha||0)+'</span></div>';
+        if(it.costo_xha&&ha>1)h+='<div style="font-size:.64rem;color:#558b2f;padding-bottom:1px">'+Fv(it.costo_xha)+'/ha</div>';
+      });
+      const cilTotal=rr.items.reduce((s,p)=>s+(p.cilindro||0),0);
+      const cilLine=cilTotal>0?'<span style="font-weight:600;color:#e65100;margin-left:8px;font-size:.64rem">🛢 '+cilTotal.toFixed(1)+' cil</span>':'';
+      h+='<div style="font-size:.68rem;font-weight:800;color:#2e7d32;margin-top:4px;border-top:1px dashed #c8e6c9;padding-top:3px">Total: '+Fv(rr.total)+'<span style="font-weight:400;color:#558b2f;margin-left:6px">('+Fv(rr.total/ha)+'/ha)</span>'+cilLine+'</div>';
       h+='</div>';
-
-      /* Real side */
-      const totalCil=rr?Math.max(...rr.items.map(x=>x.cilindro||0)):0;
-      const costXCil=(totalCil>0&&rc)?rc/totalCil:0;
-      const Fc=v=>Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
-      const realHeader='✅ REAL'+(totalCil>0?' — '+totalCil+' CIL — S/.'+Fc(costXCil)+' X CIL':'');
-      h+='<div style="padding:10px 12px;background:#f1f8e9">';
-      h+='<div style="font-size:.7rem;font-weight:800;color:#2e7d32;margin-bottom:6px">'+realHeader+'</div>';
-      if(rr){
-        rr.items.forEach(item=>{
-          h+='<div style="font-size:.71rem;display:flex;justify-content:space-between;border-bottom:1px solid #dcedc8;padding:3px 0">';
-          const qty=(item.cilindro||item.cant_ha)||0;
-          h+='<span style="font-weight:600;flex:1;padding-right:4px">'+toTitle(item.nombre)+(qty>0?'<span style="font-weight:400;color:#777;font-size:.67rem"> '+qty.toFixed(2)+' '+(item.um||'')+'</span>':'')+'</span>';
-          h+='<span style="color:#555;white-space:nowrap">'+Fv(item.costo_total)+'</span></div>';
-        });
-        h+='<div style="font-size:.75rem;font-weight:800;color:#2e7d32;margin-top:7px">Total: '+Fv(rc)+'<span style="font-weight:500;font-size:.68rem;color:#558b2f;margin-left:8px">('+Fv(rc/ha)+'/ha)</span></div>';
-      } else {
-        h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin aplicación real registrada</div>';
-      }
-      h+='</div>';
-
-      h+='</div>'; /* grid */
-
-      if(diff!==null){
-        const absD=Math.abs(diff);
-        const diffTxt=diff>0?'+'+Fv(absD)+' sobre presupuesto':diff<0?Fv(absD)+' bajo presupuesto':'Igual al presupuesto';
-        h+='<div style="background:#fafafa;padding:5px 14px;border-top:1px solid #e0e0e0;font-size:.71rem;font-weight:700;color:'+diffColor+'">Diferencia: '+diffTxt+'</div>';
-      }
-      h+='</div>';
-    }
-
-    /* Totals summary */
-    const totDiff=totalReal-totalPpto;
-    const totColor=totDiff>0?'#e53935':totDiff<0?'#2e7d32':'#555';
-    h+='<div style="background:#eceff1;border-radius:10px;padding:12px 16px;margin-top:6px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">';
-    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">PPTO TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#1565c0">'+Fv(totalPpto)+'</div><div style="font-size:.62rem;color:#5c85c9">'+Fv(totalPpto/ha)+'/ha</div></div>';
-    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">REAL TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#2e7d32">'+Fv(totalReal)+'</div><div style="font-size:.62rem;color:#558b2f">'+Fv(totalReal/ha)+'/ha</div></div>';
-    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">DIFERENCIA</div><div style="font-size:.9rem;font-weight:800;color:'+totColor+'">'+(totDiff>=0?'+':'')+Fv(totDiff)+'</div></div>';
+    });
+    h+='</div>';
+    h+='</div>';
+    /* Summary */
+    const totFD=totFR-totFP,totFC=totFD>0?'#e53935':totFD<0?'#2e7d32':'#555';
+    h+='<div style="background:#eceff1;border-radius:10px;padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">PPTO TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#546e7a">'+Fv(totFP)+'</div><div style="font-size:.62rem;color:#607d8b">'+Fv(totFP/ha)+'/ha</div></div>';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">REAL TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#2e7d32">'+Fv(totFR)+'</div><div style="font-size:.62rem;color:#558b2f">'+Fv(totFR/ha)+'/ha</div></div>';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">DIFERENCIA</div><div style="font-size:.9rem;font-weight:800;color:'+totFC+'">'+(totFD>=0?'+':'')+Fv(totFD)+'</div></div>';
     h+='</div>';
   }
 
@@ -1925,7 +1988,7 @@ function openCostReport(loteName){
             else if(['GUANO','INSUMO','ABONO'].some(k=>cu.includes(k)))bk='guano';
           }
           if(bk&&pptoB[bk]){
-            addPptoDet(bk,dds,cat);
+            addPptoDet(bk,dds,item.sub||cat);
             pptoB[bk].total+=(item.cph||0)*ha;
           }
         });
@@ -2201,8 +2264,8 @@ function openCostReport(loteName){
     else pptoGrps.forEach((pp,i)=>{
       const ppDds=pp.dds>=0?'D+'+pp.dds:'D'+pp.dds;
       const ppDate=sDate?fmtFecha(addDays(sDate,pp.dds).toISOString().slice(0,10)):'';
-      h+='<div style="border-bottom:1px solid #ddd;padding:7px 0'+(i===pptoGrps.length-1?';border-bottom:none':'')+'">';
-      h+='<div style="font-size:.68rem;font-weight:800;color:#546e7a;margin-bottom:3px">'+ppDds+(ppDate?' · '+ppDate:'')+'</div>';
+      h+='<div style="border-bottom:2px solid #90a4ae;padding:8px 0'+(i===pptoGrps.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:#37474f;margin-bottom:5px;letter-spacing:.02em">'+ppDds+(ppDate?' · '+ppDate:'')+'</div>';
       pp.items.forEach(it=>{
         if(!it.costo)return;
         h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
@@ -2220,15 +2283,15 @@ function openCostReport(loteName){
     else realGrps.forEach((rr,i)=>{
       const rrDate=fmtFecha(rr.fecha);
       const rrDds=sDate?'D'+(Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000)>=0?'+':'')+Math.round((new Date(rr.fecha+'T12:00:00')-sDate)/86400000):'';
-      h+='<div style="border-bottom:1px solid #c8e6c9;padding:7px 0'+(i===realGrps.length-1?';border-bottom:none':'')+'">';
-      h+='<div style="font-size:.68rem;font-weight:800;color:#2e7d32;margin-bottom:3px">'+(rrDds?rrDds+' · ':'')+rrDate+'</div>';
+      h+='<div style="border-bottom:2px solid #4caf50;padding:8px 0'+(i===realGrps.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:#1b5e20;margin-bottom:5px;letter-spacing:.02em">'+(rrDds?rrDds+' · ':'')+rrDate+'</div>';
       rr.items.forEach(it=>{
         h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
         h+='<span style="color:#37474f;font-weight:600;flex:1">'+toTitle(it.label);
         if(it.detail)h+='<span style="color:#999;font-size:.64rem"> ('+it.detail+')</span>';
         h+='</span><span style="color:#2e7d32;font-weight:700;white-space:nowrap">'+Fv(it.amount)+'</span></div>';
       });
-      h+='<div style="font-size:.67rem;font-weight:800;color:#2e7d32;margin-top:3px">Total: '+Fv(rr.total)+'<span style="font-weight:400;color:#81c784;margin-left:6px">('+Fv(rr.total/ha)+'/ha)</span></div>';
+      h+='<div style="font-size:.68rem;font-weight:800;color:#2e7d32;margin-top:4px;border-top:1px dashed #c8e6c9;padding-top:3px">Total: '+Fv(rr.total)+'<span style="font-weight:400;color:#558b2f;margin-left:6px">('+Fv(rr.total/ha)+'/ha)</span></div>';
       h+='</div>';
     });
     h+='</div>';
@@ -2255,9 +2318,29 @@ function openCostReport(loteName){
   const guanoPptoGrps=buildPptoGrps((cat)=>{const u=cat.toUpperCase();return['GUANO','INSUMO','ABONO'].some(k=>u.includes(k));});
   const guanoRealGrps=(()=>{const by={};Object.entries(DATA.vales[loteName]||{}).forEach(([f,es])=>{es.forEach(e=>{const tp=(e.tipo||'').toUpperCase();if(tp==='INSUMO'||tp==='GUANO'){if(!by[f])by[f]={fecha:f,items:[],total:0};const det=e.cant_ha?Number(e.cant_ha).toFixed(2)+' '+(e.um||''):'';by[f].items.push({label:e.nombre||e.clase||tp,detail:det,amount:e.costo||0});by[f].total+=e.costo||0;}});});return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha));})();
 
-  /* MANO DE OBRA (excluye Riego) */
-  const moPptoGrps=buildPptoGrps((cat,item)=>item.is_labor&&!isMaqK(cat));
-  const moRealGrps=(()=>{const by={};Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([f,es])=>{es.forEach(e=>{if(!by[f])by[f]={fecha:f,items:[],total:0};by[f].items.push({label:e.cat||e.sub||'Labor',detail:e.sub||'',amount:e.costo||0});by[f].total+=e.costo||0;});});return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha));})();
+  /* MANO DE OBRA (excluye Riego) — incluye jrn y costo/ha en detail */
+  const moPptoGrps=(()=>{const byDds={};if(DATA.ppto[pk]){Object.entries(DATA.ppto[pk]).forEach(([ddsStr,cats])=>{const dds=parseInt(ddsStr);Object.entries(cats).forEach(([cat,items])=>{items.forEach(item=>{if(item.is_labor&&!isMaqK(cat)){if(!byDds[dds])byDds[dds]={dds,items:[],total:0};const costo=(item.cph||0)*ha;const jrn=(item.jrn||0)*ha;const jrnTxt=jrn>0?(jrn.toFixed(1)+' jrn'):'';const cphaText=item.cph?(Fv(item.cph)+'/ha'):'';const det=[jrnTxt,cphaText].filter(Boolean).join(' · ');byDds[dds].items.push({label:item.sub||cat,detail:det,costo});byDds[dds].total+=costo;}});});});}return Object.values(byDds).sort((a,b)=>a.dds-b.dds);})();
+  const moRealGrps=(()=>{
+    const by={};
+    Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([f,es])=>{
+      if(!by[f])by[f]={fecha:f,agg:{},total:0};
+      es.forEach(e=>{
+        const k=e.sub||e.cat||'Labor';
+        if(!by[f].agg[k])by[f].agg[k]={totalCosto:0,totalJrn:0};
+        by[f].agg[k].totalCosto+=e.costo||0;
+        by[f].agg[k].totalJrn+=(e.jrn||0);
+        by[f].total+=e.costo||0;
+      });
+    });
+    return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(g=>({
+      fecha:g.fecha,total:g.total,
+      items:Object.entries(g.agg).map(([k,v])=>{
+        const jrnTxt=v.totalJrn>0?(v.totalJrn.toFixed(1)+' jrn'):'';
+        const cphaText=(v.totalCosto&&ha>1)?(Fv(v.totalCosto/ha)+'/ha'):'';
+        return{label:k,detail:[jrnTxt,cphaText].filter(Boolean).join(' · '),amount:v.totalCosto};
+      })
+    }));
+  })();
   /* MO agrupado por categoría */
   const moPptoByCat=(()=>{const by={};if(DATA.ppto[pk]){Object.entries(DATA.ppto[pk]).forEach(([ddsStr,cats])=>{const dds=parseInt(ddsStr);Object.entries(cats).forEach(([cat,items])=>{items.forEach(item=>{if(item.is_labor&&!isMaqK(cat)){if(!by[cat])by[cat]={items:[],total:0,totalJrn:0};const c=Math.round((item.cph||0)*ha*100)/100;const j=Math.round((item.jrn||0)*ha*100)/100;by[cat].items.push({label:item.sub||cat,dds,costo:c,jrn:j});by[cat].total+=c;by[cat].totalJrn+=j;}});});});}return by;})();
   const moRealByCat=(()=>{
@@ -2436,7 +2519,7 @@ function openCostReport(loteName){
   let panels='<div id="cr-panel-res">'+hRes+'</div>';
   panels+='<div id="cr-panel-fito" style="display:none">'+hFito+'</div>';
   EXTRA_TABS.forEach(t=>{
-    const content=t.key==='mo'?buildByCatHTML(moPptoByCat,moRealByCat,'Sin datos de Mano de Obra registrados'):buildCatHTML(t.pptoGrps,t.realGrps,'Sin datos de '+t.label+' registrados');panels+='<div id="cr-panel-'+t.key+'" style="display:none">'+content+'</div>';
+    const content=buildCatHTML(t.pptoGrps,t.realGrps,'Sin datos de '+t.label+' registrados');panels+='<div id="cr-panel-'+t.key+'" style="display:none">'+content+'</div>';
   });
   panels+='<div id="cr-panel-cron" style="display:none">'+cronHTML+'</div>';
 
