@@ -40,7 +40,7 @@ header p{font-size:.72rem;opacity:.75;margin-top:2px}
 .cal-side{width:215px;flex-shrink:0;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:14px;font-size:.78rem;position:sticky;top:10px;max-height:calc(100vh - 90px);overflow-y:auto}
 .cal-side h3{font-size:.82rem;font-weight:800;color:#1b5e20;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #c8e6c9}
 .cal-main{flex:1;min-width:0}
-.cal-toolbar{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cal-toolbar{background:#fff;border-radius:0 0 12px 12px;box-shadow:0 2px 8px rgba(0,0,0,.10);padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
 .cal-toolbar label{font-size:.82rem;font-weight:700;color:#2e7d32}
 select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:.88rem;background:#f9fbe7;outline:none;cursor:pointer;min-width:200px}
 .nav-btn{background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:7px;padding:5px 13px;font-size:.82rem;font-weight:700;cursor:pointer;color:#2e7d32}
@@ -426,6 +426,83 @@ function buildTotales(){
     h+='</div>';
   }
   h+='</div>';
+
+  /* ── MACRO TABLE: estado de todos los lotes ── */
+  const _pptoHoyLote=(pk,dds)=>{
+    if(!DATA.ppto||!DATA.ppto[pk])return 0;
+    let s=0;
+    Object.entries(DATA.ppto[pk]).forEach(([d,cats])=>{
+      if(parseInt(d)<=dds)Object.values(cats).forEach(items=>items.forEach(it=>s+=(it.cph||0)));
+    });
+    return s;
+  };
+  h+='<div style="margin-top:28px">';
+  h+='<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0 0 14px">📊 Estado General por Lote — Ritmo vs Presupuesto</h2>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:660px">';
+  h+='<thead><tr style="background:#37474f;color:#fff">';
+  h+='<th style="padding:9px 14px;text-align:left;background:#37474f">LOTE</th>';
+  h+='<th style="padding:9px 10px;text-align:center;background:#37474f">Ha</th>';
+  h+='<th style="padding:9px 10px;text-align:center;background:#37474f">Día</th>';
+  h+='<th style="padding:9px 14px;text-align:right;background:#607d8b">Ppto/ha<br><span style="font-size:.6rem;font-weight:400;color:#cfd8dc">Total cultivo</span></th>';
+  h+='<th style="padding:9px 14px;text-align:right;background:#2e7d32">Real/ha<br><span style="font-size:.6rem;font-weight:400;color:#c8e6c9">Gastado</span></th>';
+  h+='<th style="padding:9px 14px;text-align:center;background:#37474f">RITMO<br><span style="font-size:.6rem;font-weight:400;color:#b0bec5">Real vs esperado hoy</span></th>';
+  h+='<th style="padding:9px 14px;text-align:right;background:#37474f">% Ppto<br><span style="font-size:.6rem;font-weight:400;color:#b0bec5">Del total</span></th>';
+  h+='</tr></thead><tbody>';
+  const _pkOrder=['CA_GRAVEDAD','CA_SISTEMA','CP_GRAVEDAD','CP_SISTEMA'];
+  const _pkLabel={'CA_GRAVEDAD':'🌿 CAMOTE AMARILLO · Gravedad','CA_SISTEMA':'🌿 CAMOTE AMARILLO · Sistema','CP_GRAVEDAD':'🌿 CAMOTE PINTURA · Gravedad','CP_SISTEMA':'🌿 CAMOTE PINTURA · Sistema'};
+  const _pkBg={'CA_GRAVEDAD':'#fff8e1','CA_SISTEMA':'#fff3e0','CP_GRAVEDAD':'#e8f5e9','CP_SISTEMA':'#f1f8e9'};
+  const _pkClr={'CA_GRAVEDAD':'#e65100','CA_SISTEMA':'#bf360c','CP_GRAVEDAD':'#1b5e20','CP_SISTEMA':'#2e7d32'};
+  const _byPk={};activeLotes.forEach(l=>{if(!_byPk[l.pk])_byPk[l.pk]=[];_byPk[l.pk].push(l);});
+  Object.values(_byPk).forEach(g=>g.sort((a,b)=>(b.dds||0)-(a.dds||0)));
+  let _ri=0,nVerde=0,nAmar=0,nRojo=0,nSinEj=0;
+  _pkOrder.forEach(pk=>{
+    const grp=_byPk[pk];if(!grp||!grp.length)return;
+    h+='<tr style="background:'+_pkBg[pk]+'"><td colspan="7" style="padding:8px 14px;font-weight:800;color:'+_pkClr[pk]+';font-size:.78rem">'+_pkLabel[pk]+'</td></tr>';
+    grp.forEach(l=>{
+      const dds=l.dds||0,real=l.costo_ha||0,ppto=l.ppto_ha||0;
+      const ph=_pptoHoyLote(pk,dds);
+      // Ritmo badge
+      let rt,rc,rb;
+      if(ph<=0&&real<=0){rt='📅 Sin gasto aún';rc='#546e7a';rb='#f5f5f5';}
+      else if(ph<=0&&real>0){rt='⚡ Todo extra';rc='#6a1b9a';rb='#f3e5f5';}
+      else if(real<=0){rt='⚠ Sin ejecutar';rc='#b71c1c';rb='#ffebee';nSinEj++;}
+      else{
+        const rp=real/ph*100;
+        if(rp>=95){rt='✅ '+rp.toFixed(0)+'%';rc='#1b5e20';rb='#e8f5e9';nVerde++;}
+        else if(rp>=60){rt='🟡 '+rp.toFixed(0)+'%';rc='#e65100';rb='#fff3e0';nAmar++;}
+        else{rt='🔴 '+rp.toFixed(0)+'%';rc='#b71c1c';rb='#ffebee';nRojo++;}
+      }
+      const pp2=ppto>0?real/ppto*100:null;
+      const pc=pp2===null?'#9e9e9e':pp2>110?'#c62828':pp2>100?'#f57c00':pp2>=60?'#2e7d32':'#1565c0';
+      const bg=_ri%2===0?'#fff':'#fafafa';_ri++;
+      h+='<tr style="background:'+bg+';border-bottom:1px solid #eee;cursor:pointer" '
+        +'onclick="showTab(\'crono\');setTimeout(()=>{var s=document.getElementById(\'crono-sel\');if(s){s.value=\''+l.lote+'\';renderCronoLote(\''+l.lote+'\');}},80)" '
+        +'onmouseover="this.style.background=\'#f0f4f8\'" onmouseout="this.style.background=\''+bg+'\'">';
+      h+='<td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">'+l.lote+(l.semillero?'<span style="background:#e65100;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span>':'')+'</div>'
+        +'<div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td>';
+      h+='<td style="padding:7px 10px;text-align:center;color:#555">'+l.ha.toFixed(1)+'</td>';
+      h+='<td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+'+dds+'</td>';
+      h+='<td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">'+(ppto>0?Fm(Math.round(ppto*100)/100):'—')+'</td>';
+      h+='<td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">'+(real>0?Fm(Math.round(real*100)/100):'—')+'</td>';
+      h+='<td style="padding:7px 14px;text-align:center">'
+        +'<span style="background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap">'+rt+'</span>'
+        +(ph>0?'<div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado '+Fm(Math.round(ph*100)/100)+'</div>':'')
+        +'</td>';
+      h+='<td style="padding:7px 14px;text-align:right;font-weight:700;color:'+pc+'">'+(pp2!==null?pp2.toFixed(1)+'%':'—')+'</td>';
+      h+='</tr>';
+    });
+  });
+  h+='</tbody></table></div>';
+  // Summary pills
+  h+='<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">';
+  h+='<span style="font-size:.72rem;color:#777;font-weight:600">Resumen:</span>';
+  if(nVerde>0)h+='<span style="background:#e8f5e9;color:#1b5e20;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">✅ '+nVerde+' al ritmo</span>';
+  if(nAmar>0)h+='<span style="background:#fff3e0;color:#e65100;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">🟡 '+nAmar+' ligeramente atrás</span>';
+  if(nRojo>0)h+='<span style="background:#ffebee;color:#b71c1c;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">🔴 '+nRojo+' retrasados</span>';
+  if(nSinEj>0)h+='<span style="background:#ffebee;color:#b71c1c;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">⚠ '+nSinEj+' sin ejecutar</span>';
+  h+='</div>';
+  h+='</div>';
+
   h+='</div>';
   document.getElementById('panel-tot').innerHTML=h;
 }
@@ -1186,9 +1263,143 @@ function buildCalDiario(){
     +'<span id="gen-fecha-lbl" style="font-size:1.05rem;font-weight:800;color:#1b5e20;min-width:200px;text-align:center"></span>'
     +'<button onclick="navGenDay(1)" style="background:#e8f5e9;border:1.5px solid #81c784;border-radius:8px;padding:7px 16px;cursor:pointer;font-weight:700;font-size:.82rem">Siguiente →</button>'
     +'<button onclick="navGenDay(0)" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-weight:700;font-size:.82rem;margin-left:6px">📅 Hoy</button>'
+    +'<div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+    +'<span style="font-size:.8rem;color:#555;font-weight:600">👤 Trabajador:</span>'
+    +'<div style="position:relative">'
+    +'<input type="text" id="gen-worker-input" placeholder="Buscar por nombre o apellido..." autocomplete="off"'
+    +' oninput="filtrarTrabajador(this.value)" onfocus="filtrarTrabajador(this.value)"'
+    +' style="border:1.5px solid #81c784;border-radius:8px;padding:7px 32px 7px 12px;font-size:.8rem;min-width:260px;outline:none;color:#333">'
+    +'<span onclick="limpiarWorker()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#aaa;font-size:1rem;line-height:1" title="Limpiar">✕</span>'
+    +'<div id="gen-worker-dd" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #81c784;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.14);z-index:200;max-height:240px;overflow-y:auto"></div>'
+    +'</div></div>'
     +'</div>'
-    +'<div id="gen-body" style="max-width:900px"></div>';
+    +'<div id="gen-body" style="max-width:960px"></div>';
+  // Build worker list
+  const workers=new Set();
+  DATA.resumen.forEach(l=>{
+    Object.values((DATA.mano_obra&&DATA.mano_obra[l.lote])||{}).forEach(ents=>ents.forEach(e=>{if(e.trabajador)workers.add(e.trabajador);}));
+  });
+  window._GEN_WORKERS=Array.from(workers).sort();
+  // Close dropdown on outside click
+  if(!window._genWorkerListenerAdded){
+    window._genWorkerListenerAdded=true;
+    document.addEventListener('click',function(e){
+      if(!e.target.closest('#gen-worker-input')&&!e.target.closest('#gen-worker-dd')){
+        const dd=document.getElementById('gen-worker-dd');if(dd)dd.style.display='none';
+      }
+    });
+  }
   renderDiario();
+}
+function filtrarTrabajador(q){
+  const dd=document.getElementById('gen-worker-dd');if(!dd)return;
+  const workers=window._GEN_WORKERS||[];
+  const qLow=q.trim().toLowerCase();
+  if(!qLow){dd.style.display='none';renderDiario();return;}
+  const matches=workers.filter(w=>w.toLowerCase().includes(qLow));
+  if(!matches.length){
+    dd.innerHTML='<div style="padding:10px 14px;color:#aaa;font-size:.79rem;font-style:italic">Sin resultados</div>';
+    dd.style.display='block';return;
+  }
+  dd.innerHTML=matches.map(w=>{
+    // Bold the matching part
+    const re=new RegExp('('+qLow.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+    const whl=w.replace(re,'<strong style="color:#1b5e20">$1</strong>');
+    return '<div onclick="selTrabajador(\''+w.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\''+')" '
+      +'style="padding:9px 14px;cursor:pointer;font-size:.79rem;color:#37474f;border-bottom:1px solid #f5f5f5" '
+      +'onmouseover="this.style.background=\'#e8f5e9\'" onmouseout="this.style.background=\'#fff\'">'+whl+'</div>';
+  }).join('');
+  dd.style.display='block';
+}
+function selTrabajador(nombre){
+  const inp=document.getElementById('gen-worker-input');if(inp)inp.value=nombre;
+  const dd=document.getElementById('gen-worker-dd');if(dd)dd.style.display='none';
+  const lbl=document.getElementById('gen-fecha-lbl');if(lbl)lbl.textContent='';
+  showWorkerReport(nombre);
+}
+function limpiarWorker(){
+  const inp=document.getElementById('gen-worker-input');if(inp)inp.value='';
+  const dd=document.getElementById('gen-worker-dd');if(dd)dd.style.display='none';
+  renderDiario();
+}
+function showWorkerReport(nombre){
+  const body=document.getElementById('gen-body');if(!body)return;
+  const lbl=document.getElementById('gen-fecha-lbl');if(lbl)lbl.textContent='';
+  const Fv=v=>v>0?'S/.'+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const DIAS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const MES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Set','Oct','Nov','Dic'];
+  // Collect all entries
+  const rows=[];
+  DATA.resumen.forEach(l=>{
+    Object.entries((DATA.mano_obra&&DATA.mano_obra[l.lote])||{}).forEach(([fecha,ents])=>{
+      ents.forEach(e=>{
+        if(e.trabajador===nombre)rows.push({fecha,lote:l.lote,labor:e.sub||e.cat||'Labor',jrn:e.jrn||0,hr:e.hr||0,costo:e.costo||0});
+      });
+    });
+  });
+  rows.sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  if(!rows.length){
+    body.innerHTML='<div style="background:#fff;border-radius:12px;padding:30px;text-align:center;color:#aaa;font-size:.85rem">Sin registros para este trabajador</div>';
+    return;
+  }
+  // Group by date
+  const byDate={};
+  rows.forEach(r=>{if(!byDate[r.fecha])byDate[r.fecha]=[];byDate[r.fecha].push(r);});
+  let totJ=0,totH=0,totC=0,totDias=0;
+  // Pre-calculate totals for profile card
+  rows.forEach(r=>{totJ+=r.jrn;totH+=r.hr;totC+=r.costo;});
+  totDias=Object.keys(byDate).length;
+  // Reset for row loop
+  totJ=0;totH=0;totC=0;totDias=0;
+  // Profile card
+  const partes=nombre.trim().split(' ');
+  const iniciales=(partes[0]?partes[0][0]:'')+( partes[1]?partes[1][0]:'');
+  // Pre-compute totals
+  let _tJ=0,_tH=0,_tC=0;rows.forEach(r=>{_tJ+=r.jrn;_tH+=r.hr;_tC+=r.costo;});
+  const _dias=Object.keys(byDate).length;
+  const Fv2=v=>v>0?'S/.'+v.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  let h='<div style="display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:16px 20px;margin-bottom:16px">';
+  // Avatar (iniciales — luego se puede poner foto)
+  h+='<div style="width:58px;height:58px;border-radius:50%;background:#1b5e20;color:#fff;font-size:1.3rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:1px">'+iniciales.toUpperCase()+'</div>';
+  h+='<div style="flex:1">';
+  h+='<div style="font-weight:800;font-size:1rem;color:#1b5e20;margin-bottom:6px">'+nombre+'</div>';
+  h+='<div style="display:flex;gap:16px;flex-wrap:wrap">';
+  h+='<span style="font-size:.75rem;background:#e8f5e9;color:#2e7d32;padding:4px 10px;border-radius:20px;font-weight:700">📅 '+_dias+' día'+(_dias>1?'s':'')+' trabajado'+(_dias>1?'s':'')+'</span>';
+  h+='<span style="font-size:.75rem;background:#fff3e0;color:#bf360c;padding:4px 10px;border-radius:20px;font-weight:700">🧑‍🌾 '+_tJ.toFixed(1)+' jornales</span>';
+  h+='<span style="font-size:.75rem;background:#e3f2fd;color:#1565c0;padding:4px 10px;border-radius:20px;font-weight:700">⏱ '+_tH.toFixed(1)+' hrs totales</span>';
+  h+='<span style="font-size:.75rem;background:#f3e5f5;color:#6a1b9a;padding:4px 10px;border-radius:20px;font-weight:800">💰 '+Fv2(_tC)+'</span>';
+  h+='</div></div></div>';
+  h+='<div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:auto;max-height:calc(100vh - 320px)">';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:560px">';
+  h+='<thead><tr style="background:#1b5e20;color:#fff;position:sticky;top:0;z-index:3">';
+  ['Fecha','Lote','Labor','Jrn','Hrs','Importe'].forEach((c,i)=>h+='<th style="padding:10px 14px;text-align:'+(i>2?'right':'left')+';font-weight:700;background:#1b5e20">'+c+'</th>');
+  h+='</tr></thead><tbody>';
+  let rowIdx=0;
+  Object.entries(byDate).forEach(([fecha,ents])=>{
+    totDias++;
+    const d=new Date(fecha+'T12:00:00');
+    const dlbl=DIAS[d.getDay()]+' '+d.getDate()+' '+MES[d.getMonth()]+' '+d.getFullYear();
+    ents.forEach((e,i)=>{
+      totJ+=e.jrn;totH+=e.hr;totC+=e.costo;
+      const bg=rowIdx%2===0?'#fff':'#f9fbe7';
+      h+='<tr style="background:'+bg+';border-bottom:1px solid #eee">';
+      h+='<td style="padding:8px 14px;color:#37474f;font-weight:'+(i===0?'700':'400')+';white-space:nowrap">'+(i===0?dlbl:'')+'</td>';
+      h+='<td style="padding:8px 14px;color:#1b5e20;font-weight:600">'+e.lote+'</td>';
+      h+='<td style="padding:8px 14px;color:#37474f">'+e.labor+'</td>';
+      h+='<td style="padding:8px 14px;text-align:right;color:#555">'+(e.jrn>0?e.jrn.toFixed(1):'—')+'</td>';
+      h+='<td style="padding:8px 14px;text-align:right;color:#555">'+(e.hr>0?e.hr.toFixed(1):'—')+'</td>';
+      h+='<td style="padding:8px 14px;text-align:right;font-weight:700;color:#2e7d32">'+Fv(e.costo)+'</td>';
+      h+='</tr>';
+      rowIdx++;
+    });
+  });
+  h+='<tr style="background:#1b5e20;color:#fff;font-weight:800">';
+  h+='<td colspan="3" style="padding:11px 14px">TOTAL · '+rows.length+' registro'+(rows.length>1?'s':'')+' · '+_dias+' día'+(_dias>1?'s':'')+' trabajado'+(_dias>1?'s':'')+'</td>';
+  h+='<td style="padding:11px 14px;text-align:right">'+_tJ.toFixed(1)+'</td>';
+  h+='<td style="padding:11px 14px;text-align:right">'+_tH.toFixed(1)+'</td>';
+  h+='<td style="padding:11px 14px;text-align:right">'+Fv2(_tC)+'</td>';
+  h+='</tr></tbody></table></div>';
+  body.innerHTML=h;
 }
 function navGenDay(d){
   if(d===0){_gDate=new Date();}
@@ -1672,24 +1883,27 @@ function buildCronoSummary(l){
   const ESTAB_ACTS=['ARRIENDO','AGUA','GUANO','ABONO','SEMILLA','SIEMBRA','TRANSPLANTE','TRASLADO','SUPERVISION'];
   const isEstab=a=>ESTAB_ACTS.some(k=>(a||'').toUpperCase().includes(k));
 
+  const curDds=l.dds!==null&&l.dds!==undefined?l.dds:0;
   /* ── 1. PPTO: group by cat_broad → cat → sum cph ── */
-  const pptoMap={};  /* pptoMap[cat_broad][cat] = total_cph */
-  const pptoActDet={};  /* pptoActDet[broad][catK][dds]=[{sub,cph,costo}] */
+  const pptoMap={};       /* pptoMap[broad][cat] = total cph (full crop) */
+  const pptoToday={};     /* pptoToday[broad][cat] = cph acumulado hasta curDds */
+  const pptoActDet={};    /* pptoActDet[broad][catK][dds]=[{sub,cph,costo}] */
   if(DATA.ppto[pk]){
     Object.entries(DATA.ppto[pk]).forEach(([ddsStr,cats])=>{
       const dds=parseInt(ddsStr);
       Object.entries(cats).forEach(([cat,items])=>{
         items.forEach(it=>{
           let broad=it.cat_broad||cat;
-          const catK=cat.toUpperCase();
-          // Reclasificar SEMILLA/SIEMBRA de COSTOS DE ESTABLECIMIENTO → MANO DE OBRA
-          if((catK==='SEMILLA/SIEMBRA'||catK==='SIEMBRA')&&broad.toUpperCase().includes('ESTABLECIMIENTO')){
-            broad='MANO DE OBRA';
-          }
-          // Normalizar ABONO → GUANO DE POLLO en COSTOS DE ESTABLECIMIENTO
+          let catK=cat.toUpperCase();
+          if((catK==='SEMILLA/SIEMBRA'||catK==='SIEMBRA')&&broad.toUpperCase().includes('ESTABLECIMIENTO'))broad='MANO DE OBRA';
           if(catK==='ABONO'&&broad.toUpperCase().includes('ESTABLECIMIENTO'))catK='GUANO DE POLLO';
           if(!pptoMap[broad])pptoMap[broad]={};
           pptoMap[broad][catK]=(pptoMap[broad][catK]||0)+(it.cph||0);
+          // Acumulado hasta hoy (DDS ≤ curDds)
+          if(dds<=curDds){
+            if(!pptoToday[broad])pptoToday[broad]={};
+            pptoToday[broad][catK]=(pptoToday[broad][catK]||0)+(it.cph||0);
+          }
           if(!pptoActDet[broad])pptoActDet[broad]={};
           if(!pptoActDet[broad][catK])pptoActDet[broad][catK]={};
           if(!pptoActDet[broad][catK][dds])pptoActDet[broad][catK][dds]=[];
@@ -1839,15 +2053,15 @@ function buildCronoSummary(l){
 
   let actUid=0;
   /* Colors: PPTO = plomo/gray (#607d8b), REAL = verde claro (#43a047) */
-  let h='<div style="overflow-x:auto">';
+  let h='<div style="overflow-x:auto;max-height:calc(100vh - 160px);overflow-y:auto">';
   h+='<table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:560px">';
   /* Header: CATEGORÍA | PPTO x Ha (gray) | GASTO x Ha (green) | Gasto Total | % Ejec */
-  h+='<thead><tr style="background:#37474f;color:#fff">';
-  h+='<th style="padding:10px 14px;text-align:left;width:36%">CATEGORÍA / ACTIVIDAD</th>';
-  h+='<th style="padding:10px 14px;text-align:right;width:20%;background:#607d8b">Presupuesto x Ha<br><span style="font-size:.65rem;font-weight:400;color:#cfd8dc">Por ha</span></th>';
-  h+='<th style="padding:10px 14px;text-align:right;width:20%;background:#388e3c">Gasto x Ha<br><span style="font-size:.65rem;font-weight:400;color:#c8e6c9">Real ejecutado</span></th>';
-  h+='<th style="padding:10px 14px;text-align:right;width:12%">Gasto Total<br><span style="font-size:.65rem;font-weight:400;color:#b0bec5">Real × ha</span></th>';
-  h+='<th style="padding:10px 14px;text-align:right;width:12%">% Ejec.</th>';
+  h+='<thead><tr style="background:#37474f;color:#fff;position:sticky;top:0;z-index:4">';
+  h+='<th style="padding:10px 14px;text-align:left;width:34%;background:#37474f">CATEGORÍA / ACTIVIDAD</th>';
+  h+='<th style="padding:10px 14px;text-align:right;width:18%;background:#607d8b">Ppto x Ha<br><span style="font-size:.62rem;font-weight:400;color:#cfd8dc">Total del cultivo</span></th>';
+  h+='<th style="padding:10px 14px;text-align:right;width:18%;background:#388e3c">Real Gastado x Ha<br><span style="font-size:.62rem;font-weight:400;color:#c8e6c9">Ejecutado a la fecha</span></th>';
+  h+='<th style="padding:10px 14px;text-align:right;width:16%;background:#37474f">Ritmo al D+'+curDds+'<br><span style="font-size:.62rem;font-weight:400;color:#b0bec5">Real vs esperado hoy</span></th>';
+  h+='<th style="padding:10px 14px;text-align:right;width:14%;background:#37474f">% del Ppto<br><span style="font-size:.62rem;font-weight:400;color:#b0bec5">vs total cultivo</span></th>';
   h+='</tr></thead><tbody>';
 
   let grandReal=0, grandPpto=0;
@@ -1875,11 +2089,31 @@ function buildCronoSummary(l){
 
     /* Activity rows */
     [...allActs].sort().forEach(act=>{
-      const pv=pp[act]||0;
-      const rv=rr[act]||0;
+      const pv=pp[act]||0;           // ppto total cultivo
+      const rv=rr[act]||0;           // real gastado
+      const pvHoy=(pptoToday[broad]&&pptoToday[broad][act])||0; // ppto acumulado hasta hoy
+      // % del ppto total
       const epct=pv>0?rv/pv*100:null;
-      const ec=epct===null?'#607d8b':epct>110?'#e53935':epct>100?'#f57c00':epct>=80?'#2e7d32':'#1565c0';
+      const ec=epct===null?'#9e9e9e':epct>110?'#e53935':epct>100?'#f57c00':epct>=80?'#2e7d32':'#1565c0';
       const epctTxt=epct===null?'—':(epct.toFixed(1)+'%');
+      // Ritmo: real vs esperado hoy
+      let ritmoTxt,ritmoC,ritmoBg;
+      if(pvHoy<=0&&rv<=0){
+        // pv>0 seguro (si no, la fila no existiría en allActs)
+        // → presupuestado pero programado para más adelante del D+curDds
+        ritmoTxt='📅 Pendiente';ritmoC='#546e7a';ritmoBg='transparent';
+      }
+      else if(pvHoy<=0&&rv>0){ritmoTxt='⚡ Extra';ritmoC='#6a1b9a';ritmoBg='#f3e5f5';}
+      else if(rv<=0){
+        // pvHoy>0 → el ppto esperaba gasto antes de hoy y no se ejecutó
+        ritmoTxt='⚠ Sin ejecutar';ritmoC='#b71c1c';ritmoBg='#ffebee';
+      }
+      else{
+        const rPct=rv/pvHoy*100;
+        if(rPct>=95){ritmoTxt='✅ '+rPct.toFixed(0)+'%';ritmoC='#2e7d32';ritmoBg='#e8f5e9';}
+        else if(rPct>=60){ritmoTxt='🟡 '+rPct.toFixed(0)+'%';ritmoC='#e65100';ritmoBg='#fff3e0';}
+        else{ritmoTxt='🔴 '+rPct.toFixed(0)+'%';ritmoC='#b71c1c';ritmoBg='#ffebee';}
+      }
       /* Build detail data */
       const ppD=pptoActDet[broad]&&pptoActDet[broad][act]?pptoActDet[broad][act]:null;
       const rrActKey=Object.keys(realActDet[broad]||{}).find(k=>k===act||k.toUpperCase()===act)||(act);
@@ -1892,16 +2126,20 @@ function buildCronoSummary(l){
       h+='<td style="padding:7px 14px 7px 32px;color:#424242">';
       if(hasDet)h+='<span class="adarrow" style="color:#1565c0;font-size:.65rem;margin-right:5px;display:inline-block;width:10px">▶</span>';
       h+=tit(act)+'</td>';
-      /* PPTO (gray/plomo) — first */
-      h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(pv>0?'700':'400')+';color:'+(pv>0?'#546e7a':'#bdbdbd')+'">';
+      /* PPTO total cultivo (gray) */
+      h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(pv>0?'600':'400')+';color:'+(pv>0?'#546e7a':'#bdbdbd')+'">';
       h+=(pv>0?Fv2(Math.round(pv*100)/100):'—')+'</td>';
-      /* REAL (green) — second */
-      h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(rv>0?'700':'400')+';color:'+(rv>0?'#2e7d32':'#bdbdbd')+'">';
-      h+=(rv>0?Fv2(Math.round(rv*100)/100):'—')+'</td>';
-      /* Gasto total real × ha */
-      h+='<td style="padding:7px 14px;text-align:right;color:#607d8b;font-size:.73rem">';
-      h+=(rv>0?Fv2(Math.round(rv*ha*100)/100):'—')+'</td>';
-      /* % Ejecución */
+      /* REAL gastado (green bold) */
+      h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(rv>0?'800':'400')+';color:'+(rv>0?'#1b5e20':'#bdbdbd')+';font-size:'+(rv>0?'.8rem':'.76rem')+'">';
+      h+=(rv>0?Fv2(Math.round(rv*100)/100):'—');
+      if(rv>0&&ha>1)h+='<div style="font-size:.6rem;color:#81c784;font-weight:400">Total: '+Fv2(Math.round(rv*ha*100)/100)+'</div>';
+      h+='</td>';
+      /* Ritmo (color badge) */
+      h+='<td style="padding:6px 14px;text-align:right">';
+      h+='<span style="background:'+ritmoBg+';color:'+ritmoC+';font-weight:700;font-size:.72rem;padding:3px 8px;border-radius:12px;white-space:nowrap">'+ritmoTxt+'</span>';
+      if(pvHoy>0)h+='<div style="font-size:.59rem;color:#9e9e9e;margin-top:2px;text-align:right">esp. '+Fv2(Math.round(pvHoy*100)/100)+'</div>';
+      h+='</td>';
+      /* % del ppto total */
       h+='<td style="padding:7px 14px;text-align:right;font-weight:700;color:'+ec+'">'+epctTxt+'</td>';
       h+='</tr>';
       /* Expandable detail row */
@@ -1909,25 +2147,35 @@ function buildCronoSummary(l){
     });
 
     /* Category total row */
+    const catPptoHoy=Object.values(pptoToday[broad]||{}).reduce((s,v)=>s+v,0);
     const ctPct=catPpto>0?catReal/catPpto*100:null;
     const ctC=ctPct===null?'#607d8b':ctPct>110?'#c62828':ctPct>100?'#e53935':ctPct>=80?'#f57c00':'#2e7d32';
+    let ctRitmoTxt,ctRitmoC;
+    if(catPptoHoy<=0&&catReal<=0){ctRitmoTxt='📅 Pendiente';ctRitmoC='#546e7a';}
+    else if(catPptoHoy<=0&&catReal>0){ctRitmoTxt='⚡ Extra';ctRitmoC='#6a1b9a';}
+    else if(catReal<=0){ctRitmoTxt='⚠ Sin ejecutar';ctRitmoC='#b71c1c';}
+    else{const rp=catReal/catPptoHoy*100;ctRitmoTxt=(rp>=95?'✅ ':rp>=60?'🟡 ':'🔴 ')+rp.toFixed(0)+'%';ctRitmoC=rp>=95?'#2e7d32':rp>=60?'#e65100':'#b71c1c';}
     h+='<tr style="background:#eceff1;font-weight:800;border-top:2px solid #cfd8dc">';
     h+='<td style="padding:7px 14px;color:#37474f;font-size:.76rem">Total '+broad+'</td>';
     h+='<td style="padding:7px 14px;text-align:right;color:#546e7a">'+Fv2(Math.round(catPpto*100)/100)+'</td>';
-    h+='<td style="padding:7px 14px;text-align:right;color:#2e7d32">'+Fv2(Math.round(catReal*100)/100)+'</td>';
-    h+='<td style="padding:7px 14px;text-align:right;color:#607d8b;font-size:.73rem">'+Fv2(Math.round(catReal*ha*100)/100)+'</td>';
+    h+='<td style="padding:7px 14px;text-align:right;color:#1b5e20">'+Fv2(Math.round(catReal*100)/100)+'</td>';
+    h+='<td style="padding:7px 14px;text-align:right;color:'+ctRitmoC+';font-size:.75rem">'+ctRitmoTxt+'</td>';
     h+='<td style="padding:7px 14px;text-align:right;color:'+ctC+'">'+(ctPct!==null?ctPct.toFixed(1)+'%':'—')+'</td>';
     h+='</tr>';
   });
 
   /* Grand total */
+  const grandPptoHoy=Object.values(pptoToday).reduce((s,bv)=>s+Object.values(bv).reduce((ss,v)=>ss+v,0),0);
   const gtPct=grandPpto>0?grandReal/grandPpto*100:null;
   const gtC=gtPct===null?'#fff':gtPct>110?'#ffcdd2':gtPct>100?'#ff8a80':gtPct>=80?'#ffcc80':'#b9f6ca';
+  let gtRitmoTxt,gtRitmoBg;
+  if(grandPptoHoy<=0){gtRitmoTxt='—';gtRitmoBg='#455a64';}
+  else{const rp=grandReal/grandPptoHoy*100;gtRitmoTxt=(rp>=95?'✅ ':rp>=60?'🟡 ':'🔴 ')+rp.toFixed(0)+'%';gtRitmoBg=rp>=95?'#1b5e20':rp>=60?'#e65100':'#b71c1c';}
   h+='<tr style="background:#37474f;color:#fff;font-weight:800;font-size:.8rem;border-top:3px solid #263238">';
   h+='<td style="padding:10px 14px">TOTAL GENERAL</td>';
   h+='<td style="padding:10px 14px;text-align:right;background:#607d8b">'+Fv2(Math.round(grandPpto*100)/100)+'</td>';
-  h+='<td style="padding:10px 14px;text-align:right;background:#388e3c">'+Fv2(Math.round(grandReal*100)/100)+'</td>';
-  h+='<td style="padding:10px 14px;text-align:right;background:#455a64;font-size:.73rem">'+Fv2(Math.round(grandReal*ha*100)/100)+'</td>';
+  h+='<td style="padding:10px 14px;text-align:right;background:#2e7d32;font-size:.85rem">'+Fv2(Math.round(grandReal*100)/100)+'</td>';
+  h+='<td style="padding:10px 14px;text-align:right;background:'+gtRitmoBg+'">'+gtRitmoTxt+'</td>';
   h+='<td style="padding:10px 14px;text-align:right;background:'+gtC+';color:#333">'+(gtPct!==null?gtPct.toFixed(1)+'%':'—')+'</td>';
   h+='</tr>';
 
