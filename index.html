@@ -1599,7 +1599,7 @@ function renderStock(mesKey){
     grandTotal+=subtotal;
     h+='<div style="margin-bottom:24px">';
     h+='<div style="display:inline-flex;align-items:center;gap:6px;background:'+col.bg+';color:'+col.color+';border:1.5px solid '+col.border+';border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:800;margin-bottom:10px">'+col.ico+' '+col.lbl+' <span style="font-weight:400;opacity:.7">— '+lista.length+' productos</span></div>';
-    h+='<div style="overflow-x:auto"><table class="stk-table"><thead><tr>'
+    h+='<div style="overflow:auto;max-height:480px;border:1px solid #eee;border-radius:8px"><table class="stk-table"><thead><tr>'
       +'<th>Producto</th>'
       +'<th>Clase</th>'
       +'<th style="text-align:right">Dosis / ha</th>'
