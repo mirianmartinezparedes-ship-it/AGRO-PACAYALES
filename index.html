@@ -166,7 +166,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 </head>
 <body>
 <header>
-  <div><h1>🌱 Campo Camote 2025-2026</h1><p>Totales · Resumen · Calendario · Stock del Mes · Presupuesto</p></div>
+  <div><h1>🌱 Campo Camote 2025-2026</h1><p>Totales · Resumen · Calendario · Stock del Mes · PPTO x Lote · Presupuesto General</p></div>
   <div style="font-size:.72rem;opacity:.8" id="hdr-fecha"></div>
 </header>
 <div class="tabs">
@@ -175,7 +175,8 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
   <button class="tab-btn" id="btn-cal" onclick="showTab('cal')">📅 Calendario</button>
   <button class="tab-btn" id="btn-gen" onclick="showTab('gen')">📋 Diario de Labores</button>
   <button class="tab-btn" id="btn-stk" onclick="showTab('stk')">📦 Stock del Mes</button>
-  <button class="tab-btn" id="btn-crono" onclick="showTab('crono')">📋 Presupuesto</button>
+  <button class="tab-btn" id="btn-crono" onclick="showTab('crono')">📋 PPTO x Lote</button>
+  <button class="tab-btn" id="btn-ppto" onclick="showTab('ppto')">📊 Presupuesto General</button>
 </div>
 <div id="panel-tot" class="panel active"></div>
 <div id="panel-res" class="panel"></div>
@@ -183,8 +184,9 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 <div id="panel-gen" class="panel"></div>
 <div id="panel-stk" class="panel"></div>
 <div id="panel-crono" class="panel"></div>
+<div id="panel-ppto" class="panel"></div>
 <div class="tip" id="tip"></div>
-<div id="macro-popup" style="display:none;position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:16px 18px;min-width:240px;max-width:290px;border:1.5px solid #ef9a9a"></div>
+<div id="macro-popup" style="display:none;position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:18px 22px;min-width:300px;max-width:360px;border:1.5px solid #ef9a9a"></div>
 <div class="modal-bg" id="modal-bg" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3 id="m-title"></h3>
@@ -211,7 +213,7 @@ DATA.resumen=DATA.resumen.filter(l=>l.siembra>='2025-10-01');
 const Fmt=v=>'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const TABS=['tot','res','cal','gen','stk','crono'];
+const TABS=['tot','res','cal','gen','stk','crono','ppto'];
 let calMes,calAnio,calLote='';
 function cambiarLote(v){
   calLote=v;
@@ -232,6 +234,7 @@ function showTab(t){
   if(t==='gen'&&!document.getElementById('gen-cal-built'))buildCalDiario();
   if(t==='stk'&&!document.getElementById('stk-mes-sel'))buildStock();
   if(t==='crono'&&!document.getElementById('crono-sel'))buildCronoTab();
+  if(t==='ppto'&&!document.getElementById('ppto-gen-btns'))buildPptoGeneral();
 }
 function goToCalendar(lote){
   // Build calendar UI if not yet built
@@ -439,7 +442,10 @@ function buildTotales(){
     return s;
   };
   h+='<div style="margin-top:28px">';
-  h+='<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0 0 14px">📊 Estado General por Lote — Ritmo vs Presupuesto</h2>';
+  h+='<div id="tot-header-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">';
+  h+='<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">📊 Estado General por Lote</h2>';
+  h+='<div id="tot-pills" style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"></div>';
+  h+='</div>';
   h+='<div style="overflow:auto;max-height:600px;border:1px solid #ddd;border-radius:8px"><table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:660px">';
   h+='<thead><tr style="background:#37474f;color:#fff;position:sticky;top:0;z-index:4">';
   h+='<th style="padding:9px 14px;text-align:left;background:#37474f">LOTE</th>';
@@ -456,36 +462,44 @@ function buildTotales(){
   const _pkClr={'CA_GRAVEDAD':'#e65100','CA_SISTEMA':'#bf360c','CP_GRAVEDAD':'#1b5e20','CP_SISTEMA':'#2e7d32'};
   const _byPk={};activeLotes.forEach(l=>{if(!_byPk[l.pk])_byPk[l.pk]=[];_byPk[l.pk].push(l);});
   Object.values(_byPk).forEach(g=>g.sort((a,b)=>(a.dds||0)-(b.dds||0)));
-  let _ri=0,nVerde=0,nAmar=0,nRojo=0,nSinEj=0;
+  let _ri=0,nVerde=0,nAmar=0,nRojo=0,nSinEj=0,nSobrePpto=0;
   _pkOrder.forEach(pk=>{
     const grp=_byPk[pk];if(!grp||!grp.length)return;
-    h+='<tr style="background:'+_pkBg[pk]+'"><td colspan="7" style="padding:8px 14px;font-weight:800;color:'+_pkClr[pk]+';font-size:.78rem">'+_pkLabel[pk]+'</td></tr>';
+    h+='<tr id="tot-hdr-'+pk+'" style="background:'+_pkBg[pk]+'"><td colspan="7" style="padding:8px 14px;font-weight:800;color:'+_pkClr[pk]+';font-size:.78rem">'+_pkLabel[pk]+'</td></tr>';
     grp.forEach(l=>{
       const dds=l.dds||0,real=l.costo_ha||0,ppto=l.ppto_ha||0;
       const ph=_pptoHoyLote(pk,dds);
       // Ritmo badge
-      let rt,rc,rb;
-      if(ph<=0&&real<=0){rt='📅 Sin gasto aún';rc='#546e7a';rb='#f5f5f5';}
-      else if(ph<=0&&real>0){rt='⚡ Todo extra';rc='#6a1b9a';rb='#f3e5f5';}
-      else if(real<=0){rt='⚠ Sin ejecutar';rc='#b71c1c';rb='#ffebee';nSinEj++;}
+      let rt,rc,rb,_ritmoKey;
+      if(ph<=0&&real<=0){rt='📅 Sin gasto aún';rc='#546e7a';rb='#f5f5f5';_ritmoKey='sin_gasto';}
+      else if(ph<=0&&real>0){rt='⚡ Todo extra';rc='#6a1b9a';rb='#f3e5f5';_ritmoKey='extra';}
+      else if(real<=0){rt='⚠ Sin ejecutar';rc='#b71c1c';rb='#ffebee';nSinEj++;_ritmoKey='sinEj';}
       else{
         const rp=real/ph*100;
-        if(rp>=95){rt='✅ '+rp.toFixed(0)+'%';rc='#1b5e20';rb='#e8f5e9';nVerde++;}
-        else if(rp>=68){rt='🟡 '+rp.toFixed(0)+'%';rc='#e65100';rb='#fff3e0';nAmar++;}
-        else{rt='🔴 '+rp.toFixed(0)+'%';rc='#b71c1c';rb='#ffebee';nRojo++;}
+        if(rp>=95){rt='✅ '+rp.toFixed(0)+'%';rc='#1b5e20';rb='#e8f5e9';nVerde++;_ritmoKey='verde';}
+        else if(rp>=68){rt='🟡 '+rp.toFixed(0)+'%';rc='#e65100';rb='#fff3e0';nAmar++;_ritmoKey='amar';}
+        else{rt='🔴 '+rp.toFixed(0)+'%';rc='#b71c1c';rb='#ffebee';nRojo++;_ritmoKey='rojo';}
       }
       const pp2=ppto>0?real/ppto*100:null;
-      const pc=pp2===null?'#9e9e9e':pp2>110?'#c62828':pp2>100?'#f57c00':pp2>=60?'#2e7d32':'#1565c0';
-      const bg=_ri%2===0?'#fff':'#fafafa';_ri++;
-      h+='<tr style="background:'+bg+';border-bottom:1px solid #eee;cursor:pointer" '
+      const pc=pp2===null?'#9e9e9e':pp2>100?'#b71c1c':pp2>=60?'#2e7d32':'#1565c0';
+      const isOver=ppto>0&&real>ppto;
+      if(isOver)nSobrePpto++;
+      const bg=isOver?'#ffcdd2':(_ri%2===0?'#fff':'#fafafa');_ri++;
+      const trStyle=isOver
+        ?'background:#ffcdd2;border-bottom:3px solid #e53935;border-top:1px solid #ef9a9a;cursor:pointer;outline:2px solid #e53935'
+        :'background:'+bg+';border-bottom:1px solid #eee;cursor:pointer';
+      const hoverBg=isOver?'#ef9a9a':'#f0f4f8';
+      h+='<tr class="tot-lote-row" data-ritmo="'+_ritmoKey+'" data-pk="'+pk+'" style="'+trStyle+'" '
         +'onclick="showTab(\'crono\');setTimeout(()=>{var s=document.getElementById(\'crono-sel\');if(s){s.value=\''+l.lote+'\';renderCronoLote(\''+l.lote+'\');}},80)" '
-        +'onmouseover="this.style.background=\'#f0f4f8\'" onmouseout="this.style.background=\''+bg+'\'">';
-      h+='<td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">'+l.lote+(l.semillero?'<span style="background:#e65100;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span>':'')+'</div>'
-        +'<div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td>';
-      h+='<td style="padding:7px 10px;text-align:center;color:#555">'+l.ha.toFixed(1)+'</td>';
-      h+='<td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+'+dds+'</td>';
-      h+='<td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">'+(ppto>0?Fm(Math.round(ppto*100)/100):'—')+'</td>';
-      h+='<td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">'+(real>0?Fm(Math.round(real*100)/100):'—')+'</td>';
+        +'onmouseover="this.style.background=\''+hoverBg+'\'" onmouseout="this.style.background=\''+bg+'\'">';
+      const loteLabel=l.lote+(l.semillero?'<span style="background:#e65100;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span>':'')
+        +(isOver?'<span style="background:#b71c1c;color:#fff;border-radius:4px;padding:1px 5px;font-size:.58rem;font-weight:700;margin-left:6px;letter-spacing:.3px">🚨 EXCEDIDO</span>':'');
+      h+='<td style="padding:7px 14px"><div style="font-weight:700;color:'+(isOver?'#b71c1c':'#1b5e20')+'">'+loteLabel+'</div>'
+        +'<div style="font-size:.57rem;color:'+(isOver?'#e57373':'#bbb')+'">→ ver detalle</div></td>';
+      h+='<td style="padding:7px 10px;text-align:center;color:'+(isOver?'#c62828':'#555')+'">'+l.ha.toFixed(1)+'</td>';
+      h+='<td style="padding:7px 10px;text-align:center;font-weight:800;color:'+(isOver?'#b71c1c':'#2e7d32')+'">D+'+dds+'</td>';
+      h+='<td style="padding:7px 14px;text-align:right;color:'+(isOver?'#c62828':'#546e7a')+';font-weight:600">'+(ppto>0?Fm(Math.round(ppto*100)/100):'—')+'</td>';
+      h+='<td style="padding:7px 14px;text-align:right;font-weight:800;color:'+(isOver?'#b71c1c':'#1b5e20')+';font-size:.8rem">'+(real>0?Fm(Math.round(real*100)/100):'—')+'</td>';
       const _badgeClick=rb==='#ffebee'?'onclick="event.stopPropagation();showMacroPopup(\''+l.lote+'\',\''+pk+'\','+dds+',event)" style="cursor:pointer;background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap;border:1.5px solid #ef9a9a" title="Clic para ver detalle por categoría"':'style="background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap"';
       h+='<td style="padding:7px 14px;text-align:center">'
         +'<span '+_badgeClick+'>'+rt+'</span>'
@@ -496,18 +510,58 @@ function buildTotales(){
     });
   });
   h+='</tbody></table></div>';
-  // Summary pills
-  h+='<div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;align-items:center">';
-  h+='<span style="font-size:.72rem;color:#777;font-weight:600">Resumen:</span>';
-  if(nVerde>0)h+='<span style="background:#e8f5e9;color:#1b5e20;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">✅ '+nVerde+' al ritmo</span>';
-  if(nAmar>0)h+='<span style="background:#fff3e0;color:#e65100;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">🟡 '+nAmar+' ligeramente atrás</span>';
-  if(nRojo>0)h+='<span style="background:#ffebee;color:#b71c1c;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">🔴 '+nRojo+' retrasados</span>';
-  if(nSinEj>0)h+='<span style="background:#ffebee;color:#b71c1c;padding:5px 14px;border-radius:14px;font-size:.75rem;font-weight:700">⚠ '+nSinEj+' sin ejecutar</span>';
   h+='</div>';
-  h+='</div>';
-
   h+='</div>';
   document.getElementById('panel-tot').innerHTML=h;
+  // Build clickable filter pills next to heading
+  (function(){
+    const pillData=[
+      {key:'verde',  bg:'#e8f5e9',color:'#1b5e20',label:'✅ '+nVerde+' al ritmo',       n:nVerde},
+      {key:'amar',   bg:'#fff3e0',color:'#e65100',label:'🟡 '+nAmar+' ligeramente atrás',n:nAmar},
+      {key:'rojo',   bg:'#ffebee',color:'#b71c1c',label:'🔴 '+nRojo+' retrasados',       n:nRojo},
+      {key:'sinEj',  bg:'#ffebee',color:'#b71c1c',label:'⚠ '+nSinEj+' sin ejecutar',    n:nSinEj},
+    ];
+    const container=document.getElementById('tot-pills');
+    if(!container)return;
+    // "Todos" pill
+    const allPill=document.createElement('span');
+    allPill.id='tot-pill-todos';
+    allPill.textContent='Todos';
+    allPill.title='Mostrar todos';
+    Object.assign(allPill.style,{background:'#37474f',color:'#fff',padding:'4px 13px',borderRadius:'14px',fontSize:'.72rem',fontWeight:'700',cursor:'pointer'});
+    allPill.onclick=()=>filtrarTotales('todos');
+    container.appendChild(allPill);
+    pillData.forEach(p=>{
+      if(!p.n)return;
+      const sp=document.createElement('span');
+      sp.dataset.filtro=p.key;
+      sp.textContent=p.label;
+      Object.assign(sp.style,{background:p.bg,color:p.color,padding:'4px 13px',borderRadius:'14px',fontSize:'.72rem',fontWeight:'700',cursor:'pointer',border:'1.5px solid transparent'});
+      sp.onclick=()=>filtrarTotales(p.key);
+      container.appendChild(sp);
+    });
+  })();
+}
+
+function filtrarTotales(tipo){
+  // Highlight active pill
+  document.querySelectorAll('#tot-pills span').forEach(sp=>{
+    const active=sp.id==='tot-pill-todos'?tipo==='todos':sp.dataset.filtro===tipo;
+    sp.style.outline=active?'2px solid currentColor':'none';
+    sp.style.fontWeight=active?'900':'700';
+  });
+  const rows=document.querySelectorAll('.tot-lote-row');
+  // Show/hide lote rows
+  rows.forEach(r=>{
+    r.style.display=(tipo==='todos'||r.dataset.ritmo===tipo)?'':'none';
+  });
+  // Show/hide PK group headers: hide if all its lote rows are hidden
+  ['CA_GRAVEDAD','CA_SISTEMA','CP_GRAVEDAD','CP_SISTEMA'].forEach(pk=>{
+    const hdr=document.getElementById('tot-hdr-'+pk);
+    if(!hdr)return;
+    const anyVisible=[...rows].some(r=>r.dataset.pk===pk&&r.style.display!=='none');
+    hdr.style.display=anyVisible?'':'none';
+  });
 }
 
 /* ── TAB 1: RESUMEN ── */
@@ -1700,8 +1754,18 @@ function showMacroPopup(lote,pk,dds,evt){
     const pct=p>0?Math.round(r/p*100):null;
     const c=pct===null?'#9e9e9e':pct>=95?'#2e7d32':pct>=68?'#e65100':'#b71c1c';
     const em=pct===null?'—':pct+'%';
-    const bar=pct!==null?'<div style="height:7px;background:#eee;border-radius:4px;margin:4px 0 2px"><div style="height:7px;background:'+c+';border-radius:4px;width:'+Math.min(pct,100)+'%"></div></div>':'';
-    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.76rem;font-weight:700">'+ico+' '+lbl+'</span><span style="font-size:.82rem;font-weight:800;color:'+c+'">'+em+'</span></div>'+bar+'<div style="font-size:.6rem;color:#aaa">Real '+Fm(r)+'/ha · Esperado '+Fm(p)+'/ha</div></div>';
+    const bar=pct!==null?'<div style="height:7px;background:#eee;border-radius:4px;margin:4px 0 3px"><div style="height:7px;background:'+c+';border-radius:4px;width:'+Math.min(pct,100)+'%"></div></div>':'';
+    // Diferencia real - esperado
+    let diffHtml='';
+    if(p>0){
+      const diff=Math.round(r-p);
+      const over=diff>0;
+      const diffC=over?'#b71c1c':'#f57f17';  // rojo si se pasó, amarillo si falta
+      const diffBg=over?'#ffebee':'#fff8e1';
+      const diffSym=over?'+':'';
+      diffHtml='<span style="display:inline-block;background:'+diffBg+';color:'+diffC+';font-weight:800;font-size:.62rem;padding:1px 7px;border-radius:8px;margin-left:6px">'+diffSym+Fm(diff)+'/ha</span>';
+    }
+    return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.78rem;font-weight:700">'+ico+' '+lbl+'</span><span style="font-size:.84rem;font-weight:800;color:'+c+'">'+em+'</span></div>'+bar+'<div style="font-size:.62rem;display:flex;align-items:center;flex-wrap:wrap;gap:2px"><span style="color:#2e7d32;font-weight:700">Real '+Fm(r)+'/ha</span><span style="color:#999"> · </span><span style="color:#333;font-weight:500">Esperado '+Fm(p)+'/ha</span>'+diffHtml+'</div></div>';
   };
   const popup=document.getElementById('macro-popup');
   popup.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-weight:800;color:#1b5e20;font-size:.82rem">🔴 '+lote+' · D+'+dds+'</div><span onclick="document.getElementById(\'macro-popup\').style.display=\'none\'" style="cursor:pointer;color:#aaa;font-size:1rem;line-height:1">✕</span></div>'
@@ -1709,9 +1773,333 @@ function showMacroPopup(lote,pk,dds,evt){
     +row('🌿','Fertilización',fe_r,fe_p)
     +row('👷','Mano de Obra',mo_r,mo_p)
     +'<div style="font-size:.58rem;color:#bbb;margin-top:6px;text-align:center">Ritmo al D+'+dds+' · vs ppto esperado hoy</div>';
-  const x=Math.min(evt.clientX+10,window.innerWidth-300);
-  const y=Math.min(evt.clientY+10,window.innerHeight-220);
+  const x=Math.min(evt.clientX+10,window.innerWidth-370);
+  const y=Math.min(evt.clientY+10,window.innerHeight-260);
   popup.style.left=x+'px';popup.style.top=y+'px';popup.style.display='block';
+}
+
+/* ══════════════════════════════════════════════
+   TAB: PRESUPUESTO GENERAL
+   ══════════════════════════════════════════════ */
+const _PG_PKS={
+  'CA_GRAVEDAD':{label:'C.Amarillo · Gravedad',ico:'🌱',color:'#2e7d32',bg:'#e8f5e9',border:'#81c784'},
+  'CA_SISTEMA': {label:'C.Amarillo · Sistema', ico:'💧',color:'#1565c0',bg:'#e3f2fd',border:'#64b5f6'},
+  'CP_GRAVEDAD':{label:'C.Pintura · Gravedad',  ico:'🟡',color:'#e65100',bg:'#fff3e0',border:'#ffb74d'},
+  'CP_SISTEMA': {label:'C.Pintura · Sistema',   ico:'🌿',color:'#6a1b9a',bg:'#f3e5f5',border:'#ce93d8'},
+};
+const _PG_CAT={
+  'AGROQUIMICO':  {bg:'#fff8f0',hbg:'#e65100',txt:'#fff',ico:'🧪'},
+  'FERTILIZANTE': {bg:'#f5f0ff',hbg:'#6a1b9a',txt:'#fff',ico:'🌿'},
+  'MANO DE OBRA': {bg:'#e8f4fd',hbg:'#1565c0',txt:'#fff',ico:'👷'},
+  'COSTOS DE ESTABLECIMIENTO':{bg:'#e0f7f4',hbg:'#00695c',txt:'#fff',ico:'🏗️'},
+  'INSUMOS':      {bg:'#fffde7',hbg:'#f9a825',txt:'#fff',ico:'📦'},
+  'TRABAJO CON MAQUINARIA':{bg:'#f3ede8',hbg:'#5d4037',txt:'#fff',ico:'🚜'},
+};
+function _pgCol(cb){
+  const key=Object.keys(_PG_CAT).find(k=>(cb||'').toUpperCase().includes(k.replace(/ .*/,'')))||null;
+  return key?_PG_CAT[key]:{bg:'#f5f5f5',hbg:'#757575',txt:'#fff',ico:'📊'};
+}
+let _pgPk='CA_SISTEMA';
+
+function buildPptoGeneral(){
+  let h='<div style="padding:18px 20px;max-width:1200px;margin:0 auto">';
+  // ── Header ──
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">';
+  h+='<div><div style="font-size:1.05rem;font-weight:800;color:#1b5e20">📊 Presupuesto General</div>';
+  h+='<div style="font-size:.7rem;color:#aaa;margin-top:2px">Costo estimado por hectárea — ciclo completo · sin filtro por fecha</div></div>';
+  h+='</div>';
+  // ── Tipo buttons ──
+  h+='<div id="ppto-gen-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px">';
+  Object.entries(_PG_PKS).forEach(([pk,m])=>{
+    const act=pk===_pgPk;
+    h+='<button id="pg-btn-'+pk+'" onclick="switchPptoGeneral(\''+pk+'\')" style="display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:22px;border:2px solid '+m.border+';background:'+(act?m.color:'#fff')+';color:'+(act?'#fff':m.color)+';font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s;box-shadow:0 1px 4px rgba(0,0,0,.08)">'+m.ico+' '+m.label+'</button>';
+  });
+  h+='</div>';
+  h+='<div id="ppto-gen-body"></div></div>';
+  document.getElementById('panel-ppto').innerHTML=h;
+  switchPptoGeneral(_pgPk);
+}
+
+function switchPptoGeneral(pk){
+  _pgPk=pk;
+  Object.entries(_PG_PKS).forEach(([p,m])=>{
+    const b=document.getElementById('pg-btn-'+p);if(!b)return;
+    const act=p===pk;
+    b.style.background=act?m.color:'#fff';
+    b.style.color=act?'#fff':m.color;
+    b.style.borderColor=m.border;
+  });
+  renderPptoGeneral(pk);
+}
+
+function _pgBuildMap(pk){
+  const pp=(DATA.ppto&&DATA.ppto[pk])||{};
+  const map={};
+  Object.values(pp).forEach(cats=>{
+    Object.entries(cats).forEach(([cat,items])=>{
+      items.forEach(it=>{
+        const cb=(it.cat_broad||cat||'OTRO').toUpperCase().trim();
+        const sub=(it.sub||cat||'—').trim();
+        const key=cb+'‖'+cat+'‖'+sub;
+        if(!map[key]){
+          const pu=(it.cant_dosis>0&&it.cph>0)?it.cph/it.cant_dosis:0;
+          map[key]={cb,cat,sub,cph:0,cant:0,price:pu,um:it.um||'',is_labor:!!it.is_labor,jrn:0};
+        }
+        map[key].cph+=it.cph||0;
+        map[key].cant+=it.cant_dosis||0;
+        map[key].jrn+=it.jrn||0;
+        if(!map[key].price&&it.cant_dosis>0)map[key].price=(it.cph||0)/it.cant_dosis;
+      });
+    });
+  });
+  return Object.values(map);
+}
+
+// accent color per category (soft, for left-border only)
+const _PG_ACCENT={
+  'AGROQUIMICO':'#ef9a9a','COSTOS':'#80cbc4','FERTILIZANTE':'#b39ddb',
+  'INSUMO':'#ffcc80','MANO':'#90caf9','TRABAJO':'#bcaaa4'
+};
+function _pgAccent(cb){
+  const k=Object.keys(_PG_ACCENT).find(o=>(cb||'').toUpperCase().includes(o))||null;
+  return k?_PG_ACCENT[k]:'#b0bec5';
+}
+function pgToggle(gId){
+  const rows=document.querySelectorAll('.'+gId);
+  const ico=document.getElementById(gId+'-ico');
+  const isOpen=rows.length>0&&rows[0].style.display!=='none';
+  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  if(ico)ico.textContent=isOpen?'▶':'▼';
+}
+function cmpToggle(gId){
+  const rows=document.querySelectorAll('.'+gId);
+  const ico=document.getElementById(gId+'-ico');
+  const isOpen=rows.length>0&&rows[0].style.display!=='none';
+  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  if(ico)ico.textContent=isOpen?'▶':'▼';
+}
+
+function buildPptoComparativo(){
+  const Fv=v=>v>0?'S/.'+Number(v).toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:0}):'—';
+  const PKS=Object.keys(_PG_PKS);
+
+  // Build: cb → sub → {pk → cph}  AND  cb → {pk → total}
+  const prodMap={};  // cb → {sub → {pk → cph, cat}}
+  const cbData={};   // cb → {pk → total}
+  PKS.forEach(pk=>{
+    _pgBuildMap(pk).forEach(it=>{
+      // category totals
+      if(!cbData[it.cb])cbData[it.cb]={};
+      cbData[it.cb][pk]=(cbData[it.cb][pk]||0)+it.cph;
+      // product detail
+      if(!prodMap[it.cb])prodMap[it.cb]={};
+      const key=it.sub.trim().toUpperCase();
+      if(!prodMap[it.cb][key])prodMap[it.cb][key]={label:it.sub,cat:it.cat};
+      prodMap[it.cb][key][pk]=(prodMap[it.cb][key][pk]||0)+it.cph;
+    });
+  });
+
+  const CB_ORDER=['AGROQUIMICO','COSTOS','FERTILIZANTE','INSUMO','MANO','TRABAJO'];
+  const sortedCBs=Object.keys(cbData).sort((a,b)=>{
+    const ia=CB_ORDER.findIndex(o=>a.includes(o));const ib=CB_ORDER.findIndex(o=>b.includes(o));
+    return(ia<0?99:ia)-(ib<0?99:ib);
+  });
+
+  let h='<div style="background:#fff;border-radius:12px;border:1px solid #e0e0e0;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:auto;margin-top:28px">';
+  // Header
+  h+='<div style="padding:13px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">';
+  h+='<span style="font-weight:800;font-size:.82rem;color:#37474f">📊 Comparativo por tipo de cultivo — Monto/HA</span>';
+  h+='<span style="font-size:.65rem;color:#aaa;background:#f5f5f5;padding:2px 8px;border-radius:8px">▶ Clic en categoría para ver productos</span>';
+  h+='</div>';
+
+  h+='<table style="width:100%;border-collapse:collapse;font-size:.74rem;min-width:660px"><thead>';
+  h+='<tr style="background:#f5f5f5;border-bottom:2px solid #e0e0e0">';
+  h+='<th style="padding:9px 14px;text-align:left;color:#555;font-weight:700;min-width:200px">CATEGORÍA / PRODUCTO</th>';
+  PKS.forEach(pk=>{
+    const m=_PG_PKS[pk];
+    h+='<th style="padding:9px 12px;text-align:right;color:'+m.color+';font-weight:700;white-space:nowrap;font-size:.72rem">'+m.ico+' '+m.label+'</th>';
+  });
+  h+='</tr></thead><tbody>';
+
+  sortedCBs.forEach((cb,cbIdx)=>{
+    const acc=_pgAccent(cb);
+    const ico=_pgCol(cb).ico;
+    const gId='cmp-g-'+cbIdx;
+    const cbVals=PKS.map(pk=>(cbData[cb]&&cbData[cb][pk])||0);
+    const maxCb=Math.max(...cbVals);
+
+    // ── Category header row (clickable) ──
+    h+='<tr onclick="cmpToggle(\''+gId+'\')" style="cursor:pointer;user-select:none;border-left:4px solid '+acc+';border-bottom:1px solid #e8e8e8;background:#f9f9f9">';
+    h+='<td style="padding:10px 14px;font-weight:800;color:#37474f;font-size:.76rem">';
+    h+='<span id="'+gId+'-ico" style="margin-right:6px;font-size:.68rem;color:#999">▶</span>'+ico+' '+cb+'</td>';
+    PKS.forEach((pk,pi)=>{
+      const val=cbVals[pi];
+      const isMax=val>0&&val===maxCb&&cbVals.filter(v=>v>0).length>1;
+      h+='<td style="padding:10px 12px;text-align:right;font-weight:800;color:'+(val>0?(isMax?'#b71c1c':'#1b5e20'):'#ccc')+';font-size:.78rem'+(pk===_pgPk?';background:#f1f8e9':'')+'">';
+      h+=Fv(val);
+      if(isMax&&cbVals.filter(v=>v>0).length>1)h+=' <span style="font-size:.55rem;color:#b71c1c">▲</span>';
+      h+='</td>';
+    });
+    h+='</tr>';
+
+    // ── Product rows (hidden by default) ──
+    const prods=Object.entries(prodMap[cb]||{});
+    prods.sort((a,b)=>a[1].label.localeCompare(b[1].label,'es')).forEach(([,prod])=>{
+      const vals=PKS.map(pk=>prod[pk]||0);
+      const presentCount=vals.filter(v=>v>0).length;
+      const maxVal=Math.max(...vals);
+      const isExclusive=presentCount>0&&presentCount<PKS.length;  // missing in ≥1 pk
+      const rowBg=isExclusive?'#fffde7':'#fff';
+
+      h+='<tr class="'+gId+'" style="display:none;background:'+rowBg+';border-left:4px solid '+acc+'33;border-bottom:1px solid #f8f8f8">';
+      h+='<td style="padding:6px 14px 6px 30px;color:#444;font-size:.72rem">';
+      if(isExclusive)h+='<span title="Este producto no aparece en todos los tipos" style="color:#f57f17;margin-right:4px">⚠</span>';
+      h+=prod.label;
+      if(isExclusive){
+        const missingIn=PKS.filter((_,i)=>vals[i]===0).map(pk=>_PG_PKS[pk].label.split('·')[1]?.trim()||_PG_PKS[pk].label);
+        h+=' <span style="font-size:.58rem;color:#f57f17;background:#fff8e1;padding:1px 5px;border-radius:6px;margin-left:4px">Solo en '+presentCount+' tipo'+(presentCount>1?'s':'')+'</span>';
+      }
+      h+='</td>';
+      vals.forEach((val,vi)=>{
+        const pk=PKS[vi];
+        const isMax=val>0&&val===maxVal&&vals.filter(v=>v>0).length>1;
+        const isMissing=val===0;
+        let style='padding:6px 12px;text-align:right;font-size:.72rem;';
+        if(isMissing)style+='color:#ddd;';
+        else if(isMax)style+='color:#b71c1c;font-weight:800;';
+        else style+='color:#555;font-weight:600;';
+        if(pk===_pgPk&&!isMissing)style+='background:#f9fbe7;';
+        h+='<td style="'+style+'">';
+        if(isMissing)h+='—';
+        else{
+          h+=Fv(val);
+          if(isMax&&vals.filter(v=>v>0).length>1)h+=' <span style="font-size:.55rem">▲</span>';
+        }
+        h+='</td>';
+      });
+      h+='</tr>';
+    });
+  });
+
+  // ── Total row ──
+  h+='<tr style="background:#263238;color:#fff;font-weight:800">';
+  h+='<td style="padding:10px 14px;font-size:.76rem">TOTAL</td>';
+  PKS.forEach(pk=>{
+    const tot=Object.values(cbData).reduce((s,d)=>s+(d[pk]||0),0);
+    h+='<td style="padding:10px 12px;text-align:right;font-size:.8rem">'+Fv(tot)+'</td>';
+  });
+  h+='</tr></tbody></table>';
+
+  // Legend
+  h+='<div style="padding:10px 16px;border-top:1px solid #f0f0f0;display:flex;gap:16px;flex-wrap:wrap">';
+  h+='<span style="font-size:.65rem;color:#777;display:flex;align-items:center;gap:4px"><span style="color:#b71c1c;font-weight:800">S/.X ▲</span> Mayor costo entre tipos</span>';
+  h+='<span style="font-size:.65rem;color:#777;display:flex;align-items:center;gap:4px"><span style="background:#fffde7;padding:1px 5px;border-radius:4px;color:#f57f17">⚠ Solo en X tipos</span> Producto no compartido</span>';
+  h+='<span style="font-size:.65rem;color:#777">— = No aplica en ese tipo</span>';
+  h+='</div></div>';
+  return h;
+}
+
+function renderPptoGeneral(pk){
+  const meta=_PG_PKS[pk]||{label:pk,color:'#1b5e20'};
+  const items=_pgBuildMap(pk);
+  const el=document.getElementById('ppto-gen-body');
+  if(!el)return;
+  if(!items.length){
+    el.innerHTML='<div style="text-align:center;padding:60px;color:#aaa;font-size:.9rem">Sin datos para '+meta.label+'</div>';
+    return;
+  }
+  const Fv=v=>'S/.'+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const Fn=v=>Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Group cb → cat → [items]
+  const byGroup={};let grandTotal=0;
+  items.forEach(it=>{
+    if(!byGroup[it.cb])byGroup[it.cb]={};
+    if(!byGroup[it.cb][it.cat])byGroup[it.cb][it.cat]=[];
+    byGroup[it.cb][it.cat].push(it);grandTotal+=it.cph;
+  });
+  const CB_ORDER=['AGROQUIMICO','COSTOS','FERTILIZANTE','INSUMO','MANO','TRABAJO'];
+  const sortedGroups=Object.entries(byGroup).sort((a,b)=>{
+    const ia=CB_ORDER.findIndex(o=>a[0].includes(o));const ib=CB_ORDER.findIndex(o=>b[0].includes(o));
+    return(ia<0?99:ia)-(ib<0?99:ib);
+  });
+
+  // TABLE — all headers use same slate color, soft left border accent per category
+  let h='<div style="overflow:auto;border-radius:12px;border:1px solid #e0e0e0;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:10px">';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:.75rem;min-width:700px">';
+  h+='<thead><tr style="background:#263238;color:#fff;position:sticky;top:0;z-index:5">';
+  h+='<th style="padding:11px 14px;text-align:left">CATEGORÍA / SUBCATEGORÍA</th>';
+  h+='<th style="padding:11px 14px;text-align:right">CIL/HA</th>';
+  h+='<th style="padding:11px 10px;text-align:center">UM</th>';
+  h+='<th style="padding:11px 14px;text-align:right">PRECIO UNIT.</th>';
+  h+='<th style="padding:11px 14px;text-align:right">MONTO/HA</th>';
+  h+='<th style="padding:11px 14px;text-align:center;width:120px">%</th>';
+  h+='</tr></thead><tbody>';
+
+  sortedGroups.forEach(([cb,cats],gIdx)=>{
+    const acc=_pgAccent(cb);
+    const ico=_pgCol(cb).ico;
+    const cbTotal=Object.values(cats).flat().reduce((s,it)=>s+it.cph,0);
+    const pctCb=grandTotal>0?cbTotal/grandTotal*100:0;
+    const gId='pg-g-'+gIdx;
+
+    // Category header — collapsed by default, click to expand
+    h+='<tr onclick="pgToggle(\''+gId+'\')" style="cursor:pointer;user-select:none;background:#455a64;color:#fff;border-left:4px solid '+acc+'">';
+    h+='<td style="padding:10px 14px;font-weight:700;font-size:.79rem">';
+    h+='<span id="'+gId+'-ico" style="margin-right:7px;font-size:.7rem">▶</span>'+ico+' '+cb;
+    h+='</td>';
+    h+='<td colspan="3" style="padding:10px 14px;font-size:.7rem;color:#b0bec5;font-style:italic">Clic para ver detalle</td>';
+    h+='<td style="padding:10px 14px;text-align:right;font-weight:800;font-size:.82rem">'+Fv(cbTotal)+'</td>';
+    h+='<td style="padding:10px 14px;text-align:center;font-weight:700;background:rgba(255,255,255,.1)">'+pctCb.toFixed(1)+'%</td>';
+    h+='</tr>';
+
+    // Children (hidden by default)
+    Object.entries(cats).sort((a,b)=>a[0].localeCompare(b[0],'es')).forEach(([cat,catItems])=>{
+      const catTotal=catItems.reduce((s,it)=>s+it.cph,0);
+
+      // Labor sub-header
+      h+='<tr class="'+gId+'" style="display:none;background:#f8f9fa;border-left:4px solid '+acc+'66">';
+      h+='<td colspan="4" style="padding:6px 14px 6px 26px;font-weight:700;color:#546e7a;font-size:.72rem">📂 '+cat+'</td>';
+      h+='<td style="padding:6px 14px;text-align:right;font-weight:700;color:#546e7a;font-size:.72rem">'+Fv(catTotal)+'</td>';
+      h+='<td></td></tr>';
+
+      catItems.sort((a,b)=>a.sub.localeCompare(b.sub,'es')).forEach((it,idx)=>{
+        const pct=grandTotal>0?it.cph/grandTotal*100:0;
+        const barW=Math.min(Math.round(pct/pctCb*100),100);
+        const cantStr=it.cant>0?Fn(it.cant):(it.jrn>0?Fn(it.jrn):'—');
+        h+='<tr class="'+gId+'" style="display:none;background:'+(idx%2?'#fafafa':'#fff')+';border-bottom:1px solid #f0f0f0;border-left:4px solid '+acc+'22">';
+        h+='<td style="padding:6px 14px 6px 36px;color:#333">'+it.sub+'</td>';
+        h+='<td style="padding:6px 14px;text-align:right;color:#555">'+cantStr+'</td>';
+        h+='<td style="padding:6px 10px;text-align:center;color:#888;font-size:.7rem">'+(it.um||'—')+'</td>';
+        h+='<td style="padding:6px 14px;text-align:right;color:#777;font-size:.72rem">'+(it.price>0?Fv(it.price):'<span style="color:#ccc">—</span>')+'</td>';
+        h+='<td style="padding:6px 14px;text-align:right;font-weight:700;color:#2e7d32">'+Fv(it.cph)+'</td>';
+        h+='<td style="padding:6px 10px"><div style="display:flex;align-items:center;gap:5px">';
+        h+='<div style="flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden"><div style="height:7px;background:'+acc+';border-radius:4px;width:'+barW+'%"></div></div>';
+        h+='<span style="font-size:.6rem;color:#aaa;min-width:28px;text-align:right">'+pct.toFixed(1)+'%</span>';
+        h+='</div></td></tr>';
+      });
+
+      // Cat subtotal
+      h+='<tr class="'+gId+'" style="display:none;background:#eeeeee;border-left:4px solid '+acc+'55">';
+      h+='<td colspan="4" style="padding:4px 14px 4px 36px;font-size:.68rem;color:#607d8b;font-style:italic">Subtotal '+cat+'</td>';
+      h+='<td style="padding:4px 14px;text-align:right;font-weight:700;font-size:.71rem;color:#455a64">'+Fv(catTotal)+'</td>';
+      h+='<td></td></tr>';
+    });
+  });
+
+  // Grand total
+  h+='<tr style="background:#1b5e20;color:#fff">';
+  h+='<td colspan="4" style="padding:12px 14px;font-weight:800;font-size:.85rem">💰 TOTAL PRESUPUESTO — '+meta.label+'</td>';
+  h+='<td style="padding:12px 14px;text-align:right;font-weight:800;font-size:.95rem">'+Fv(grandTotal)+'</td>';
+  h+='<td style="padding:12px 14px;text-align:center;font-weight:800">100%</td>';
+  h+='</tr>';
+  h+='</tbody></table></div>';
+  h+='<div style="font-size:.68rem;color:#aaa;margin-bottom:16px;padding-left:4px">▶ Clic en cada categoría para ver el detalle de productos</div>';
+
+  // Comparativo table
+  h+=buildPptoComparativo();
+
+  el.innerHTML=h;
 }
 
 function exportarPedidoExcel(tipo){
