@@ -162,6 +162,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 .tot-banner-ha{font-size:4rem;font-weight:900;line-height:1;letter-spacing:-2px}
 .tot-subtot{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);border-left:5px solid}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <header>
@@ -183,6 +184,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 <div id="panel-stk" class="panel"></div>
 <div id="panel-crono" class="panel"></div>
 <div class="tip" id="tip"></div>
+<div id="macro-popup" style="display:none;position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:16px 18px;min-width:240px;max-width:290px;border:1.5px solid #ef9a9a"></div>
 <div class="modal-bg" id="modal-bg" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3 id="m-title"></h3>
@@ -438,8 +440,8 @@ function buildTotales(){
   };
   h+='<div style="margin-top:28px">';
   h+='<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0 0 14px">📊 Estado General por Lote — Ritmo vs Presupuesto</h2>';
-  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:660px">';
-  h+='<thead><tr style="background:#37474f;color:#fff">';
+  h+='<div style="overflow:auto;max-height:600px;border:1px solid #ddd;border-radius:8px"><table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:660px">';
+  h+='<thead><tr style="background:#37474f;color:#fff;position:sticky;top:0;z-index:4">';
   h+='<th style="padding:9px 14px;text-align:left;background:#37474f">LOTE</th>';
   h+='<th style="padding:9px 10px;text-align:center;background:#37474f">Ha</th>';
   h+='<th style="padding:9px 10px;text-align:center;background:#37474f">Día</th>';
@@ -453,7 +455,7 @@ function buildTotales(){
   const _pkBg={'CA_GRAVEDAD':'#fff8e1','CA_SISTEMA':'#fff3e0','CP_GRAVEDAD':'#e8f5e9','CP_SISTEMA':'#f1f8e9'};
   const _pkClr={'CA_GRAVEDAD':'#e65100','CA_SISTEMA':'#bf360c','CP_GRAVEDAD':'#1b5e20','CP_SISTEMA':'#2e7d32'};
   const _byPk={};activeLotes.forEach(l=>{if(!_byPk[l.pk])_byPk[l.pk]=[];_byPk[l.pk].push(l);});
-  Object.values(_byPk).forEach(g=>g.sort((a,b)=>(b.dds||0)-(a.dds||0)));
+  Object.values(_byPk).forEach(g=>g.sort((a,b)=>(a.dds||0)-(b.dds||0)));
   let _ri=0,nVerde=0,nAmar=0,nRojo=0,nSinEj=0;
   _pkOrder.forEach(pk=>{
     const grp=_byPk[pk];if(!grp||!grp.length)return;
@@ -469,7 +471,7 @@ function buildTotales(){
       else{
         const rp=real/ph*100;
         if(rp>=95){rt='✅ '+rp.toFixed(0)+'%';rc='#1b5e20';rb='#e8f5e9';nVerde++;}
-        else if(rp>=60){rt='🟡 '+rp.toFixed(0)+'%';rc='#e65100';rb='#fff3e0';nAmar++;}
+        else if(rp>=68){rt='🟡 '+rp.toFixed(0)+'%';rc='#e65100';rb='#fff3e0';nAmar++;}
         else{rt='🔴 '+rp.toFixed(0)+'%';rc='#b71c1c';rb='#ffebee';nRojo++;}
       }
       const pp2=ppto>0?real/ppto*100:null;
@@ -484,8 +486,9 @@ function buildTotales(){
       h+='<td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+'+dds+'</td>';
       h+='<td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">'+(ppto>0?Fm(Math.round(ppto*100)/100):'—')+'</td>';
       h+='<td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">'+(real>0?Fm(Math.round(real*100)/100):'—')+'</td>';
+      const _badgeClick=rb==='#ffebee'?'onclick="event.stopPropagation();showMacroPopup(\''+l.lote+'\',\''+pk+'\','+dds+',event)" style="cursor:pointer;background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap;border:1.5px solid #ef9a9a" title="Clic para ver detalle por categoría"':'style="background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap"';
       h+='<td style="padding:7px 14px;text-align:center">'
-        +'<span style="background:'+rb+';color:'+rc+';font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap">'+rt+'</span>'
+        +'<span '+_badgeClick+'>'+rt+'</span>'
         +(ph>0?'<div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado '+Fm(Math.round(ph*100)/100)+'</div>':'')
         +'</td>';
       h+='<td style="padding:7px 14px;text-align:right;font-weight:700;color:'+pc+'">'+(pp2!==null?pp2.toFixed(1)+'%':'—')+'</td>';
@@ -1582,6 +1585,7 @@ function renderStock(mesKey){
     const t=p.tipo||'OTRO';
     if(grupos[t])grupos[t].push(p);else grupos['OTRO'].push(p);
   });
+  window._stockGrupos=grupos;window._stockMesKey=mesKey;
   const COL={
     'AGROQUIMICO':{bg:'#fff3e0',border:'#f57c00',color:'#bf360c',ico:'🧪',lbl:'Agroquímicos'},
     'FERTILIZANTE':{bg:'#ede7f6',border:'#7e57c2',color:'#4527a0',ico:'🌿',lbl:'Fertilizantes'},
@@ -1593,12 +1597,15 @@ function renderStock(mesKey){
   let h='',grandTotal=0;
   Object.keys(COL).forEach(tipo=>{
     const lista=grupos[tipo];if(!lista.length)return;
-    lista.sort((a,b)=>(b.valor_total||0)-(a.valor_total||0));
+    lista.sort((a,b)=>a.nombre.localeCompare(b.nombre,'es',{sensitivity:'base'}));
     const col=COL[tipo];
     const subtotal=lista.reduce((s,p)=>s+(p.valor_total||0),0);
     grandTotal+=subtotal;
     h+='<div style="margin-bottom:24px">';
-    h+='<div style="display:inline-flex;align-items:center;gap:6px;background:'+col.bg+';color:'+col.color+';border:1.5px solid '+col.border+';border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:800;margin-bottom:10px">'+col.ico+' '+col.lbl+' <span style="font-weight:400;opacity:.7">— '+lista.length+' productos</span></div>';
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+      +'<div style="display:inline-flex;align-items:center;gap:6px;background:'+col.bg+';color:'+col.color+';border:1.5px solid '+col.border+';border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:800">'+col.ico+' '+col.lbl+' <span style="font-weight:400;opacity:.7">— '+lista.length+' productos</span></div>'
+      +'<button onclick="exportarPedidoExcel(\''+tipo+'\')" style="background:#1b5e20;color:#fff;border:none;border-radius:16px;padding:4px 13px;font-size:.72rem;font-weight:700;cursor:pointer;letter-spacing:.3px">📋 Pedido</button>'
+      +'</div>';
     h+='<div style="overflow:auto;max-height:480px;border:1px solid #eee;border-radius:8px"><table class="stk-table"><thead><tr>'
       +'<th>Producto</th>'
       +'<th>Clase</th>'
@@ -1659,7 +1666,112 @@ function showTip(e,idx){
 function hideTip(){document.getElementById('tip').style.display='none';}
 document.addEventListener('click',e=>{
   if(!e.target.closest('.chip')&&!e.target.closest('.chip-real')&&!e.target.closest('.modal'))hideTip();
+  if(!e.target.closest('#macro-popup')&&!e.target.closest('span[onclick*="showMacroPopup"]'))document.getElementById('macro-popup').style.display='none';
 });
+
+function showMacroPopup(lote,pk,dds,evt){
+  const Fm=v=>'S/.'+Number(v).toLocaleString('es-PE',{minimumFractionDigits:0,maximumFractionDigits:0});
+  const agKw=['AGROQUIM','FITOSANIT','INSECTICIDA','FUNGICIDA','HERBICIDA','ACARICIDA','NEMATICIDA'];
+  const feKw=['FERTILIZ','FOLIAR','FOLIACION','ESTIMULANTE','NUTRI'];
+  let ag_p=0,fe_p=0,mo_p=0,ag_r=0,fe_r=0,mo_r=0;
+  Object.entries((DATA.ppto&&DATA.ppto[pk])||{}).forEach(([ds,cats])=>{
+    if(parseInt(ds)>dds)return;
+    Object.entries(cats).forEach(([,items])=>items.forEach(it=>{
+      const b=(it.cat_broad||'').toUpperCase();
+      if(it.is_labor){mo_p+=it.cph||0;return;}
+      if(agKw.some(k=>b.includes(k)))ag_p+=it.cph||0;
+      else if(feKw.some(k=>b.includes(k)))fe_p+=it.cph||0;
+    }));
+  });
+  const loteInfo=DATA.resumen.find(l=>l.lote===lote)||{};
+  const ha=loteInfo.ha||1;
+  Object.values((DATA.vales&&DATA.vales[lote])||{}).forEach(entries=>{
+    (Array.isArray(entries)?entries:[entries]).forEach(e=>{
+      const t=(e.tipo||'').toUpperCase();
+      const val=e.costo_ha||((e.costo||0)/(e.ha||1));
+      if(agKw.some(k=>t.includes(k)))ag_r+=val;
+      else if(feKw.some(k=>t.includes(k)))fe_r+=val;
+    });
+  });
+  Object.values((DATA.mano_obra&&DATA.mano_obra[lote])||{}).forEach(entries=>{
+    (Array.isArray(entries)?entries:[entries]).forEach(e=>{mo_r+=(e.importe||e.costo||0)/ha;});
+  });
+  const row=(ico,lbl,r,p)=>{
+    const pct=p>0?Math.round(r/p*100):null;
+    const c=pct===null?'#9e9e9e':pct>=95?'#2e7d32':pct>=68?'#e65100':'#b71c1c';
+    const em=pct===null?'—':pct+'%';
+    const bar=pct!==null?'<div style="height:7px;background:#eee;border-radius:4px;margin:4px 0 2px"><div style="height:7px;background:'+c+';border-radius:4px;width:'+Math.min(pct,100)+'%"></div></div>':'';
+    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.76rem;font-weight:700">'+ico+' '+lbl+'</span><span style="font-size:.82rem;font-weight:800;color:'+c+'">'+em+'</span></div>'+bar+'<div style="font-size:.6rem;color:#aaa">Real '+Fm(r)+'/ha · Esperado '+Fm(p)+'/ha</div></div>';
+  };
+  const popup=document.getElementById('macro-popup');
+  popup.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-weight:800;color:#1b5e20;font-size:.82rem">🔴 '+lote+' · D+'+dds+'</div><span onclick="document.getElementById(\'macro-popup\').style.display=\'none\'" style="cursor:pointer;color:#aaa;font-size:1rem;line-height:1">✕</span></div>'
+    +row('🧪','Agroquímicos',ag_r,ag_p)
+    +row('🌿','Fertilización',fe_r,fe_p)
+    +row('👷','Mano de Obra',mo_r,mo_p)
+    +'<div style="font-size:.58rem;color:#bbb;margin-top:6px;text-align:center">Ritmo al D+'+dds+' · vs ppto esperado hoy</div>';
+  const x=Math.min(evt.clientX+10,window.innerWidth-300);
+  const y=Math.min(evt.clientY+10,window.innerHeight-220);
+  popup.style.left=x+'px';popup.style.top=y+'px';popup.style.display='block';
+}
+
+function exportarPedidoExcel(tipo){
+  const grupos=window._stockGrupos||{};
+  const mesKey=window._stockMesKey||new Date().toISOString().slice(0,7);
+  const lista=(grupos[tipo]||[]);
+  if(!lista.length){alert('No hay productos para este tipo.');return;}
+  if(typeof XLSX==='undefined'){alert('Error: librería Excel no cargada. Recarga la página.');return;}
+  const LABELS={'AGROQUIMICO':'Agroquímicos','FERTILIZANTE':'Fertilizantes','INSUMO':'Insumos','OTRO':'Otros'};
+  const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const[yr,mo]=mesKey.split('-').map(Number);
+  const mesStr=MESES[mo-1]+' '+yr;
+
+  // 6 columnas: ID | Nº CANT | UND | DESCRIPCION DEL PRODUCTO | INGREDIENTE ACTIVO | EMPRESA
+  const EMPTY6=()=>new Array(6).fill('');
+  const aoa=[
+    // Fila 1: título (merged A1:F1)
+    ['REQUERIMIENTO DE INSUMOS QUIMICOS - AGRO PACAYALES','','','','',''],
+    EMPTY6(),  // fila 2 (parte del merge)
+    EMPTY6(),  // fila 3 spacer
+    // Fila 4: SOLICITANTE
+    ['SOLICITANTE:','AGRO PACAYALES','','','',''],
+    // Fila 5: AREA
+    ['AREA:','CAMPO','','','',''],
+    EMPTY6(),  // fila 6 spacer
+    // Fila 7: encabezados tabla
+    ['ID','Nº CANT','UND','DESCRIPCION DEL PRODUCTO','INGREDIENTE ACTIVO','EMPRESA'],
+  ];
+
+  lista.forEach((p,i)=>{
+    const cant=p.cant_total>0?Math.round(p.cant_total*100)/100:'';
+    aoa.push([i+1, cant, p.um||'', p.nombre, '', '']);
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:1,c:5}},  // título A1:F2
+    {s:{r:3,c:1},e:{r:3,c:5}},  // nombre B4:F4
+    {s:{r:4,c:1},e:{r:4,c:5}},  // CAMPO B5:F5
+  ];
+
+  ws['!cols']=[
+    {wch:8},   // ID
+    {wch:12},  // Nº CANT
+    {wch:10},  // UND
+    {wch:42},  // DESCRIPCION DEL PRODUCTO
+    {wch:32},  // INGREDIENTE ACTIVO
+    {wch:24},  // EMPRESA
+  ];
+
+  ws['!rows']=[
+    {hpt:50},{hpt:35},{hpt:6},{hpt:22},{hpt:22},{hpt:8},{hpt:28},
+    ...lista.map(()=>({hpt:22}))
+  ];
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Pedido');
+  XLSX.writeFile(wb,'Pedido_'+(LABELS[tipo]||tipo)+'_'+mesStr.replace(' ','_')+'.xlsx');
+}
 
 /* ── TAB 3: STOCK DEL MES ── */
 function exportarBitacora(){
@@ -2154,7 +2266,7 @@ function buildCronoSummary(l){
       else{
         const rPct=rv/pvHoy*100;
         if(rPct>=95){ritmoTxt='✅ '+rPct.toFixed(0)+'%';ritmoC='#2e7d32';ritmoBg='#e8f5e9';}
-        else if(rPct>=60){ritmoTxt='🟡 '+rPct.toFixed(0)+'%';ritmoC='#e65100';ritmoBg='#fff3e0';}
+        else if(rPct>=68){ritmoTxt='🟡 '+rPct.toFixed(0)+'%';ritmoC='#e65100';ritmoBg='#fff3e0';}
         else{ritmoTxt='🔴 '+rPct.toFixed(0)+'%';ritmoC='#b71c1c';ritmoBg='#ffebee';}
       }
       /* Build detail data */
