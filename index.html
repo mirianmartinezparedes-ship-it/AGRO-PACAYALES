@@ -12,7 +12,7 @@ header{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;padding:14p
 header h1{font-size:1.1rem;font-weight:700}
 header p{font-size:.72rem;opacity:.75;margin-top:2px}
 .tabs{display:flex;background:#fff;border-bottom:2px solid #c8e6c9;padding:0 16px;overflow-x:auto;gap:2px}
-.tab-btn{padding:12px 16px;border:none;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
+.tab-btn{padding:12px 16px;border:none;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s;text-transform:uppercase;letter-spacing:.03em}
 .tab-btn:hover{color:#2e7d32}.tab-active{color:#2e7d32!important;border-bottom-color:#2e7d32!important}
 .panel{display:none;padding:16px 20px;max-width:1280px;margin:0 auto}
 .panel.active{display:block}
@@ -169,7 +169,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 </head>
 <body>
 <header>
-  <div><h1>🌱 Campo Camote 2025-2026</h1><p>Totales · Resumen · Calendario · Pedido · PPTO x Lote · Presupuesto General</p></div>
+  <div><h1>🌱 GESTION CAMPO 2026</h1><p>Totales · Resumen · Calendario · Pedido · Presupuesto General · Excesos</p></div>
   <div style="display:flex;align-items:center;gap:10px">
     <button onclick="exportarNotas()" title="Exportar notas para subir a GitHub" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">📝 Exportar notas</button>
     <div style="font-size:.72rem;opacity:.8" id="hdr-fecha"></div>
@@ -179,9 +179,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
   <button class="tab-btn tab-active" id="btn-tot" onclick="showTab('tot')">📈 Totales</button>
   <button class="tab-btn" id="btn-res" onclick="showTab('res')">📊 Resumen</button>
   <button class="tab-btn" id="btn-cal" onclick="showTab('cal')">📅 Calendario</button>
-  <button class="tab-btn" id="btn-gen" onclick="showTab('gen')">📋 Diario de Labores</button>
   <button class="tab-btn" id="btn-stk" onclick="showTab('stk')">📦 Pedido</button>
-  <button class="tab-btn" id="btn-crono" onclick="showTab('crono')">📋 PPTO x Lote</button>
   <button class="tab-btn" id="btn-ppto" onclick="showTab('ppto')">📊 Presupuesto General</button>
   <button class="tab-btn" id="btn-exc" onclick="showTab('exc')" style="background:#b71c1c;color:#fff">🚨 Excesos</button>
 </div>
@@ -194,7 +192,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 <div id="panel-ppto" class="panel"></div>
 <div id="panel-exc" class="panel"></div>
 <div class="tip" id="tip"></div>
-<div id="macro-popup" style="display:none;position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:18px 22px;min-width:300px;max-width:360px;border:1.5px solid #ef9a9a"></div>
+<div id="macro-popup" style="display:none;position:fixed;z-index:9999;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:18px 22px;min-width:300px;max-width:360px;border:1.5px solid #ef9a9a;max-height:80vh;overflow-y:auto"></div>
 <div class="modal-bg" id="modal-bg" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <h3 id="m-title"></h3>
@@ -221,7 +219,7 @@ DATA.resumen=DATA.resumen.filter(l=>l.siembra>='2025-10-01');
 const Fmt=v=>'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const TABS=['tot','res','cal','gen','stk','crono','ppto','exc'];
+const TABS=['tot','res','cal','stk','crono','ppto','exc'];
 let calMes,calAnio,calLote='';
 function cambiarLote(v){
   calLote=v;
@@ -234,7 +232,8 @@ let EVTS=[];
 
 function showTab(t){
   TABS.forEach(x=>{
-    document.getElementById('btn-'+x).classList.toggle('tab-active',x===t);
+    const _b=document.getElementById('btn-'+x);
+    if(_b)_b.classList.toggle('tab-active',x===t);
     document.getElementById('panel-'+x).classList.toggle('active',x===t);
   });
   if(t==='res'&&!document.getElementById('res-ready'))buildResumen();
@@ -244,6 +243,16 @@ function showTab(t){
   if(t==='crono'&&!document.getElementById('crono-sel'))buildCronoTab();
   if(t==='ppto'&&!document.getElementById('ppto-gen-btns'))buildPptoGeneral();
   if(t==='exc')buildExcesos();
+}
+function goToCrono(loteName){
+  showTab('crono');
+  if(!document.getElementById('crono-sel'))buildCronoTab();
+  setTimeout(()=>{
+    const sel=document.getElementById('crono-sel');
+    if(sel){sel.value=loteName;renderCronoLote(loteName);}
+    const panel=document.getElementById('panel-crono');
+    if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
+  },60);
 }
 function goToCalendar(lote){
   // Build calendar UI if not yet built
@@ -412,7 +421,7 @@ function buildExcesos(){
     t+='<thead style="position:sticky;top:0;z-index:5"><tr style="background:'+color+';color:#fff">';
     t+='<th style="padding:10px 14px;text-align:left">Lote</th>';
     t+='<th style="padding:10px 14px;text-align:left">Categoría</th>';
-    t+='<th style="padding:10px 14px;text-align:right">Ppto/ha</th>';
+    t+='<th style="padding:10px 14px;text-align:right">Ppto/ha<br><span style="font-size:.6rem;font-weight:400;opacity:.8">acum. a la fecha</span></th>';
     t+='<th style="padding:10px 14px;text-align:right">Real/ha</th>';
     t+='<th style="padding:10px 14px;text-align:right">'+(isExceso?'Exceso/ha':'Falta/ha')+'</th>';
     t+='<th style="padding:10px 14px;text-align:right">%</th>';
@@ -590,7 +599,7 @@ function buildTotales(){
   /* Botón Calendario General */
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">';
   h+='<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">📈 Total de Hectáreas Activas</h2>';
-  h+='<button onclick="showTab(\'gen\')" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px">📋 VER DIARIO</button>';
+  h+='<button onclick="showTab(\'gen\')" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px">📋 LABORES DIARIAS</button>';
   h+='</div>';
 
   /* Banner */
@@ -851,10 +860,14 @@ function buildResumen(){
         +'<span style="font-size:.82rem;font-weight:800;color:'+_dotC+'">'+_rpTxt+'</span>'
         +'</span>'
       :'<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:'+_dotC+';margin-left:10px;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>';
+    const _pptoBtnLote=l.lote;
     return '<div class="rc '+(isCP?'cp':'ca')+' rc-clickable" data-lote="'+l.lote+'" style="'+greyStyle+'">'
-      +'<div class="rc-lote" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">'+l.lote+_badge
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px">'
+      +'<div class="rc-lote" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;flex:1;min-width:0">'+l.lote+_badge
       +(culminado?'<span style="font-size:.58rem;font-weight:700;background:#90a4ae;color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle">CULMINADO</span>':'')
       +(l.fuente_costo==='calculado'?'<span style="font-size:.58rem;font-weight:600;background:#fff8e1;color:#f9a825;border:1px solid #ffb74d;border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle">MO+VALES</span>':'')+'</div>'
+      +'<button onclick="event.stopPropagation();goToCrono(\''+_pptoBtnLote.replace(/'/g,"\\'")+'\')" style="background:#1b5e20;color:#fff;border:none;border-radius:6px;padding:3px 10px;font-size:.65rem;font-weight:800;cursor:pointer;flex-shrink:0;margin-top:2px">📋 Presupuesto</button>'
+      +'</div>'
       +'<div class="rc-meta"><span>'+(isCP?'🌱 C. Pintura':'🌿 C. Amarillo')+'</span>'+(l.variedad?'<span>🌾 '+l.variedad+'</span>':'')+'<span>📐 '+l.ha.toFixed(2)+' ha</span>'+(l.tipo?'<span>💧 '+l.tipo+'</span>':'')+'</div>'
       +(dd!==null?'<span class="badge-dds" style="'+(culminado?'background:#eceff1;color:#607d8b;border-color:#b0bec5':'')+'">'+
         (culminado?'Última labor: D+'+dd:'Día '+dd+' DDS')+
@@ -1866,16 +1879,20 @@ function buildStock(){
   let selMes='<select class="sl" id="stk-mes-sel" onchange="stkMesChange(this.value)">';
   Object.keys(MESES_STOCK).forEach(k=>selMes+='<option value="'+k+'"'+(k===_defMes?' selected':'')+'>'+MESES_STOCK[k]+'</option>');
   selMes+='</select>';
-  const btnSt='border:2px solid #2e7d32;border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s';
+  const btnSt='border:2px solid #2e7d32;border-radius:20px;padding:6px 18px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s';
   document.getElementById('panel-stk').innerHTML=
     '<div style="max-width:980px">'
-    +'<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin-bottom:12px">📦 Pedido de Productos</h2>'
-    +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
-    +'<label style="font-size:.82rem;font-weight:700;color:#2e7d32">Mes:</label>'+selMes
+    /* Fila 1: título + selector de mes */
+    +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">📦 Pedido</h2>'
+    +selMes
+    +'<select class="sl" id="stk-sem-sel" style="display:none" onchange="stkSemChange(this.value)"></select>'
+    +'</div>'
+    /* Fila 2: 3 botones bien separados */
+    +'<div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap">'
     +'<button id="stk-btn-mes" onclick="stkSetMode(\'mes\')" style="'+btnSt+';background:#2e7d32;color:#fff">📅 Mensual</button>'
     +'<button id="stk-btn-sem" onclick="stkSetMode(\'sem\')" style="'+btnSt+';background:#fff;color:#2e7d32">📆 Semanal</button>'
     +'<button id="stk-btn-cal" onclick="stkSetMode(\'cal\')" style="'+btnSt+';background:#fff;color:#2e7d32">🗓️ Día a Día</button>'
-    +'<select class="sl" id="stk-sem-sel" style="display:none" onchange="stkSemChange(this.value)"></select>'
     +'</div>'
     +'<div id="stk-body"></div></div>';
   window._stkMode='mes';
@@ -1904,7 +1921,7 @@ function stkSetMode(mode){
   const isCal=mode==='cal';
   const semSel=document.getElementById('stk-sem-sel');
   if(semSel)semSel.style.display=isSem?'':'none';
-  const btnSt='border:2px solid #2e7d32;border-radius:20px;padding:5px 14px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s';
+  const btnSt='border:2px solid #2e7d32;border-radius:20px;padding:6px 18px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s';
   document.getElementById('stk-btn-mes').style.cssText=btnSt+(mode==='mes'?';background:#2e7d32;color:#fff':';background:#fff;color:#2e7d32');
   document.getElementById('stk-btn-sem').style.cssText=btnSt+(mode==='sem'?';background:#2e7d32;color:#fff':';background:#fff;color:#2e7d32');
   document.getElementById('stk-btn-cal').style.cssText=btnSt+(mode==='cal'?';background:#2e7d32;color:#fff':';background:#fff;color:#2e7d32');
@@ -2139,7 +2156,7 @@ function stkCalDay(ds){
   let h='<div style="font-weight:900;font-size:.88rem;color:#1b5e20;margin-bottom:8px">'+DIAS[d.getDay()]+' '+d.getDate()+' de '+MES[d.getMonth()]+'</div>';
   evts.sort((a,b)=>a.lote.localeCompare(b.lote,'es'));
   h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:7px">';
-  evts.forEach(({lote,ha,dds,cil,productos})=>{
+  evts.forEach(({lote,ha,dds,cil_ha,cil_total,productos})=>{
     const agros=productos.filter(p=>p.tipo==='AGROQUIMICO');
     const ferts=productos.filter(p=>p.tipo==='FERTILIZANTE');
     h+='<div style="background:#f9fbe7;border:1px solid #c5e1a5;border-radius:8px;padding:6px 10px">';
@@ -2162,6 +2179,29 @@ function stkCalDay(ds){
     h+='</div>';
   });
   h+='</div>';
+  /* ── TOTALES DEL DÍA ── */
+  const totales={};
+  evts.forEach(({productos})=>{
+    productos.forEach(p=>{
+      const k=p.nombre.toUpperCase().trim()+'|'+p.um;
+      if(!totales[k])totales[k]={nombre:p.nombre,um:p.um,tipo:p.tipo,total:0};
+      totales[k].total+=p.cant_total||0;
+    });
+  });
+  const totArr=Object.values(totales).sort((a,b)=>{
+    if(a.tipo!==b.tipo)return a.tipo==='AGROQUIMICO'?-1:1;
+    return a.nombre.localeCompare(b.nombre,'es');
+  });
+  if(totArr.length>0){
+    h+='<div style="margin-top:10px;border:1.5px solid #a5d6a7;border-radius:8px;overflow:hidden">';
+    h+='<div style="background:#2e7d32;color:#fff;padding:6px 12px;font-size:.72rem;font-weight:800">📦 Total del día (todos los lotes)</div>';
+    h+='<div style="padding:6px 12px;background:#f9fbe7">';
+    totArr.forEach(p=>{
+      const clr=p.tipo==='AGROQUIMICO'?'#bf360c':'#4527a0';
+      h+='<div style="font-size:.73rem;color:#333;padding:2px 0;border-bottom:1px solid #e8f5e9">• <span style="color:'+clr+';font-weight:700">'+p.nombre+'</span> <strong style="color:#111">'+p.total.toFixed(2)+' '+p.um+'</strong></div>';
+    });
+    h+='</div></div>';
+  }
   el.innerHTML=h;
 }
 function showTip(e,idx){
@@ -2206,28 +2246,24 @@ function showMacroPopup(lote,pk,dds,evt){
   });
   const row=(ico,lbl,r,p)=>{
     const pct=p>0?Math.round(r/p*100):null;
-    // Verde: 90–110% | Amarillo: 68–89% | Rojo bajo: <68% | Rojo excedido: >110%
+    // Verde: 90–110% → ocultar (están bien)
+    if(pct!==null&&pct>=90&&pct<=110)return null;
     const isOver=pct!==null&&pct>110;
     const c=pct===null?'#9e9e9e':pct>110?'#b71c1c':pct>=90?'#2e7d32':pct>=68?'#f9a825':'#1565c0';
     const warningBell=isOver?'<span title="¡Presupuesto excedido!" style="font-size:.85rem;margin-left:4px;animation:none">🔔</span>':'';
     const em=pct===null?'—':pct+'%';
-    // Barra: si >110% se muestra llena en rojo con overflow visual
     const barW=pct===null?0:Math.min(pct,100);
     const bar=pct!==null?'<div style="height:7px;background:#eee;border-radius:4px;margin:4px 0 3px;position:relative">'
       +'<div style="height:7px;background:'+c+';border-radius:4px;width:'+barW+'%'+(isOver?';box-shadow:0 0 0 2px #e53935':'')+'">'
       +'</div></div>':'';
-    // Chip de diferencia
     let diffHtml='';
     if(p>0){
       const diff=Math.round(r-p);
       if(isOver){
-        // Excedido: rojo urgente con icono
         diffHtml='<span style="display:inline-flex;align-items:center;gap:3px;background:#ffebee;color:#b71c1c;font-weight:800;font-size:.62rem;padding:2px 8px;border-radius:8px;margin-left:6px;border:1px solid #ef9a9a">⚠ +'+Fm(diff)+'/ha EXCEDIDO</span>';
       } else if(diff<0){
-        // Bajo presupuesto: amarillo
         diffHtml='<span style="display:inline-block;background:#fff8e1;color:#f57f17;font-weight:800;font-size:.62rem;padding:1px 7px;border-radius:8px;margin-left:6px">'+Fm(diff)+'/ha</span>';
       }
-      // 90–110%: no chip, ya está bien
     }
     const lblHtml='<span style="font-size:.78rem;font-weight:700">'+ico+' '+lbl+warningBell+'</span>';
     return '<div style="margin-bottom:12px'+(isOver?';background:#fff5f5;border-radius:8px;padding:6px 8px;border:1px solid #ffcdd2':'')+'">'
@@ -2240,14 +2276,20 @@ function showMacroPopup(lote,pk,dds,evt){
       +diffHtml
       +'</div></div>';
   };
+  const allRows=[
+    row('🧪','Agroquímicos',ag_r,ag_p),
+    row('🌿','Fertilización',fe_r,fe_p),
+    row('👷','Mano de Obra',mo_r,mo_p)
+  ];
+  const visRows=allRows.filter(x=>x!==null);
+  const greenCount=allRows.filter(x=>x===null).length;
   const popup=document.getElementById('macro-popup');
   popup.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-weight:800;color:#1b5e20;font-size:.82rem">🔴 '+lote+' · D+'+dds+'</div><span onclick="document.getElementById(\'macro-popup\').style.display=\'none\'" style="cursor:pointer;color:#aaa;font-size:1rem;line-height:1">✕</span></div>'
-    +row('🧪','Agroquímicos',ag_r,ag_p)
-    +row('🌿','Fertilización',fe_r,fe_p)
-    +row('👷','Mano de Obra',mo_r,mo_p)
+    +(visRows.length>0?visRows.join(''):'<div style="text-align:center;padding:12px 0;color:#2e7d32;font-size:.82rem;font-weight:700">✅ Todo dentro del presupuesto</div>')
+    +(greenCount>0?'<div style="font-size:.6rem;color:#2e7d32;margin-top:2px;text-align:center;opacity:.75">✅ '+greenCount+' categoría'+(greenCount>1?'s':'')+' en verde (oculta'+(greenCount>1?'s':'')+')</div>':'')
     +'<div style="font-size:.58rem;color:#bbb;margin-top:6px;text-align:center">Ritmo al D+'+dds+' · vs ppto esperado hoy</div>';
   const x=Math.min(evt.clientX+10,window.innerWidth-370);
-  const y=Math.min(evt.clientY+10,window.innerHeight-260);
+  const y=Math.max(10,Math.min(evt.clientY+10,window.innerHeight-320));
   popup.style.left=x+'px';popup.style.top=y+'px';popup.style.display='block';
 }
 
@@ -3450,8 +3492,11 @@ function openCostReport(loteName){
     h='<div style="text-align:center;color:#888;padding:40px;font-size:.9rem">Sin aplicaciones de control fitosanitario registradas</div>';
   }else{
     h='<div style="display:grid;grid-template-columns:1fr 1fr;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:10px">';
+    const totCilReal=realApps.reduce((s,rr)=>s+rr.items.reduce((s2,p)=>s2+(p.cilindro||0),0),0);
+    const cilHaReal=ha>0&&totCilReal>0?(totCilReal/ha):0;
+    const cilRealTxt=totCilReal>0?' · 🛢 <strong>'+totCilReal.toFixed(1)+' cil aplic. al lote</strong>'+(cilHaReal>0?' · '+cilHaReal.toFixed(2)+' cil/ha':''):'';
     h+='<div style="background:#607d8b;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">📋 PRESUPUESTO<span style="font-weight:400;font-size:.65rem;margin-left:8px;opacity:.8">'+pptoApps.length+' aplic. — '+Fv(totFP)+'</span></div>';
-    h+='<div style="background:#388e3c;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">✅ REAL<span style="font-weight:400;font-size:.65rem;margin-left:8px;opacity:.8">'+realApps.length+' aplic. — '+Fv(totFR)+'</span></div>';
+    h+='<div style="background:#388e3c;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">✅ REAL<span style="font-weight:400;font-size:.65rem;margin-left:8px;opacity:.8">'+realApps.length+' aplic. — '+Fv(totFR)+cilRealTxt+'</span></div>';
     /* PPTO list – gray */
     h+='<div style="padding:8px 12px;background:#f5f5f5;border-right:1px solid #e0e0e0;vertical-align:top">';
     if(pptoApps.length===0){h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin datos presupuestados</div>';}
@@ -3885,7 +3930,9 @@ function openCostReport(loteName){
       h+='<div style="border-bottom:2px solid #4caf50;padding:8px 0'+(i===realGrps.length-1?';border-bottom:none':'')+'">';
       h+='<div style="font-size:.78rem;font-weight:900;color:#1b5e20;margin-bottom:5px;letter-spacing:.02em">'+(rrDds?rrDds+' · ':'')+rrDate+'</div>';
       rr.items.forEach(it=>{
-        h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
+        const _isSiem=/siembra|transplante|trasplante/i.test(it.label||'');
+        h+='<div style="font-size:.70rem;padding:3px 6px;margin-bottom:2px;display:flex;justify-content:space-between;gap:4px;'+(_isSiem?'background:#c8e6c9;border-radius:5px;border-left:3px solid #1b5e20;':'')+'">';
+        if(_isSiem)h+='<span style="font-size:.55rem;font-weight:800;background:#1b5e20;color:#fff;border-radius:3px;padding:1px 4px;margin-right:4px;white-space:nowrap">🌱</span>';
         h+='<span style="color:#37474f;font-weight:600;flex:1">'+toTitle(it.label);
         if(it.detail)h+='<span style="color:#999;font-size:.64rem"> ('+it.detail+')</span>';
         h+='</span><span style="color:#2e7d32;font-weight:700;white-space:nowrap">'+Fv(it.amount)+'</span></div>';
@@ -3997,7 +4044,7 @@ function openCostReport(loteName){
         });
       });
     }
-    /* --- Collect REAL by date → convert to DDS --- */
+    /* --- Collect REAL by date (independent) --- */
     const realDays={};
     const addReal=(f,obj)=>{if(!realDays[f])realDays[f]=[];realDays[f].push(obj);};
     Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([f,es])=>{
@@ -4009,20 +4056,12 @@ function openCostReport(loteName){
     Object.entries((DATA.vales&&DATA.vales[loteName])||{}).forEach(([f,es])=>{
       es.forEach(e=>addReal(f,{tipo:(e.tipo||'INSUMO').toUpperCase(),cat:e.tipo||'INSUMO',label:e.nombre||e.clase||e.tipo||'Insumo',costo:e.costo||0,jrn:0}));
     });
-    /* --- Build merged key set (DDS numbers) --- */
     const ddsFromDate=f=>sDate?Math.round((new Date(f+'T12:00:00')-sDate)/86400000):null;
-    const allDds=new Set(Object.keys(pptoDays).map(Number));
-    const dateByDds={};
-    Object.keys(realDays).sort().forEach(f=>{
-      const d=ddsFromDate(f);
-      if(d!==null){
-        allDds.add(d);
-        if(!dateByDds[d]){dateByDds[d]=f;}
-      }
-    });
-    if(allDds.size===0)return'<div style="text-align:center;color:#aaa;padding:40px;font-size:.85rem">Sin datos para este lote</div>';
-    const sortedDds=[...allDds].sort((a,b)=>a-b);
-    /* --- Color map by cat_broad / tipo --- */
+    const sortedPptoDds=Object.keys(pptoDays).map(Number).sort((a,b)=>a-b);
+    const sortedRealDates=Object.keys(realDays).sort();
+    if(sortedPptoDds.length===0&&sortedRealDates.length===0)
+      return'<div style="text-align:center;color:#aaa;padding:40px;font-size:.85rem">Sin datos para este lote</div>';
+    /* --- Color helpers --- */
     const broadClr=b=>{const u=(b||'').toUpperCase();
       if(u.includes('ESTABLECIMIENTO'))return'#1565c0';
       if(u.includes('MAQUINARIA'))return'#f9a825';
@@ -4042,67 +4081,71 @@ function openCostReport(loteName){
     let totP=0,totR=0;
     Object.values(pptoDays).flat().forEach(it=>totP+=it.costo);
     Object.values(realDays).flat().forEach(it=>totR+=it.costo);
-    /* --- Build table --- */
-    let h='<div style="overflow-x:auto">';
-    h+='<table style="width:100%;border-collapse:collapse;font-size:.72rem;min-width:480px">';
-    h+='<thead style="position:sticky;top:0;z-index:10"><tr>';
-    h+='<th style="background:#1565c0;color:#fff;padding:8px 14px;text-align:left;width:50%">📋 PRESUPUESTO<br><span style="font-size:.62rem;font-weight:400">Categoría — Labor — Costo</span></th>';
-    h+='<th style="background:#2e7d32;color:#fff;padding:8px 14px;text-align:left;width:50%">✅ REAL<br><span style="font-size:.62rem;font-weight:400">Categoría — Labor — Gasto</span></th>';
-    h+='</tr></thead><tbody>';
-    sortedDds.forEach((dds,idx)=>{
-      const ppItems=pptoDays[dds]||[];
-      const dateStr=sDate?addDays(sDate,dds).toISOString().slice(0,10):(dateByDds[dds]||'');
-      const realItems=dateStr?realDays[dateStr]||[]:[];
-      if(ppItems.length===0&&realItems.length===0)return;
+    /* --- Two INDEPENDENT columns (no date alignment) --- */
+    let h='<div style="display:grid;grid-template-columns:1fr 1fr;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:10px">';
+    h+='<div style="background:#1565c0;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">📋 PRESUPUESTO<br><span style="font-size:.62rem;font-weight:400">Categoría — Labor — Costo &nbsp;·&nbsp; '+Fv(Math.round(totP*100)/100)+(ha>1?' ('+Fv(Math.round(totP/ha*100)/100)+'/ha)':'')+'</span></div>';
+    h+='<div style="background:#2e7d32;color:#fff;padding:8px 14px;font-weight:800;font-size:.78rem">✅ REAL<br><span style="font-size:.62rem;font-weight:400">Categoría — Labor — Gasto &nbsp;·&nbsp; '+Fv(Math.round(totR*100)/100)+(ha>1?' ('+Fv(Math.round(totR/ha*100)/100)+'/ha)':'')+'</span></div>';
+    /* PPTO column */
+    h+='<div style="padding:8px 12px;background:#f3f8ff;border-right:1px solid #e0e0e0;vertical-align:top">';
+    if(sortedPptoDds.length===0){h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin datos presupuestados</div>';}
+    else sortedPptoDds.forEach((dds,i)=>{
+      const ppItems=pptoDays[dds];
+      const dateStr=sDate?addDays(sDate,dds).toISOString().slice(0,10):'';
       const ddsLbl=(dds>=0?'D+':'D')+dds;
       const dateLbl=dateStr?fmtFecha(dateStr):'';
       const isFuture=sDate&&dateStr&&new Date(dateStr+'T12:00:00')>new Date();
-      /* Date separator row spanning both columns */
-      h+='<tr><td colspan="2" style="background:'+(isFuture?'#fff8e1':'#eceff1')+';padding:3px 14px;border-top:2px solid '+(isFuture?'#ffe082':'#cfd8dc')+'">';
-      h+='<span style="font-size:.68rem;font-weight:800;color:'+(isFuture?'#f57f17':'#546e7a')+'">'+ddsLbl+'</span>';
-      h+=' <span style="font-size:.65rem;color:#90a4ae;margin-left:5px">'+dateLbl+'</span>';
-      if(isFuture)h+=' <span style="font-size:.63rem;color:#f57f17">⏳ pendiente</span>';
-      h+='</td></tr>';
-      /* Content row */
-      let td1='<td style="padding:7px 14px;border-bottom:1px solid #eceff1;border-right:1px solid #e0e0e0;background:'+(ppItems.length?'#f3f8ff':'#fff')+';vertical-align:top">';
-      if(ppItems.length){
-        ppItems.forEach(it=>{
-          const clr=broadClr(it.cat_broad);
-          td1+='<div style="margin-bottom:5px;border-left:3px solid '+clr+';padding:3px 7px;background:#fff;border-radius:0 5px 5px 0">';
-          td1+='<div style="font-size:.62rem;font-weight:700;color:'+clr+';text-transform:uppercase;letter-spacing:.3px">'+it.cat_broad+'</div>';
-          td1+='<div style="font-weight:700;color:#333;font-size:.73rem">'+toTitle(it.sub||it.cat)+'</div>';
-          if(it.sub&&it.sub!==it.cat)td1+='<div style="font-size:.62rem;color:#607d8b">'+toTitle(it.cat)+'</div>';
-          td1+='<div style="margin-top:2px"><span style="font-weight:800;color:'+clr+'">'+Fv(it.costo)+'</span>';
-          if(ha>1)td1+=' <span style="color:#aaa;font-size:.63rem">('+Fv(it.cph)+'/ha)</span>';
-          if(it.jrn)td1+=' <span style="color:#90a4ae;font-size:.63rem">'+it.jrn.toFixed(2)+'jrn</span>';
-          td1+='</div></div>';
-        });
-      }else{td1+='<span style="color:#ccc;font-size:.68rem;font-style:italic">Sin actividad presupuestada</span>';}
-      td1+='</td>';
-      let td2='<td style="padding:7px 14px;border-bottom:1px solid #eceff1;background:'+(realItems.length?'#f1f8e9':'#fff')+';vertical-align:top">';
-      if(realItems.length){
-        const agg={};
-        realItems.forEach(it=>{const k=it.cat+'|'+it.label;if(!agg[k])agg[k]={tipo:it.tipo,cat:it.cat,label:it.label,costo:0,jrn:0};agg[k].costo+=it.costo;agg[k].jrn+=(it.jrn||0);});
-        Object.values(agg).forEach(it=>{
-          const clr=tipoClr(it.tipo);
-          td2+='<div style="margin-bottom:5px;border-left:3px solid '+clr+';padding:3px 7px;background:#fff;border-radius:0 5px 5px 0">';
-          td2+='<div style="font-size:.62rem;font-weight:700;color:'+clr+';text-transform:uppercase;letter-spacing:.3px">'+toTitle(it.cat)+'</div>';
-          td2+='<div style="font-weight:700;color:#333;font-size:.73rem">'+toTitle(it.label)+'</div>';
-          td2+='<div style="margin-top:2px"><span style="font-weight:800;color:'+clr+'">'+Fv(Math.round(it.costo*100)/100)+'</span>';
-          if(ha>1)td2+=' <span style="color:#aaa;font-size:.63rem">('+Fv(Math.round(it.costo/ha*100)/100)+'/ha)</span>';
-          if(it.jrn)td2+=' <span style="color:#90a4ae;font-size:.63rem">'+it.jrn.toFixed(1)+'jrn</span>';
-          td2+='</div></div>';
-        });
-      }else{td2+='<span style="color:#ccc;font-size:.68rem;font-style:italic">Sin registro</span>';}
-      td2+='</td>';
-      h+='<tr>'+td1+td2+'</tr>';
+      let totBlock=0; ppItems.forEach(it=>totBlock+=it.costo);
+      h+='<div style="border-bottom:2px solid #90a4ae;padding:8px 0'+(i===sortedPptoDds.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:'+(isFuture?'#f57f17':'#37474f')+';margin-bottom:5px">'+ddsLbl+(dateLbl?' · '+dateLbl:'')+(isFuture?' ⏳':'')+'</div>';
+      ppItems.forEach(it=>{
+        const clr=broadClr(it.cat_broad);
+        h+='<div style="margin-bottom:5px;border-left:3px solid '+clr+';padding:3px 7px;background:#fff;border-radius:0 5px 5px 0">';
+        h+='<div style="font-size:.62rem;font-weight:700;color:'+clr+';text-transform:uppercase;letter-spacing:.3px">'+it.cat_broad+'</div>';
+        h+='<div style="font-weight:700;color:#333;font-size:.73rem">'+toTitle(it.sub||it.cat)+'</div>';
+        h+='<div style="margin-top:2px"><span style="font-weight:800;color:'+clr+'">'+Fv(it.costo)+'</span>';
+        if(ha>1)h+=' <span style="color:#aaa;font-size:.63rem">('+Fv(it.cph)+'/ha)</span>';
+        if(it.jrn)h+=' <span style="color:#90a4ae;font-size:.63rem">'+it.jrn.toFixed(2)+'jrn</span>';
+        h+='</div></div>';
+      });
+      h+='<div style="font-size:.67rem;font-weight:800;color:#546e7a;margin-top:3px">Total: '+Fv(totBlock)+'<span style="font-weight:400;color:#90a4ae;margin-left:6px">('+Fv(Math.round(totBlock/ha*100)/100)+'/ha)</span></div>';
+      h+='</div>';
     });
-    /* Totals */
-    h+='<tr style="font-weight:800">';
-    h+='<td style="padding:9px 14px;font-size:.75rem;background:#1565c0;color:#fff">TOTAL PPTO: '+Fv(Math.round(totP*100)/100)+(ha>1?' <span style="font-size:.65rem;font-weight:500">('+Fv(Math.round(totP/ha*100)/100)+'/ha)</span>':'')+'</td>';
-    h+='<td style="padding:9px 14px;font-size:.75rem;background:#2e7d32;color:#fff">TOTAL REAL: '+Fv(Math.round(totR*100)/100)+(ha>1?' <span style="font-size:.65rem;font-weight:500">('+Fv(Math.round(totR/ha*100)/100)+'/ha)</span>':'')+'</td>';
-    h+='</tr>';
-    h+='</tbody></table></div>';
+    h+='</div>';
+    /* REAL column */
+    h+='<div style="padding:8px 12px;background:#f1f8f4;vertical-align:top">';
+    if(sortedRealDates.length===0){h+='<div style="color:#aaa;font-size:.72rem;font-style:italic;padding:8px 0">Sin registros reales aún</div>';}
+    else sortedRealDates.forEach((fecha,i)=>{
+      const items=realDays[fecha];
+      const rrDds=ddsFromDate(fecha);
+      const rrDdsLbl=rrDds!==null?('D'+(rrDds>=0?'+':'')+rrDds):'';
+      const agg={};
+      items.forEach(it=>{const k=it.cat+'|'+it.label;if(!agg[k])agg[k]={tipo:it.tipo,cat:it.cat,label:it.label,costo:0,jrn:0};agg[k].costo+=it.costo;agg[k].jrn+=(it.jrn||0);});
+      let totBlock=0; items.forEach(it=>totBlock+=it.costo);
+      h+='<div style="border-bottom:2px solid #4caf50;padding:8px 0'+(i===sortedRealDates.length-1?';border-bottom:none':'')+'">';
+      h+='<div style="font-size:.78rem;font-weight:900;color:#1b5e20;margin-bottom:5px">'+(rrDdsLbl?rrDdsLbl+' · ':'')+fmtFecha(fecha)+'</div>';
+      Object.values(agg).forEach(it=>{
+        const clr=tipoClr(it.tipo);
+        const _isSiem=/siembra|transplante|trasplante/i.test(it.label||'');
+        h+='<div style="margin-bottom:5px;border-left:3px solid '+(_isSiem?'#1b5e20':clr)+';padding:3px 7px;background:'+(_isSiem?'#c8e6c9':'#fff')+';border-radius:0 5px 5px 0">';
+        if(_isSiem)h+='<span style="font-size:.58rem;font-weight:800;background:#1b5e20;color:#fff;border-radius:3px;padding:1px 5px;margin-bottom:2px;display:inline-block">🌱 SIEMBRA</span>';
+        h+='<div style="font-size:.62rem;font-weight:700;color:'+(_isSiem?'#1b5e20':clr)+';text-transform:uppercase;letter-spacing:.3px">'+toTitle(it.cat)+'</div>';
+        h+='<div style="font-weight:700;color:#333;font-size:.73rem">'+toTitle(it.label)+'</div>';
+        h+='<div style="margin-top:2px"><span style="font-weight:800;color:'+clr+'">'+Fv(Math.round(it.costo*100)/100)+'</span>';
+        if(ha>1)h+=' <span style="color:#aaa;font-size:.63rem">('+Fv(Math.round(it.costo/ha*100)/100)+'/ha)</span>';
+        if(it.jrn)h+=' <span style="color:#90a4ae;font-size:.63rem">'+it.jrn.toFixed(1)+'jrn</span>';
+        h+='</div></div>';
+      });
+      h+='<div style="font-size:.68rem;font-weight:800;color:#2e7d32;margin-top:4px;border-top:1px dashed #c8e6c9;padding-top:3px">Total: '+Fv(Math.round(totBlock*100)/100)+'<span style="font-weight:400;color:#558b2f;margin-left:6px">('+Fv(Math.round(totBlock/ha*100)/100)+'/ha)</span></div>';
+      h+='</div>';
+    });
+    h+='</div></div>';
+    /* Totals bar */
+    const totD=totR-totP,totC=totD>0?'#e53935':totD<0?'#2e7d32':'#555';
+    h+='<div style="background:#eceff1;border-radius:10px;padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">PPTO TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#1565c0">'+Fv(Math.round(totP*100)/100)+'</div><div style="font-size:.62rem;color:#607d8b">'+Fv(Math.round(totP/ha*100)/100)+'/ha</div></div>';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">REAL TOTAL</div><div style="font-size:.9rem;font-weight:800;color:#2e7d32">'+Fv(Math.round(totR*100)/100)+'</div><div style="font-size:.62rem;color:#558b2f">'+Fv(Math.round(totR/ha*100)/100)+'/ha</div></div>';
+    h+='<div><div style="font-size:.65rem;color:#607d8b;font-weight:700">DIFERENCIA</div><div style="font-size:.9rem;font-weight:800;color:'+totC+'">'+(totD>=0?'+':'')+Fv(Math.abs(totD))+'</div></div>';
+    h+='</div>';
     return h;
   };
   const cronHTML=buildCronogramaHTML();
