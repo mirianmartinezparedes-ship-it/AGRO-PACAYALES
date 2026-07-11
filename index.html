@@ -1595,7 +1595,10 @@ MESES_STOCK={"2026-01": "Enero 2026", "2026-02": "Febrero 2026", "2026-03": "Mar
 let _gDate=new Date(); // current date shown in diario
 function buildCalDiario(){
   const el=document.getElementById('panel-gen');if(!el)return;
-  _gDate=new Date();
+  // Default to last date with mano_obra data, fallback to today
+  const _allMoDates=Object.values(DATA.mano_obra||{}).flatMap(d=>Object.keys(d)).sort();
+  if(_allMoDates.length){const[_y,_mo,_dd]=_allMoDates.at(-1).split('-').map(Number);_gDate=new Date(_y,_mo-1,_dd);}
+  else _gDate=new Date();
   el.innerHTML='<span id="gen-cal-built"></span>'
     +'<div id="gen-nav" style="display:flex;align-items:center;gap:8px;padding:10px 0 14px;flex-wrap:wrap">'
     +'<button onclick="navGenDay(-1)" style="background:#e8f5e9;border:1.5px solid #81c784;border-radius:8px;padding:7px 16px;cursor:pointer;font-weight:700;font-size:.82rem">← Anterior</button>'
@@ -3516,8 +3519,8 @@ function openCostReport(loteName){
     entries.forEach(e=>{
       if(e.tipo==='AGROQUIMICO'){
         if(!byDate[fecha])byDate[fecha]={fecha,items:[],total:0};
-        byDate[fecha].items.push({nombre:e.nombre,clase:e.clase||'',cant_ha:e.cant_ha||0,um:e.um||'',cilindro:e.cilindro||0,costo_xha:e.costo_xha||e.costo||0,costo_total:e.costo_total||e.costo||0});
-        byDate[fecha].total+=(e.costo_total||e.costo||0);
+        byDate[fecha].items.push({nombre:e.nombre,clase:e.clase||'',cant_ha:e.cantidad_ha||e.cant_ha||0,um:e.um||'',cilindro:e.cilindro||0,costo_xha:e.costo_ha||0,costo_total:e.costo_ha||0});
+        byDate[fecha].total+=(e.costo_ha||0);
       }
     });
   });
@@ -3572,7 +3575,7 @@ function openCostReport(loteName){
       h+='<div style="border-bottom:2px solid #4caf50;padding:8px 0'+(i===realApps.length-1?';border-bottom:none':'')+'">';
       h+='<div style="font-size:.78rem;font-weight:900;color:#1b5e20;margin-bottom:5px;letter-spacing:.02em">'+(rrDds?rrDds+' · ':'')+rrDate+'</div>';
       rr.items.forEach(it=>{
-        const qty=it.cant_ha||it.cilindro||0;
+        const qty=it.cant_ha||0;
         h+='<div style="font-size:.70rem;padding:2px 0;display:flex;justify-content:space-between;gap:4px">';
         h+='<span style="color:#37474f;font-weight:600;flex:1">'+toTitle(it.nombre||it.clase||'Agroquímico');
         if(qty>0)h+='<span style="color:#888;font-size:.64rem"> ('+qty.toFixed(2)+' '+(it.um||'')+')</span>';
