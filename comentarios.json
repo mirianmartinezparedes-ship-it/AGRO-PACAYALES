@@ -1,22 +1,14 @@
 {
-  "version": 1,
-  "exportado": "2026-06-27T16:29:28.345Z",
-  "comentarios": {
-    "siembra|2003|": {
-      "status": null,
-      "note": ""
-    },
-    "siembra|1995|": {
-      "status": null,
-      "note": "Se sembró solo 0.5 ha, ( solo trajeron 14 mil esquejes)."
-    },
-    "real|MOD-6C|2026-06-24|app": {
-      "status": null,
-      "note": "Aplicación no está en el presupuesto."
-    }
+  "agro_nota_MOD 9C-26_TRABAJO_CON_MAQUINARIA": {
+    "txt": "PRUEBA",
+    "ts": "10/7/2026, 10:35:34 p. m."
   },
-  "ppto|MOD 9C-26|4|app": {
-    "status": null,
-    "note": "Prueba sync"
+  "agro_nota_BUSTAMANTE CP_26_🧪_Fungicida": {
+    "txt": "PRUEBA",
+    "ts": "10/7/2026, 11:02:14 p. m."
+  },
+  "agro_nota_BUSTAMANTE CP_26_🧪_Acidificante": {
+    "txt": "PRUEBA",
+    "ts": "10/7/2026, 11:53:26 p. m."
   }
 }
