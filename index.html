@@ -1984,7 +1984,7 @@ function stkSetMode(mode){
   const qncKey=isQnc&&qncSel?qncSel.value:'1';
   if(isCal) renderCalStock(mesKey,null);
   else if(isQnc) renderStock(mesKey,null,qncKey);
-  else if(isLot) renderStockByLote(mesKey,semKey,qncKey);
+  else if(isLot) renderStockByLote(mesKey,null,null);
   else renderStock(mesKey,semKey);
 }
 function renderStock(mesKey,semKey,qncKey){
@@ -2159,12 +2159,13 @@ function renderStockByLote(mesKey,semKey,qncKey){
       const _dd=appDate.getDate().toString().padStart(2,'0'),_mm=(appDate.getMonth()+1).toString().padStart(2,'0');
       const fecApl=_dd+'-'+_mm;
       const prods=[];
-      Object.entries(cats).forEach(([,items])=>{
+      Object.entries(cats).forEach(([catKey,items])=>{
         items.forEach(it=>{
           if(it.is_labor)return;
           const tipo=_tipo(it.cat_broad);
           if(!tipo)return;
-          prods.push({nombre:it.sub||it.cat_broad,tipo,um:it.um||'',cant_ha:it.cant_dosis||0,cant_tot:(it.cant_dosis||0)*ha,cph:it.cph||0,valor:(it.cph||0)*ha});
+          const cil_ha=it.cil_ha||0;
+          prods.push({nombre:it.sub||it.cat_broad,tipo,catKey,um:it.um||'',cant_ha:it.cant_dosis||0,cant_tot:(it.cant_dosis||0)*ha,cph:it.cph||0,valor:(it.cph||0)*ha,cil_ha,cil_tot:cil_ha*ha});
         });
       });
       if(!prods.length)return;
@@ -2200,23 +2201,24 @@ function renderStockByLote(mesKey,semKey,qncKey){
       h+='<div style="padding:10px 16px;border-bottom:1px solid #e8f5e9">';
       h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
       h+='<span style="font-size:.78rem;font-weight:800;color:#2e7d32;background:#e8f5e9;border-radius:8px;padding:3px 10px">📅 DDS '+ap.dds+' — '+ap.fecApl+'</span>';
+      const apCils=ap.prods.reduce((s,p)=>s+p.cil_tot,0);
       h+='<span style="font-size:.72rem;color:#888">'+ap.prods.length+' producto'+(ap.prods.length!==1?'s':'')+'</span>';
       h+='<span style="margin-left:auto;font-size:.75rem;font-weight:700;color:#1b5e20">'+Fv(apTotal)+'</span>';
       h+='</div>';
-      h+='<table style="width:100%;border-collapse:collapse;font-size:.75rem"><thead><tr style="background:#f9f9f9">';
-      h+='<th style="padding:5px 10px;text-align:left;color:#555;font-weight:700">Producto</th>';
-      h+='<th style="padding:5px 10px;text-align:left;color:#555;font-weight:700">Tipo</th>';
-      h+='<th style="padding:5px 10px;text-align:right;color:#555;font-weight:700">Dosis/ha</th>';
-      h+='<th style="padding:5px 10px;text-align:right;color:#555;font-weight:700">Cant. total</th>';
-      h+='<th style="padding:5px 10px;text-align:right;color:#555;font-weight:700">Valor est.</th>';
+      h+='<table style="width:100%;border-collapse:collapse;font-size:.82rem;table-layout:fixed"><thead><tr style="background:#f9f9f9">';
+      h+='<th style="padding:5px 8px;text-align:left;color:#555;font-weight:700;width:38%">Producto</th>';
+      h+='<th style="padding:5px 8px;text-align:right;color:#555;font-weight:700;width:18%">Dosis/ha</th>';
+      h+='<th style="padding:5px 8px;text-align:right;color:#555;font-weight:700;width:18%">Cant. total</th>';
+      h+='<th style="padding:5px 8px;text-align:right;color:#555;font-weight:700;width:12%">Cil.</th>';
+      h+='<th style="padding:5px 8px;text-align:right;color:#555;font-weight:700;width:14%">Valor</th>';
       h+='</tr></thead><tbody>';
       ap.prods.forEach((p,i)=>{
         h+='<tr style="background:'+(i%2?'#fafafa':'#fff')+'">';
-        h+='<td style="padding:5px 10px;font-weight:600">'+p.nombre+'</td>';
-        h+='<td style="padding:5px 10px"><span style="font-size:.65rem;color:'+(TIPO_CLR[p.tipo]||'#555')+';background:'+(p.tipo==='AGROQUIMICO'?'#fff3e0':p.tipo==='FERTILIZANTE'?'#ede7f6':'#fff8e1')+';border-radius:6px;padding:1px 6px;font-weight:700">'+(TIPO_ICO[p.tipo]||'')+'</span></td>';
-        h+='<td style="padding:5px 10px;text-align:right;color:#555">'+(p.cant_ha>0?Fn(p.cant_ha)+' '+p.um+'/ha':'—')+'</td>';
-        h+='<td style="padding:5px 10px;text-align:right;font-weight:800;color:#1b5e20">'+(p.cant_tot>0?'<strong>'+Fn(p.cant_tot)+' '+p.um+'</strong>':'—')+'</td>';
-        h+='<td style="padding:5px 10px;text-align:right">'+(p.valor>0?Fv(p.valor):'—')+'</td>';
+        h+='<td style="padding:5px 8px"><span style="font-weight:700">'+p.nombre+'</span>'+(p.catKey?'<div style="font-size:.68rem;color:#888;margin-top:1px">'+p.catKey+'</div>':'')+'</td>';
+        h+='<td style="padding:5px 8px;text-align:right;color:#555">'+(p.cant_ha>0?Fn(p.cant_ha)+' '+p.um+'/ha':'—')+'</td>';
+        h+='<td style="padding:5px 8px;text-align:right;font-weight:800;color:#1b5e20">'+(p.cant_tot>0?Fn(p.cant_tot)+' '+p.um:'—')+'</td>';
+        h+='<td style="padding:5px 8px;text-align:right;color:#1565c0;font-weight:700">'+(p.cil_tot>0?Fn(p.cil_tot):'—')+'</td>';
+        h+='<td style="padding:5px 8px;text-align:right">'+(p.valor>0?Fv(p.valor):'—')+'</td>';
         h+='</tr>';
       });
       h+='</tbody></table></div>';
