@@ -12,8 +12,9 @@ header{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;padding:14p
 header h1{font-size:1.1rem;font-weight:700}
 header p{font-size:.72rem;opacity:.75;margin-top:2px}
 .tabs{display:flex;background:#fff;border-bottom:2px solid #c8e6c9;padding:0 16px;overflow-x:auto;gap:2px}
-.tab-btn{padding:12px 16px;border:none;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s;text-transform:uppercase;letter-spacing:.03em}
-.tab-btn:hover{color:#2e7d32}.tab-active{color:#2e7d32!important;border-bottom-color:#2e7d32!important}
+.tab-btn{padding:12px 16px;border:none;background:none;font-size:.82rem;font-weight:700;cursor:pointer;color:#888;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s;text-transform:uppercase;letter-spacing:.03em;border-radius:6px 6px 0 0}
+.tab-btn:hover{color:#2e7d32;background:rgba(46,125,50,.06)}
+.tab-active{color:#2e7d32!important;border-bottom-color:#2e7d32!important;background:#fff!important;box-shadow:0 -2px 8px rgba(0,0,0,.08),2px 0 6px rgba(0,0,0,.04),-2px 0 6px rgba(0,0,0,.04)!important}
 .panel{display:none;padding:16px 20px;max-width:1280px;margin:0 auto}
 .panel.active{display:block}
 /* RESUMEN */
@@ -181,7 +182,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
   <button class="tab-btn" id="btn-cal" onclick="showTab('cal')">📅 Calendario</button>
   <button class="tab-btn" id="btn-stk" onclick="showTab('stk')">📦 Pedido</button>
   <button class="tab-btn" id="btn-ppto" onclick="showTab('ppto')">📊 Presupuesto General</button>
-  <button class="tab-btn" id="btn-exc" onclick="showTab('exc')" style="background:#b71c1c;color:#fff">🚨 Excesos</button>
+  <button class="tab-btn" id="btn-exc" onclick="showTab('exc')">⚠️ Excesos</button>
 </div>
 <div id="panel-tot" class="panel active"></div>
 <div id="panel-res" class="panel"></div>
@@ -370,7 +371,7 @@ function buildExcesos(){
       const pptoHa=ppMap[broad]||0;
       if(pptoHa<=0)return;
       const pct=realHa/pptoHa;
-      if(pct>=1.5)rows.push({lote,curDds,broad,pptoHa,realHa,pct,ha});
+      if(pct>1.0)rows.push({lote,pk,curDds,broad,pptoHa,realHa,pct,ha});
     });
 
     /* ── Excesos sub-categoría: vales.clase vs ppto cat (hasta curDds) ── */
@@ -394,13 +395,13 @@ function buildExcesos(){
         const pptoHa=ppCatMap[cat]||0;
         if(pptoHa<5)return; // ignorar items mínimos
         const pct=realHa/pptoHa;
-        if(pct<1.5)return;
+        if(pct<=1.0)return;
         // Evitar duplicar si ya está en rows como AGROQUIMICO/FERTILIZANTE broad
         const broadParent=['FERTIL','ENMIENDA'].some(k=>cat.includes(k))?'FERTILIZANTE':'AGROQUIMICO';
         const alreadyIn=rows.some(r=>r.lote===lote&&r.broad===broadParent&&r.pct>=1.5);
         if(alreadyIn)return;
         const label='🧪 '+cat.charAt(0)+cat.slice(1).toLowerCase();
-        rows.push({lote,curDds,broad:label,pptoHa,realHa,pct,ha});
+        rows.push({lote,pk,curDds,broad:label,pptoHa,realHa,pct,ha});
       });
     }
 
@@ -413,7 +414,7 @@ function buildExcesos(){
         const pct=realHa/pptoHa;
         // Módulos: omitir maquinaria si no gastaron (tractores no entran a MOD)
         if(lote.toUpperCase().startsWith('MOD')&&broad==='TRABAJO CON MAQUINARIA'&&realHa===0)return;
-        if(pct<0.5)rowsLow.push({lote,curDds,broad,pptoHa,realHa,pct,ha});
+        if(pct<0.5)rowsLow.push({lote,pk,curDds,broad,pptoHa,realHa,pct,ha});
       });
     }
   });
@@ -430,8 +431,78 @@ function buildExcesos(){
   const saveNota=(k,txt)=>{const d={txt,ts:new Date().toLocaleString('es-PE')};localStorage.setItem(k,JSON.stringify(d));};
   const delNota=k=>localStorage.removeItem(k);
 
+  /* ── Detalle sub-categoría por fila ── */
+  const buildDetHTML=(r)=>{
+    const ppSub={},rrSub={};
+    const broadR=r.broad.replace(/^🧪\s*/,''); // strip emoji prefix for sub-cat rows
+    if(DATA.ppto&&DATA.ppto[r.pk]){
+      Object.entries(DATA.ppto[r.pk]).forEach(([ddsStr,cats])=>{
+        if(r.curDds>0&&parseInt(ddsStr)>r.curDds)return;
+        Object.entries(cats).forEach(([cat,items])=>{
+          items.forEach(it=>{
+            const catK=cat.toUpperCase();
+            const isMaq=['MAQUINARIA','COSECHADORA','PREPARACION DE TERRENO','TRACTOR'].some(k=>catK.includes(k));
+            let b;
+            if(isMaq)b='TRABAJO CON MAQUINARIA';
+            else if(it.is_labor)b=isEstabEx(it.cat_broad||cat)?'COSTOS DE ESTABLECIMIENTO':'MANO DE OBRA';
+            else b=it.cat_broad||cat||'OTROS';
+            if(b!==broadR)return;
+            const k=(it.sub||cat).trim();
+            ppSub[k]=(ppSub[k]||0)+(it.cph||0);
+          });
+        });
+      });
+    }
+    if(broadR==='MANO DE OBRA'||broadR==='COSTOS DE ESTABLECIMIENTO'){
+      Object.entries((DATA.mano_obra&&DATA.mano_obra[r.lote])||{}).forEach(([,es])=>{
+        es.forEach(e=>{
+          const isE=isEstabEx(e.cat||'');
+          const b=isE?'COSTOS DE ESTABLECIMIENTO':'MANO DE OBRA';
+          if(b!==broadR)return;
+          const k=(e.sub||e.cat||'OTROS').trim();
+          rrSub[k]=(rrSub[k]||0)+(e.costo||0)/r.ha;
+        });
+      });
+    } else if(broadR==='AGROQUIMICO'||broadR==='FERTILIZANTE'||broadR==='INSUMOS'){
+      Object.entries((DATA.vales&&DATA.vales[r.lote])||{}).forEach(([,es])=>{
+        es.forEach(e=>{
+          const tp=(e.tipo||'').toUpperCase();
+          const b=tp.includes('AGROQUIM')?'AGROQUIMICO':tp.includes('FERTIL')?'FERTILIZANTE':'INSUMOS';
+          if(b!==broadR)return;
+          const k=(e.nombre||e.clase||'OTROS').trim();
+          rrSub[k]=(rrSub[k]||0)+(e.costo_ha||0);
+        });
+      });
+    } else if(broadR==='TRABAJO CON MAQUINARIA'){
+      Object.entries((DATA.maquinaria&&DATA.maquinaria[r.lote])||{}).forEach(([,es])=>{
+        es.forEach(e=>{
+          const k=(e.actividad||e.desc||'Maquinaria').trim();
+          rrSub[k]=(rrSub[k]||0)+(e.costo_total||0)/r.ha;
+        });
+      });
+    }
+    const allK=[...new Set([...Object.keys(ppSub),...Object.keys(rrSub)])].sort();
+    if(!allK.length)return'<div style="padding:10px 16px;color:#aaa;font-size:.76rem;font-style:italic">Sin detalle disponible</div>';
+    let d='<table style="width:100%;border-collapse:collapse;font-size:.76rem">';
+    d+='<thead><tr style="background:#eceff1"><th style="padding:5px 12px;text-align:left;color:#546e7a;font-weight:700">Labor / Producto</th><th style="padding:5px 12px;text-align:right;color:#546e7a;font-weight:700">Ppto/ha</th><th style="padding:5px 12px;text-align:right;color:#546e7a;font-weight:700">Real/ha</th><th style="padding:5px 12px;text-align:right;color:#546e7a;font-weight:700">%</th></tr></thead><tbody>';
+    allK.forEach((k,i)=>{
+      const pp=ppSub[k]||0,rr=rrSub[k]||0;
+      const kPct=pp>0?rr/pp*100:null;
+      const kC=kPct===null?'#6a1b9a':kPct>110?'#c62828':kPct>=90?'#2e7d32':'#1565c0';
+      const kTxt=kPct===null?'⚡ Extra':kPct.toFixed(0)+'%';
+      d+='<tr style="background:'+(i%2?'#fafafa':'#fff')+';border-bottom:1px solid #f0f0f0">';
+      d+='<td style="padding:5px 12px;color:#37474f">'+k+'</td>';
+      d+='<td style="padding:5px 12px;text-align:right;color:#78909c">'+(pp>0?Fv(pp):'—')+'</td>';
+      d+='<td style="padding:5px 12px;text-align:right;font-weight:700;color:#1b5e20">'+(rr>0?Fv(rr):'—')+'</td>';
+      d+='<td style="padding:5px 12px;text-align:right;font-weight:800;color:'+kC+'">'+kTxt+'</td>';
+      d+='</tr>';
+    });
+    d+='</tbody></table>';
+    return d;
+  };
+
   const buildTable=(data,isExceso)=>{
-    if(data.length===0)return'<div style="text-align:center;padding:50px;color:#aaa;font-size:.9rem">'+(isExceso?'✅ Sin excesos &gt;150%':'✅ Sin categorías por debajo del 50%')+'</div>';
+    if(data.length===0)return'<div style="text-align:center;padding:50px;color:#aaa;font-size:.9rem">'+(isExceso?'✅ Sin excesos &gt;100%':'✅ Sin categorías por debajo del 50%')+'</div>';
     const color=isExceso?'#b71c1c':'#1565c0';
     const bgLight=isExceso?'#ffcdd2':'#e3f2fd';
     const byLote={};
@@ -466,13 +537,20 @@ function buildExcesos(){
       t+='<td style="padding:9px 14px;text-align:right;color:#222">'+Fv(pptoLote)+'</td>';
       t+='<td style="padding:9px 14px;text-align:right;color:#222;font-weight:700">'+Fv(realLote)+'</td>';
       t+='<td style="padding:9px 14px;text-align:right;color:'+excColor+';font-weight:900;font-size:.95rem;letter-spacing:-.3px">'+(isExceso?'+':'-')+Fv(diff)+'</td>';
-      t+='<td style="padding:9px 14px;text-align:right"><span style="background:'+bgLight+';color:'+color+';font-weight:900;padding:3px 12px;border-radius:12px;white-space:nowrap">'+(isExceso?'🔴 ':'🔵 ')+pctStr+'</span></td>';
+      const detId='exc-det-'+i+(isExceso?'a':'b');
+      t+='<td style="padding:9px 14px;text-align:right">';
+      t+='<span onclick="var el=document.getElementById(\''+detId+'\');if(el){var op=el.style.display!==\'none\';el.style.display=op?\'none\':\'table-row\';this.textContent=op?\''+(isExceso?'🔴 ':'🔵 ')+pctStr+' ▶\':\''+pctStr+' ▼\';}" style="background:'+bgLight+';color:'+color+';font-weight:900;padding:3px 12px;border-radius:12px;white-space:nowrap;cursor:pointer" title="Ver detalle por labor/producto">'+(isExceso?'🔴 ':'🔵 ')+pctStr+' ▶</span>';
+      t+='</td>';
       /* Nota button */
       const editId='nota-edit-'+i+(isExceso?'a':'b');
       t+='<td style="padding:9px 10px;text-align:center">';
       t+='<button onclick="toggleNota(\''+nk+'\',\''+editId+'\')" '
         +'style="background:'+(nota?'#fffde7':'#f5f5f5')+';border:1.5px solid '+(nota?'#f9a825':'#ccc')+';border-radius:8px;padding:4px 8px;cursor:pointer;font-size:.8rem">'
         +(nota?'📝':'➕')+'</button>';
+      t+='</td></tr>';
+      /* Detalle desplegable (labor/producto breakdown) */
+      t+='<tr id="'+detId+'" style="display:none;background:#f5f7ff"><td colspan="7" style="padding:0 0 4px 0;border-bottom:2px solid #c5cae9">';
+      t+=buildDetHTML(r);
       t+='</td></tr>';
       /* Editor inline (oculto, se muestra al hacer clic en el lápiz) */
       t+='<tr id="'+editId+'" class="nota-edit-row" style="display:none;background:#f9fbe7;border-bottom:2px solid #aed581">';
@@ -492,7 +570,7 @@ function buildExcesos(){
 
   let h='<div style="padding:18px 16px">';
   h+='<div style="display:flex;gap:10px;margin-bottom:20px;align-items:center;flex-wrap:wrap">';
-  h+='<button id="exc-btn-alto" onclick="excSwitch(\'alto\')" style="background:#b71c1c;color:#fff;border:none;border-radius:20px;padding:7px 18px;font-size:.8rem;font-weight:800;cursor:pointer">🔴 Excesos &gt;150% ('+rows.length+')</button>';
+  h+='<button id="exc-btn-alto" onclick="excSwitch(\'alto\')" style="background:#b71c1c;color:#fff;border:none;border-radius:20px;padding:7px 18px;font-size:.8rem;font-weight:800;cursor:pointer">🔴 Excesos &gt;100% ('+rows.length+')</button>';
   h+='<button id="exc-btn-bajo" onclick="excSwitch(\'bajo\')" style="background:#e0e0e0;color:#546e7a;border:none;border-radius:20px;padding:7px 18px;font-size:.8rem;font-weight:800;cursor:pointer">🔵 Sub-ejecución &lt;50% ('+rowsLow.length+')</button>';
   h+='</div>';
   h+='<div id="exc-panel-alto">'+buildTable(rows,true)+'</div>';
@@ -3427,9 +3505,14 @@ function buildCronoSummary(l){
       h+='<tr class="crono-g-'+bgId+'" style="display:none;border-bottom:1px solid #eeeeee;cursor:'+(hasDet?'pointer':'default')+'" '
         +(hasDet?'onclick="var el=document.getElementById(\''+uid+'\');if(el){var open=el.style.display!==\'none\';el.style.display=open?\'none\':\'table-row\';this.querySelector(\'.adarrow\').textContent=open?\'▶\':\'▼\';}" ':'')
         +'onmouseover="this.style.background=\'#f5f5f5\'" onmouseout="this.style.background=\'\'">';
+      const aNk='agro_nota_'+loteName+'_'+broad.replace(/\s/g,'_')+'_'+act.replace(/\s/g,'_');
+      const aNota=(()=>{try{return JSON.parse(localStorage.getItem(aNk)||'null');}catch(e){return null;}})();
+      const aNEditId='crono-nota-edit-act-'+uid;
       h+='<td style="padding:7px 14px 7px 32px;color:#424242">';
       if(hasDet)h+='<span class="adarrow" style="color:#1565c0;font-size:.65rem;margin-right:5px;display:inline-block;width:10px">▶</span>';
-      h+=tit(act)+'</td>';
+      h+=tit(act);
+      h+='<button onclick="event.stopPropagation();toggleNota(\''+aNk+'\',\''+aNEditId+'\')" style="margin-left:8px;background:'+(aNota?'#fffde7':'transparent')+';border:1px solid '+(aNota?'#f9a825':'#c5cae9')+';border-radius:6px;padding:1px 6px;cursor:pointer;font-size:.7rem;color:#7986cb;vertical-align:middle">'+(aNota?'📝':'➕')+'</button>';
+      h+='</td>';
       /* PPTO esperado hoy (gray) — pvHoy; total cultivo como nota */
       h+='<td style="padding:7px 14px;text-align:right;font-weight:'+(pvHoy>0?'600':'400')+';color:'+(pvHoy>0?'#546e7a':'#bdbdbd')+'">';
       h+=(pvHoy>0?_F(pvHoy):(pv>0?'<span style="color:#b0bec5;font-size:.7rem">📅 '+_F(pv)+'</span>':'—'));
@@ -3447,6 +3530,15 @@ function buildCronoSummary(l){
       /* % del ppto total */
       h+='<td style="padding:7px 14px;text-align:right;font-weight:700;color:'+ec+'">'+epctTxt+'</td>';
       h+='</tr>';
+      /* Nota editor row for activity */
+      h+='<tr id="'+aNEditId+'" class="crono-g-'+bgId+' nota-edit-row" style="display:none;background:#f9fbe7;border-bottom:1px solid #aed581">';
+      h+='<td colspan="5" style="padding:6px 14px 8px 32px">';
+      h+='<textarea style="width:100%;height:60px;border:1.5px solid #aed581;border-radius:8px;padding:7px;font-size:.78rem;font-family:inherit;resize:vertical;box-sizing:border-box" placeholder="Anotación sobre '+tit(act)+' — ej: indicación del ingeniero de campo..."></textarea>';
+      h+='<div style="display:flex;gap:8px;margin-top:6px">';
+      h+='<button onclick="borrarNotaInline(\''+aNEditId+'\')" style="background:#ffebee;color:#c62828;border:1.5px solid #ef9a9a;border-radius:8px;padding:4px 12px;font-size:.73rem;font-weight:700;cursor:pointer">🗑 Borrar</button>';
+      h+='<button onclick="toggleNota(null,\''+aNEditId+'\')" style="background:#f5f5f5;color:#546e7a;border:1px solid #ddd;border-radius:8px;padding:4px 10px;font-size:.73rem;cursor:pointer">Cancelar</button>';
+      h+='<button onclick="guardarNotaInline(\''+aNEditId+'\')" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:4px 14px;font-size:.73rem;font-weight:800;cursor:pointer">💾 Guardar</button>';
+      h+='</div></td></tr>';
       /* Expandable detail row */
       if(hasDet)h+='<tr id="'+uid+'" style="display:none"><td colspan="5" style="padding:0">'+buildActDetailHTML(ppD,rrD)+'</td></tr>';
     });
