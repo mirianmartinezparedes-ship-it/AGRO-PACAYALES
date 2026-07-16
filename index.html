@@ -1018,11 +1018,7 @@ function buildResumen(){
     h+='</div>';
   }
   document.getElementById('panel-res').innerHTML=h+'</div><span id="res-ready" style="display:none"></span>';
-  document.getElementById('panel-res').addEventListener('click',function(e){
-    var card=e.target;
-    while(card&&!card.classList.contains('rc-clickable'))card=card.parentElement;
-    if(card&&card.dataset&&card.dataset.lote)openCostReport(card.dataset.lote);
-  });
+  /* Reporte de costos desactivado — usuario prefiere usar pestaña Presupuesto */
 }
 
 /* ── TAB 2: CALENDARIO ── */
@@ -3554,8 +3550,11 @@ function buildCronoDayList(l){
 function cronoToggle(gId){
   const rows=document.querySelectorAll('.crono-g-'+gId);
   const btn=document.getElementById('crono-ico-'+gId);
-  const isOpen=rows.length>0&&rows[0].style.display!=='none';
-  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  const isOpen=rows.length>0&&[...rows].find(r=>!r.classList.contains('nota-edit-row'))?.style.display!=='none';
+  rows.forEach(r=>{
+    if(isOpen){r.style.display='none';}
+    else if(!r.classList.contains('nota-edit-row')){r.style.display='';}
+  });
   if(btn)btn.textContent=isOpen?'▶':'▼';
 }
 function buildCronoSummary(l){
