@@ -5254,40 +5254,61 @@ cargarNotasServidor();
     </div>
 
     <!-- Título STOCK -->
-    <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px;padding-left:2px">📦 Stock acumulado semana</div>
-    <!-- KPI Cards (se actualiza al seleccionar día) -->
-    <div class="plt-kpis" id="plt-kpi-row">
-      <div class="plt-kpi">
-        <div class="plt-kpi-lbl">A</div>
-        <div class="plt-kpi-val" id="kpi-stockA">35 jabas</div>
-        <div class="plt-kpi-sub" id="kpi-stockA-sub">≈ 525 kg<br>15 kg/jaba</div>
-      </div>
-      <div class="plt-kpi">
-        <div class="plt-kpi-lbl">P</div>
-        <div class="plt-kpi-val" id="kpi-stockP">11 jabas</div>
-        <div class="plt-kpi-sub" id="kpi-stockP-sub">≈ 198 kg<br>18 kg/jaba</div>
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">
 
+      <!-- IZQUIERDA: resumen stock -->
+      <div style="flex:2;min-width:0">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px">📦 Stock acumulado semana</div>
+        <!-- Fila 1: TOTAL + CHANCHO -->
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div class="plt-kpi" style="background:#f0f0f0;flex:1">
+            <div class="plt-kpi-lbl">TOTAL</div>
+            <div class="plt-kpi-val" id="kpi-stockTot" style="font-size:1.5rem!important">94 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockTot-sub">al 16/07</div>
+          </div>
+          <div class="plt-kpi" style="flex:1">
+            <div class="plt-kpi-lbl">CHANCHO</div>
+            <div class="plt-kpi-val" id="kpi-chancho">9 sacos</div>
+            <div class="plt-kpi-sub" id="kpi-chancho-sub">al 16/07 · Sem. 29</div>
+          </div>
+        </div>
+        <!-- Fila 2: calidades A P C M -->
+        <div style="display:flex;gap:8px">
+          <div class="plt-kpi" style="flex:1">
+            <div class="plt-kpi-lbl">A</div>
+            <div class="plt-kpi-val" id="kpi-stockA">35 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockA-sub">≈ 525 kg<br>15 kg/jaba</div>
+          </div>
+          <div class="plt-kpi" style="flex:1">
+            <div class="plt-kpi-lbl">P</div>
+            <div class="plt-kpi-val" id="kpi-stockP">11 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockP-sub">≈ 198 kg<br>18 kg/jaba</div>
+          </div>
+          <div class="plt-kpi" style="flex:1">
+            <div class="plt-kpi-lbl">C</div>
+            <div class="plt-kpi-val" id="kpi-stockC">12 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockC-sub">≈ 204 kg<br>17 kg/jaba</div>
+          </div>
+          <div class="plt-kpi" style="flex:1">
+            <div class="plt-kpi-lbl">M</div>
+            <div class="plt-kpi-val" id="kpi-stockM">36 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockM-sub">≈ 612 kg<br>17 kg/jaba</div>
+          </div>
+        </div>
       </div>
-      <div class="plt-kpi">
-        <div class="plt-kpi-lbl">C</div>
-        <div class="plt-kpi-val" id="kpi-stockC">12 jabas</div>
-        <div class="plt-kpi-sub" id="kpi-stockC-sub">≈ 204 kg<br>17 kg/jaba</div>
+
+      <!-- DERECHA: comparativo merma dinámico -->
+      <div id="plt-merma-panel" style="flex:1;min-width:190px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:.74rem">
+        <div style="font-weight:800;color:#444;margin-bottom:8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Merma del día · 16/07</div>
+        <table style="width:100%;border-collapse:collapse" id="plt-merma-table">
+          <tr><td style="color:#555;padding:2px 0">📦 Ingreso</td><td style="text-align:right;font-weight:700">3,800 kg</td></tr>
+          <tr><td style="color:#555;padding:2px 0">🎋 Jabas</td><td style="text-align:right;font-weight:700">3,394 kg</td></tr>
+          <tr><td style="color:#555;padding:2px 0">🐷 Chancho</td><td style="text-align:right;font-weight:700">380 kg</td></tr>
+          <tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:4px">Total salida</td><td style="text-align:right;font-weight:800;padding-top:4px">3,774 kg</td></tr>
+          <tr><td style="font-weight:800;color:#1b5e20;padding-top:2px">📉 Merma</td><td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">26 kg (0.7%)</td></tr>
+        </table>
       </div>
-      <div class="plt-kpi">
-        <div class="plt-kpi-lbl">M</div>
-        <div class="plt-kpi-val" id="kpi-stockM">36 jabas</div>
-        <div class="plt-kpi-sub" id="kpi-stockM-sub">≈ 612 kg<br>17 kg/jaba</div>
-      </div>
-      <div class="plt-kpi" style="background:#f0f0f0">
-        <div class="plt-kpi-lbl">TOTAL</div>
-        <div class="plt-kpi-val" id="kpi-stockTot" style="font-size:1.5rem!important">94 jabas</div>
-        <div class="plt-kpi-sub" id="kpi-stockTot-sub">al 16/07</div>
-      </div>
-      <div class="plt-kpi">
-        <div class="plt-kpi-lbl">CHANCHO</div>
-        <div class="plt-kpi-val" id="kpi-chancho">9 sacos</div>
-        <div class="plt-kpi-sub" id="kpi-chancho-sub">al 16/07 · Sem. 29</div>
-      </div>
+
     </div>
 
     <!-- ═══ VISTA DIARIA ═══ -->
@@ -5334,32 +5355,6 @@ cargarNotasServidor();
                   <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">82 j</div><div class="plt-qc-sub">+ 2 sacos</div></div>
                 </div>
               </div>
-              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
-                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 13/07</span>
-                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,877 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🐷 Chancho (2 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">190 kg</td>
-                  </tr>
-                  <tr style="border-top:1px solid #ddd">
-                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
-                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">4,067 kg</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:3px 0;font-weight:800;color:#c62828">📉 Sobrante (arrastre)</td>
-                    <td style="text-align:right;font-weight:900;color:#c62828;font-size:.85rem">267 kg (7.0%)</td>
-                  </tr>
-                </table>
-                <div style="font-size:.62rem;color:#888;margin-top:4px">* incluye arrastre sem. anterior</div>
-              </div>
             </div><!-- day-panel-0 -->
 
             <!-- ── 14/07 ── -->
@@ -5395,32 +5390,6 @@ cargarNotasServidor();
                   <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">9</div><div class="plt-qc-sub">sacos prod.</div></div>
                   <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">65 j</div><div class="plt-qc-sub">+ 9 sacos</div></div>
                 </div>
-              </div>
-              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
-                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 14/07</span>
-                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,134 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🐷 Chancho (7 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">665 kg</td>
-                  </tr>
-                  <tr style="border-top:1px solid #ddd">
-                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
-                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,799 kg</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:3px 0;font-weight:800;color:#1b5e20">📉 Merma del día</td>
-                    <td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">1 kg (0.0%)</td>
-                  </tr>
-                </table>
-                
               </div>
             </div><!-- day-panel-1 -->
 
@@ -5458,32 +5427,6 @@ cargarNotasServidor();
                   <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">88 j</div><div class="plt-qc-sub">+ 5 sacos</div></div>
                 </div>
               </div>
-              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
-                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 15/07</span>
-                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,349 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🐷 Chancho (5 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">475 kg</td>
-                  </tr>
-                  <tr style="border-top:1px solid #ddd">
-                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
-                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,824 kg</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:3px 0;font-weight:800;color:#c62828">📉 Sobrante (arrastre)</td>
-                    <td style="text-align:right;font-weight:900;color:#c62828;font-size:.85rem">24 kg (0.6%)</td>
-                  </tr>
-                </table>
-                <div style="font-size:.62rem;color:#888;margin-top:4px">* incluye arrastre</div>
-              </div>
             </div><!-- day-panel-2 -->
 
             <!-- ── 16/07 ── -->
@@ -5519,32 +5462,6 @@ cargarNotasServidor();
                   <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">9</div><div class="plt-qc-sub">sacos</div></div>
                   <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">94 j</div><div class="plt-qc-sub">+ 9 sacos</div></div>
                 </div>
-              </div>
-              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
-                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 16/07</span>
-                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
-                    <td style="text-align:right;font-weight:700;color:#333">3,394 kg</td>
-                  </tr>
-                  <tr style="color:#555">
-                    <td style="padding:3px 0">🐷 Chancho (4 sacos × 95 kg)</td>
-                    <td style="text-align:right;font-weight:700;color:#333">380 kg</td>
-                  </tr>
-                  <tr style="border-top:1px solid #ddd">
-                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
-                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,774 kg</td>
-                  </tr>
-                  <tr>
-                    <td style="padding:3px 0;font-weight:800;color:#1b5e20">📉 Merma del día</td>
-                    <td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">26 kg (0.7%)</td>
-                  </tr>
-                </table>
-                
               </div>
             </div><!-- day-panel-3 -->
 
