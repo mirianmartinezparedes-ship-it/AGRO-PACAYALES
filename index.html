@@ -162,13 +162,185 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
 .tot-banner{background:linear-gradient(135deg,#1b5e20,#2e7d32);color:#fff;border-radius:16px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;box-shadow:0 4px 16px rgba(46,125,50,.35)}
 .tot-banner-ha{font-size:4rem;font-weight:900;line-height:1;letter-spacing:-2px}
 .tot-subtot{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);border-left:5px solid}
+/* ── LANDING PAGE ── */
+#landing{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#1a3d24 0%,#2d6040 60%,#1a3d24 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#landing.hidden{display:none!important}
+.lnd-brand{text-align:center;margin-bottom:44px}
+.lnd-ico{font-size:3.5rem;margin-bottom:8px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+.lnd-name{font-size:3rem;font-weight:900;color:#fff;letter-spacing:.1em;text-shadow:0 2px 14px rgba(0,0,0,.3)}
+.lnd-tagline{font-size:.85rem;color:rgba(255,255,255,.75);margin-top:6px;letter-spacing:.05em}
+.lnd-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.lnd-card{background:rgba(255,255,255,.13);border:1.5px solid rgba(255,255,255,.25);border-radius:18px;padding:28px 40px;cursor:pointer;text-align:center;min-width:210px;transition:all .2s;user-select:none}
+.lnd-card:hover{background:rgba(255,255,255,.2);transform:translateY(-3px);box-shadow:0 10px 40px rgba(0,0,0,.25);border-color:rgba(255,255,255,.5)}
+.lnd-card-ico{font-size:2rem;margin-bottom:10px}
+.lnd-card-name{font-size:1.05rem;font-weight:800;color:#fff}
+.lnd-card-desc{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:5px}
+#campo-back{display:none;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer;margin-right:4px}
+#campo-back:hover{background:rgba(255,255,255,.28)}
+/* ── PLANTA ── */
+#planta-view{display:none}
+#planta-view.active{display:block;position:fixed;inset:0;z-index:1999;background:#f5f0ff;overflow-y:auto}
+.plt-hdr{background:linear-gradient(135deg,#4527a0,#6a1b9a);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.plt-hdr h1{font-size:1rem;font-weight:700}
+.plt-hdr p{font-size:.68rem;opacity:.75;margin-top:2px}
+.plt-back{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:5px 12px;font-size:.74rem;font-weight:700;cursor:pointer}
+.plt-back:hover{background:rgba(255,255,255,.24)}
+.plt-body{padding:16px 20px;max-width:1100px;margin:0 auto}
+.plt-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:16px}
+.plt-kpi{background:#fff;border-radius:11px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:13px 15px;border-left:4px solid #7b1fa2}
+.plt-kpi-lbl{font-size:.8rem;color:#444;text-transform:uppercase;font-weight:800;letter-spacing:.04em}
+.plt-kpi-val{font-size:1.35rem;font-weight:800;color:#4527a0;margin-top:3px}
+.plt-kpi-sub{font-size:.75rem;color:#666;margin-top:2px}
+.plt-sec{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:16px 18px;margin-bottom:14px;overflow-x:auto}
+.plt-sec h3{font-size:.82rem;font-weight:800;color:#4527a0;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #ede7f6}
+.plt-tbl{width:100%;border-collapse:collapse;font-size:.77rem}
+.plt-tbl th{background:#f0f0f0;color:#4527a0;font-weight:800;padding:8px 10px;text-align:right;border-bottom:2px solid #ce93d8;font-size:.68rem;text-transform:uppercase;white-space:nowrap}
+.plt-tbl th:first-child,.plt-tbl th:nth-child(2),.plt-tbl th:nth-child(3){text-align:left}
+.plt-tbl td{padding:6px 10px;border-bottom:1px solid #f5f5f5;text-align:right;vertical-align:middle}
+.plt-tbl td:first-child,.plt-tbl td:nth-child(2),.plt-tbl td:nth-child(3){text-align:left}
+.plt-day-row td{background:#f0f0f0;font-weight:700;color:#4527a0;font-size:.73rem;padding:6px 10px}
+.plt-sub-row td{background:#fafafa;font-weight:700;color:#4a148c;border-top:2px solid #e1bee7!important;font-size:.75rem}
+.plt-grand-row td{background:#f0f0f0;font-weight:800;color:#4527a0;border-top:2px solid #7b1fa2!important;font-size:.78rem}
+.cat-b{display:inline-block;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:10px}
+.cat-A{background:#e8f5e9;color:#1b5e20}
+.cat-M{background:#e3f2fd;color:#0d47a1}
+.cat-C{background:#fff3e0;color:#e65100}
+.cat-P{background:#fce4ec;color:#880e4f}
+.e-env{color:#2e7d32;font-size:.68rem;font-weight:700}
+.e-pnd{color:#f57f17;font-size:.68rem;font-weight:700}
+.plt-cat-tbl{width:100%;border-collapse:collapse;font-size:.8rem;min-width:550px}
+.plt-cat-tbl th{background:#f0f0f0;color:#4527a0;font-weight:800;padding:8px 14px;text-align:center;border-bottom:2px solid #ce93d8;font-size:.7rem;text-transform:uppercase;white-space:nowrap}
+.plt-cat-tbl th:first-child{text-align:left}
+.plt-cat-tbl td{padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:center}
+.plt-cat-tbl td:first-child{text-align:left}
+.plt-cat-tbl tr:last-child td{background:#f0f0f0;font-weight:800;color:#4527a0;border-top:2px solid #ce93d8}
+/* ── PLANTA Stock Balance ── */
+.plt-view-toggle{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.plt-vtog{padding:7px 20px;border:2px solid #7b1fa2;border-radius:20px;background:#fff;color:#7b1fa2;font-size:.76rem;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+.plt-vtog.active{background:#7b1fa2;color:#fff}
+.plt-vtog:hover:not(.active){background:#f3e5f5}
+.val-pos{color:#2e7d32;font-weight:700}
+.val-neg{color:#bf360c;font-weight:700}
+.val-zero{color:#9e9e9e}
+.val-pend{color:#c0c0c0;font-style:italic}
+.stock-chip{display:inline-block;padding:2px 9px;border-radius:12px;font-size:.72rem;font-weight:800;min-width:34px;text-align:center}
+.stock-ok{background:#e8f5e9;color:#1b5e20}
+.stock-low{background:#fff8e1;color:#e65100}
+.stock-zero{background:#f5f5f5;color:#9e9e9e}
+.plt-stbl{width:100%;border-collapse:collapse;font-size:.76rem;min-width:500px}
+.plt-stbl th{background:#f0f0f0;color:#4527a0;font-weight:800;padding:8px 10px;text-align:right;border-bottom:2px solid #ce93d8;font-size:.67rem;text-transform:uppercase;white-space:nowrap;position:sticky;top:0;z-index:2}
+.plt-stbl th:first-child{text-align:left}
+.plt-stbl td{padding:5px 10px;border-bottom:1px solid #f5f5f5;text-align:right;vertical-align:middle}
+.plt-stbl td:first-child{text-align:left}
+.plt-stbl .plt-day-row td{background:#f0f0f0;font-weight:700;color:#4527a0;font-size:.73rem;padding:6px 10px;text-align:left}
+.plt-stbl .plt-sub-row td{background:#fafafa;font-weight:700;color:#4a148c;border-top:2px solid #e1bee7!important;font-size:.75rem}
+.plt-stbl .plt-grand-row td{background:#f0f0f0;font-weight:800;color:#4527a0;border-top:2px solid #7b1fa2!important;font-size:.78rem}
+.plt-chan-tbl{width:100%;border-collapse:collapse;font-size:.76rem;min-width:320px}
+.plt-chan-tbl th{background:#f0f0f0;color:#4527a0;font-weight:800;padding:8px 12px;text-align:right;border-bottom:2px solid #ce93d8;font-size:.67rem;text-transform:uppercase}
+.plt-chan-tbl th:first-child{text-align:left}
+.plt-chan-tbl td{padding:7px 12px;border-bottom:1px solid #f5f5f5;text-align:right}
+.plt-chan-tbl td:first-child{text-align:left}
+.plt-chan-tbl tr:last-child td{background:#f0f0f0;font-weight:800;color:#4527a0;border-top:2px solid #ce93d8}
+.plt-note{font-size:.65rem;color:#bbb;margin-top:8px;text-align:right;font-style:italic}
+.cat-Ch{background:#f3e5f5;color:#6a1b9a}
+/* ── KPI compactos en PLANTA ── */
+#planta-view .plt-kpis{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px;margin-bottom:12px}
+#planta-view .plt-kpi{padding:7px 10px}
+#planta-view .plt-kpi-lbl{font-size:.75rem}
+#planta-view .plt-kpi-val{font-size:.95rem!important;margin-top:1px}
+#planta-view .plt-kpi-sub{font-size:.7rem}
+/* ── Day-picker dropdown ── */
+.plt-day-sel-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.plt-day-sel-lbl{font-size:.72rem;font-weight:800;color:#555;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.plt-day-select{border:2px solid #bbb;border-radius:8px;padding:8px 34px 8px 12px;font-size:.85rem;font-weight:700;color:#333;background:#fff;cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237b1fa2' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;min-width:200px}
+.plt-day-select:focus{outline:none;border-color:#4527a0;box-shadow:0 0 0 3px rgba(123,31,162,.15)}
+.plt-day-content{background:#fff;border:1px solid #ede7f6;border-radius:11px;padding:14px 16px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow-x:auto}
+.plt-day-panel{display:none}
+.plt-day-panel.dp-active{display:block}
+.plt-dp-title{font-size:.77rem;color:#6a1b9a;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ede7f6}
+/* ── Secciones del panel ── */
+.plt-ds{margin-bottom:12px}
+.plt-ds-hdr{font-size:.61rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:7px}
+.plt-ds-prod .plt-ds-hdr{background:#e8f5e9;color:#2e7d32}
+.plt-ds-ship .plt-ds-hdr{background:#e3f2fd;color:#1565c0}
+.plt-ds-saldo .plt-ds-hdr{background:#f3e5f5;color:#6a1b9a}
+.plt-ds-stock .plt-ds-hdr{background:#f0f0f0;color:#4527a0}
+/* ── Cards de calidad ── */
+.plt-qrow{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+.plt-qc{border-radius:8px;padding:6px 9px;min-width:64px;text-align:center;border:1px solid #eee;background:#fafafa}
+.plt-qc-lbl{font-size:.65rem;font-weight:800;text-transform:uppercase;color:#555;margin-bottom:2px}
+.plt-qc-val{font-size:.88rem;font-weight:800;color:#333;line-height:1.1}
+.plt-qc-sub{font-size:.68rem;color:#222;margin-top:1px;font-weight:500}
+.plt-qc.qA{border-top:3px solid #4caf50}
+.plt-qc.qP{border-top:3px solid #e91e63}
+.plt-qc.qC{border-top:3px solid #ff9800}
+.plt-qc.qM{border-top:3px solid #2196f3}
+.plt-qc.qCh{border-top:3px solid #9c27b0;background:#faf5ff}
+.plt-qc.qTot{border-top:3px solid #4527a0;background:#f3e5f5;border-color:#d1c4e9}
+.plt-qc.qTot .plt-qc-lbl{color:#7b1fa2}
+.plt-qc.qTot .plt-qc-val{color:#4527a0}
+/* Producción → azul, Despacho → verde (sección override) */
+.plt-ds-prod .plt-qc{border-top:3px solid #1976d2}
+.plt-ds-prod .plt-qc.qCh{border-top:3px solid #1976d2;background:#e3f2fd}
+.plt-ds-prod .plt-qc.qTot{border-top:3px solid #0d47a1;background:#dbeafe;border-color:#93c5fd}
+.plt-ds-prod .plt-qc.qTot .plt-qc-lbl{color:#1565c0}
+.plt-ds-prod .plt-qc.qTot .plt-qc-val{color:#0d47a1}
+.plt-ds-ship .plt-qc{border-top:3px solid #388e3c}
+.plt-ds-ship .plt-qc.qTot{border-top:3px solid #1b5e20;background:#dcfce7;border-color:#86efac}
+.plt-ds-ship .plt-qc.qTot .plt-qc-lbl{color:#166534}
+.plt-ds-ship .plt-qc.qTot .plt-qc-val{color:#14532d}
+.plt-qc-pend{opacity:.55}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+<!-- ══ CARÁTULA / LANDING PAGE ══ -->
+<div id="landing">
+  <div class="lnd-brand">
+    <div class="lnd-ico">🌱</div>
+    <div class="lnd-name">AGRO PACAYALES</div>
+    <div class="lnd-tagline">Sistema de Gestión Agropecuaria · 2026</div>
+  </div>
+  <div class="lnd-cards">
+    <div class="lnd-card" onclick="enterCampo()">
+      <div class="lnd-card-ico">🌿</div>
+      <div class="lnd-card-name">CAMPO · CAMOTE</div>
+      <div class="lnd-card-desc">Presupuesto · Costos · Calendario</div>
+    </div>
+    <div class="lnd-card" onclick="enterPlanta()">
+      <div class="lnd-card-ico" style="line-height:1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 72" width="72" height="72">
+  <!-- chimeneas -->
+  <rect x="10" y="4" width="8" height="22" rx="2" fill="rgba(255,255,255,.55)"/>
+  <rect x="24" y="0" width="8" height="26" rx="2" fill="rgba(255,255,255,.7)"/>
+  <rect x="58" y="6" width="8" height="20" rx="2" fill="rgba(255,255,255,.55)"/>
+  <!-- humo -->
+  <circle cx="14" cy="3" r="3" fill="rgba(255,255,255,.25)"/>
+  <circle cx="28" cy="0" r="3" fill="rgba(255,255,255,.25)"/>
+  <circle cx="62" cy="5" r="3" fill="rgba(255,255,255,.2)"/>
+  <!-- techo escalonado -->
+  <polygon points="4,30 4,22 20,30" fill="rgba(255,255,255,.45)"/>
+  <polygon points="20,30 20,18 38,30" fill="rgba(255,255,255,.55)"/>
+  <polygon points="38,30 38,22 76,30" fill="rgba(255,255,255,.45)"/>
+  <!-- edificio principal -->
+  <rect x="4" y="30" width="72" height="38" rx="3" fill="rgba(255,255,255,.18)"/>
+  <!-- ventanas -->
+  <rect x="10" y="36" width="10" height="10" rx="2" fill="rgba(255,255,255,.6)"/>
+  <rect x="26" y="36" width="10" height="10" rx="2" fill="rgba(255,255,255,.6)"/>
+  <rect x="54" y="36" width="10" height="10" rx="2" fill="rgba(255,255,255,.6)"/>
+  <!-- puerta -->
+  <rect x="33" y="48" width="14" height="20" rx="2" fill="rgba(255,255,255,.4)"/>
+  <!-- franja base -->
+  <rect x="4" y="62" width="72" height="6" rx="2" fill="rgba(255,255,255,.3)"/>
+</svg></div>
+      <div class="lnd-card-name">PLANTA</div>
+      <div class="lnd-card-desc">Guías de Remisión · Despachos</div>
+    </div>
+  </div>
+</div>
 <header>
   <div><h1>🌱 GESTION CAMPO 2026</h1><p>Totales · Resumen · Calendario · Pedido · Presupuesto General · Excesos</p></div>
   <div style="display:flex;align-items:center;gap:10px">
+    <button id="campo-back" onclick="backToLanding()">← Inicio</button>
     <button onclick="exportarNotas()" title="Exportar notas para subir a GitHub" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">📝 Exportar notas</button>
     <div style="font-size:.72rem;opacity:.8" id="hdr-fecha"></div>
   </div>
@@ -2268,7 +2440,7 @@ function renderDiario(){
     }
     // MAQUINARIA
     if(info.maq.length){
-      h+='<div style="background:#ede7f6;border-left:3px solid #7b1fa2;border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:6px">';
+      h+='<div style="background:#f0f0f0;border-left:3px solid #7b1fa2;border-radius:0 6px 6px 0;padding:6px 10px;margin-bottom:6px">';
       h+='<div style="font-weight:700;font-size:.75rem;color:#4a148c;margin-bottom:4px">🚜 Maquinaria / Tractor</div>';
       let maqC=0;
       info.maq.forEach(e=>{
@@ -5047,6 +5219,478 @@ cargarNotasServidor();
     </div>
   </div>
 </div>
+
+<!-- ══ PLANTA VIEW ══ -->
+<div id="planta-view">
+  <div class="plt-hdr">
+    <div>
+      <h1>🏭 PLANTA · CAMOTE 2026</h1>
+      <p>Balance Producción vs Despacho SUPESA · Semana 29</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="plt-view-toggle" style="margin:0">
+        <button class="plt-vtog active" id="tog-diario" onclick="setPlantaView('diario')">📅 DIARIO</button>
+        <button class="plt-vtog" id="tog-semanal" onclick="setPlantaView('semanal')">📆 SEMANAL</button>
+      </div>
+      <button class="plt-back" onclick="backToLanding()">← Inicio</button>
+    </div>
+  </div>
+  <div class="plt-body">
+
+    <!-- ═══ BARRA SUPERIOR: FECHA + INFO ═══ -->
+    <div style="display:flex;align-items:center;gap:14px;background:#f7f7f7;border-radius:10px;padding:10px 14px;margin-bottom:14px;border:1px solid #e0e0e0">
+      <div class="plt-day-sel-row" style="margin:0">
+        <span class="plt-day-sel-lbl" style="color:#555">📅 Fecha</span>
+        <select class="plt-day-select" id="plt-day-sel" onchange="selectDay(parseInt(this.value))" style="border-color:#bbb;color:#333;background:#fff;font-weight:600">
+          <option value="0">Lun 13 Jul</option>
+          <option value="1">Mar 14 Jul</option>
+          <option value="2">Mié 15 Jul</option>
+          <option value="3" selected>Jue 16 Jul</option>
+        </select>
+      </div>
+      <div id="plt-day-infobar" style="font-size:.78rem;font-weight:600;color:#555;flex:1">
+        Guía EG07-2990 &nbsp;·&nbsp; <span style="color:#1b5e20;font-size:.95rem;font-weight:800">📦 40 sacos acopio ingresados</span>
+      </div>
+    </div>
+
+    <!-- Título STOCK -->
+    <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px;padding-left:2px">📦 Stock acumulado semana</div>
+    <!-- KPI Cards (se actualiza al seleccionar día) -->
+    <div class="plt-kpis" id="plt-kpi-row">
+      <div class="plt-kpi">
+        <div class="plt-kpi-lbl">A</div>
+        <div class="plt-kpi-val" id="kpi-stockA">35 jabas</div>
+        <div class="plt-kpi-sub" id="kpi-stockA-sub">≈ 525 kg<br>15 kg/jaba</div>
+      </div>
+      <div class="plt-kpi">
+        <div class="plt-kpi-lbl">P</div>
+        <div class="plt-kpi-val" id="kpi-stockP">11 jabas</div>
+        <div class="plt-kpi-sub" id="kpi-stockP-sub">≈ 198 kg<br>18 kg/jaba</div>
+
+      </div>
+      <div class="plt-kpi">
+        <div class="plt-kpi-lbl">C</div>
+        <div class="plt-kpi-val" id="kpi-stockC">12 jabas</div>
+        <div class="plt-kpi-sub" id="kpi-stockC-sub">≈ 204 kg<br>17 kg/jaba</div>
+      </div>
+      <div class="plt-kpi">
+        <div class="plt-kpi-lbl">M</div>
+        <div class="plt-kpi-val" id="kpi-stockM">36 jabas</div>
+        <div class="plt-kpi-sub" id="kpi-stockM-sub">≈ 612 kg<br>17 kg/jaba</div>
+      </div>
+      <div class="plt-kpi" style="background:#f0f0f0">
+        <div class="plt-kpi-lbl">TOTAL</div>
+        <div class="plt-kpi-val" id="kpi-stockTot" style="font-size:1.5rem!important">94 jabas</div>
+        <div class="plt-kpi-sub" id="kpi-stockTot-sub">al 16/07</div>
+      </div>
+      <div class="plt-kpi">
+        <div class="plt-kpi-lbl">CHANCHO</div>
+        <div class="plt-kpi-val" id="kpi-chancho">9 sacos</div>
+        <div class="plt-kpi-sub" id="kpi-chancho-sub">al 16/07 · Sem. 29</div>
+      </div>
+    </div>
+
+    <!-- ═══ VISTA DIARIA ═══ -->
+    <div id="plt-view-diario">
+      <div class="plt-sec" style="padding:14px 16px">
+        <h3 style="margin-bottom:12px">📊 Balance por Jornada · Semana 29</h3>
+
+
+
+        <!-- Paneles de detalle -->
+        <div class="plt-day-content">
+
+            <!-- ── 13/07 ── -->
+            <div class="plt-day-panel" id="day-panel-0">
+                            <div class="plt-ds plt-ds-prod">
+                <span class="plt-ds-hdr">🌿 Producción</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">107</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">110</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">2</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">240 j</div><div class="plt-qc-sub">A+P+C+M</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-ship">
+                <span class="plt-ds-hdr">🚛 Despacho a SUPESA</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">67 j</div><div class="plt-qc-sub">1,005 kg</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11 j</div><div class="plt-qc-sub">198 kg</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12 j</div><div class="plt-qc-sub">204 kg</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">97 j</div><div class="plt-qc-sub">1,649 kg</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">187 j</div><div class="plt-qc-sub">3,056 kg</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-stock">
+                <span class="plt-ds-hdr">🔄 Saldo al cierre · 13/07</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">40</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">0</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">0</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">42</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">2</div><div class="plt-qc-sub">sacos prod.</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">82 j</div><div class="plt-qc-sub">+ 2 sacos</div></div>
+                </div>
+              </div>
+              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
+                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 13/07</span>
+                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,877 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🐷 Chancho (2 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">190 kg</td>
+                  </tr>
+                  <tr style="border-top:1px solid #ddd">
+                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
+                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">4,067 kg</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:3px 0;font-weight:800;color:#c62828">📉 Sobrante (arrastre)</td>
+                    <td style="text-align:right;font-weight:900;color:#c62828;font-size:.85rem">267 kg (7.0%)</td>
+                  </tr>
+                </table>
+                <div style="font-size:.62rem;color:#888;margin-top:4px">* incluye arrastre sem. anterior</div>
+              </div>
+            </div><!-- day-panel-0 -->
+
+            <!-- ── 14/07 ── -->
+            <div class="plt-day-panel" id="day-panel-1">
+                            <div class="plt-ds plt-ds-prod">
+                <span class="plt-ds-hdr">🌿 Producción</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">45</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">121</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">7</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">189 j</div><div class="plt-qc-sub">A+P+C+M</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-ship">
+                <span class="plt-ds-hdr">🚛 Despacho a SUPESA</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">67 j</div><div class="plt-qc-sub">1,005 kg</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11 j</div><div class="plt-qc-sub">198 kg</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12 j</div><div class="plt-qc-sub">204 kg</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">116 j</div><div class="plt-qc-sub">1,972 kg</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">206 j</div><div class="plt-qc-sub">3,379 kg</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-stock">
+                <span class="plt-ds-hdr">🔄 Saldo al cierre · 14/07</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">18</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">0</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">0</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">47</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">9</div><div class="plt-qc-sub">sacos prod.</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">65 j</div><div class="plt-qc-sub">+ 9 sacos</div></div>
+                </div>
+              </div>
+              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
+                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 14/07</span>
+                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,134 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🐷 Chancho (7 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">665 kg</td>
+                  </tr>
+                  <tr style="border-top:1px solid #ddd">
+                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
+                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,799 kg</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:3px 0;font-weight:800;color:#1b5e20">📉 Merma del día</td>
+                    <td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">1 kg (0.0%)</td>
+                  </tr>
+                </table>
+                
+              </div>
+            </div><!-- day-panel-1 -->
+
+            <!-- ── 15/07 ── -->
+            <div class="plt-day-panel" id="day-panel-2">
+                            <div class="plt-ds plt-ds-prod">
+                <span class="plt-ds-hdr">🌿 Producción</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">79</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">22</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">21</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">83</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">5</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">205 j</div><div class="plt-qc-sub">A+P+C+M</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-ship">
+                <span class="plt-ds-hdr">🚛 Despacho a SUPESA</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">67 j</div><div class="plt-qc-sub">1,005 kg</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11 j</div><div class="plt-qc-sub">198 kg</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">9 j</div><div class="plt-qc-sub">153 kg</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">95 j</div><div class="plt-qc-sub">1,615 kg</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">182 j</div><div class="plt-qc-sub">2,971 kg</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-stock">
+                <span class="plt-ds-hdr">🔄 Saldo al cierre · 15/07</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">30</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">35</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">5</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">88 j</div><div class="plt-qc-sub">+ 5 sacos</div></div>
+                </div>
+              </div>
+              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
+                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 15/07</span>
+                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,349 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🐷 Chancho (5 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">475 kg</td>
+                  </tr>
+                  <tr style="border-top:1px solid #ddd">
+                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
+                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,824 kg</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:3px 0;font-weight:800;color:#c62828">📉 Sobrante (arrastre)</td>
+                    <td style="text-align:right;font-weight:900;color:#c62828;font-size:.85rem">24 kg (0.6%)</td>
+                  </tr>
+                </table>
+                <div style="font-size:.62rem;color:#888;margin-top:4px">* incluye arrastre</div>
+              </div>
+            </div><!-- day-panel-2 -->
+
+            <!-- ── 16/07 ── -->
+            <div class="plt-day-panel dp-active" id="day-panel-3">
+                            <div class="plt-ds plt-ds-prod">
+                <span class="plt-ds-hdr">🌿 Producción</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">68</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">116</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">4</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">207 j</div><div class="plt-qc-sub">A+P+C+M</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-ship">
+                <span class="plt-ds-hdr">🚛 Despacho a SUPESA</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">63 j</div><div class="plt-qc-sub">945 kg</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11 j</div><div class="plt-qc-sub">198 kg</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12 j</div><div class="plt-qc-sub">204 kg</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">115 j</div><div class="plt-qc-sub">1,955 kg</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">Total</div><div class="plt-qc-val">201 j</div><div class="plt-qc-sub">3,302 kg</div></div>
+                </div>
+              </div>
+              <div class="plt-ds plt-ds-stock">
+                <span class="plt-ds-hdr">🔄 Saldo al cierre · 16/07</span>
+                <div class="plt-qrow">
+                  <div class="plt-qc qA"><div class="plt-qc-lbl">A</div><div class="plt-qc-val">35</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qP"><div class="plt-qc-lbl">P</div><div class="plt-qc-val">11</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qC"><div class="plt-qc-lbl">C</div><div class="plt-qc-val">12</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qM"><div class="plt-qc-lbl">M</div><div class="plt-qc-val">36</div><div class="plt-qc-sub">jabas</div></div>
+                  <div class="plt-qc qCh"><div class="plt-qc-lbl">Chancho</div><div class="plt-qc-val">9</div><div class="plt-qc-sub">sacos</div></div>
+                  <div class="plt-qc qTot"><div class="plt-qc-lbl">TOTAL</div><div class="plt-qc-val">94 j</div><div class="plt-qc-sub">+ 9 sacos</div></div>
+                </div>
+              </div>
+              <div class="plt-ds" style="background:#f9f9f9;border-radius:8px;padding:10px 12px;margin-bottom:12px;border:1px solid #eee">
+                <span class="plt-ds-hdr" style="background:#ececec;color:#444">⚖️ Comparativo de Merma · 16/07</span>
+                <table style="width:100%;font-size:.75rem;border-collapse:collapse;margin-top:8px">
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">📦 Ingreso (40 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,800 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🎋 Jabas procesadas</td>
+                    <td style="text-align:right;font-weight:700;color:#333">3,394 kg</td>
+                  </tr>
+                  <tr style="color:#555">
+                    <td style="padding:3px 0">🐷 Chancho (4 sacos × 95 kg)</td>
+                    <td style="text-align:right;font-weight:700;color:#333">380 kg</td>
+                  </tr>
+                  <tr style="border-top:1px solid #ddd">
+                    <td style="padding:5px 0 3px;color:#444;font-weight:700">Total salida</td>
+                    <td style="text-align:right;font-weight:800;color:#333;padding-top:5px">3,774 kg</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:3px 0;font-weight:800;color:#1b5e20">📉 Merma del día</td>
+                    <td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">26 kg (0.7%)</td>
+                  </tr>
+                </table>
+                
+              </div>
+            </div><!-- day-panel-3 -->
+
+        </div><!-- .plt-day-content -->
+        <div class="plt-note" style="margin-top:10px">Conversión: A=15 kg/j · P=18 kg/j · C=17 kg/j · M=17 kg/j &nbsp;·&nbsp; Fuente: Excel PLANTA + Guías Dropbox</div>
+      </div>
+    </div><!-- /#plt-view-diario -->
+
+    <!-- ═══ VISTA SEMANAL ═══ -->
+    <div id="plt-view-semanal" style="display:none">
+
+      <div class="plt-sec">
+        <h3>📆 Resumen Semanal · Semana 29 · 13–16 Jul 2026</h3>
+        <table class="plt-stbl">
+          <thead>
+            <tr>
+              <th>Calidad</th>
+              <th>Peso / jaba</th>
+              <th>Producido (j)<br><small style="font-size:.6rem;opacity:.75">13–15 Jul ✓</small></th>
+              <th>KG despachados<br><small style="font-size:.6rem;opacity:.75">13–16 Jul</small></th>
+              <th>Env. (j)<br><small style="font-size:.6rem;opacity:.75">13–16 Jul</small></th>
+              <th>Stock al 15/07</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="cat-b cat-A">A — Primera</span></td>
+              <td>15 kg/jaba</td>
+              <td>231</td><td>4,020 kg</td><td>268</td>
+              <td><span class="stock-chip stock-ok">30 j</span></td>
+            </tr>
+            <tr>
+              <td><span class="cat-b cat-P">P — Pequeña</span></td>
+              <td>18 kg/jaba</td>
+              <td>44</td><td>792 kg</td><td>44</td>
+              <td><span class="stock-chip stock-ok">11 j</span></td>
+            </tr>
+            <tr>
+              <td><span class="cat-b cat-C">C — Chica</span></td>
+              <td>17 kg/jaba</td>
+              <td>45</td><td>765 kg</td><td>45</td>
+              <td><span class="stock-chip stock-ok">12 j</span></td>
+            </tr>
+            <tr>
+              <td><span class="cat-b cat-M">M — Mediana</span></td>
+              <td>17 kg/jaba</td>
+              <td>314</td><td>7,242 kg</td><td>426</td>
+              <td><span class="stock-chip stock-low">6 j</span></td>
+            </tr>
+            <tr class="plt-grand-row">
+              <td>▶ TOTAL</td>
+              <td>—</td>
+              <td>634*</td><td>12,819 kg</td><td>783</td>
+              <td><span class="stock-chip stock-ok" style="font-size:.8rem;padding:3px 12px">59 j</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="plt-note">* Producción Jul 16 pendiente de ingreso &nbsp;·&nbsp; Stock calculado al miércoles 15/07/2026 &nbsp;·&nbsp; Envíos incluyen los 4 días (208 j del 16/07 ya salieron)</div>
+      </div>
+
+      <!-- Chancho semanal -->
+      <div class="plt-sec">
+        <h3>🐷 CHANCHO · Resumen Semanal 29</h3>
+        <table class="plt-chan-tbl">
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Días</th>
+              <th>Total sacos</th>
+              <th>Vendido / Entregado</th>
+              <th>Stock final</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Semana 29</strong></td>
+              <td>Lun–Jue &nbsp;13–16 Jul</td>
+              <td><strong>15 sacos</strong></td>
+              <td class="val-pend">— (sin registro aún)</td>
+              <td><span class="stock-chip stock-ok">15 sacos</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /#plt-view-semanal -->
+
+    <div style="font-size:.67rem;color:#bbb;text-align:center;padding:8px 0 22px">
+      Producción: COSTOS 2025-2026.xlsx · Pestaña PLANTA &nbsp;|&nbsp; Despachos: Z1. GUIAS R _ PCY 2026.xlsx (Dropbox) &nbsp;|&nbsp; Actualizado: 16/07/2026
+    </div>
+
+  </div><!-- /.plt-body -->
+</div><!-- /#planta-view -->
+
+<script>
+/* ── NAVEGACIÓN LANDING ↔ CAMPO ↔ PLANTA ── */
+function enterCampo(){
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('campo-back').style.display='inline-block';
+}
+function enterPlanta(){
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('planta-view').classList.add('active');
+}
+function backToLanding(){
+  document.getElementById('landing').classList.remove('hidden');
+  document.getElementById('campo-back').style.display='none';
+  document.getElementById('planta-view').classList.remove('active');
+}
+function setPlantaView(v){
+  document.getElementById('plt-view-diario').style.display = v==='diario' ? 'block' : 'none';
+  document.getElementById('plt-view-semanal').style.display = v==='semanal' ? 'block' : 'none';
+  document.getElementById('tog-diario').classList.toggle('active', v==='diario');
+  document.getElementById('tog-semanal').classList.toggle('active', v==='semanal');
+}
+function selectDay(idx){
+  document.querySelectorAll('.plt-day-panel').forEach((p,i)=>{
+    p.classList.toggle('dp-active', i===idx);
+  });
+  document.querySelectorAll('.plt-dtab').forEach((t,i)=>{
+    t.classList.toggle('active', i===idx);
+  });
+  // Datos de stock acumulado por día
+  // Sincronizar el select
+  var sel=document.getElementById('plt-day-sel');
+  if(sel) sel.value=idx;
+  const sd=[
+    {A:'40 jabas',As:'≈ 600 kg',P:'0 jabas',Ps:'0 kg',C:'0 jabas',Cs:'0 kg',M:'42 jabas',Ms:'≈ 714 kg',T:'82 jabas',Ts:'al 13/07',Ch:'2 sacos',Chs:'al 13/07 · Sem. 29'},
+    {A:'18 jabas',As:'≈ 270 kg',P:'0 jabas',Ps:'0 kg',C:'0 jabas',Cs:'0 kg',M:'47 jabas',Ms:'≈ 799 kg',T:'65 jabas',Ts:'al 14/07',Ch:'9 sacos',Chs:'al 14/07 · Sem. 29'},
+    {A:'30 jabas',As:'≈ 450 kg',P:'11 jabas',Ps:'≈ 198 kg',C:'12 jabas',Cs:'≈ 204 kg',M:'35 jabas',Ms:'≈ 595 kg',T:'88 jabas',Ts:'al 15/07',Ch:'5 sacos',Chs:'al 15/07 · Sem. 29'},
+    {A:'35 jabas',As:'≈ 525 kg',P:'11 jabas',Ps:'≈ 198 kg',C:'12 jabas',Cs:'≈ 204 kg',M:'36 jabas',Ms:'≈ 612 kg',T:'94 jabas',Ts:'al 16/07',Ch:'9 sacos',Chs:'al 16/07 · Sem. 29'}
+  ][idx];
+  document.getElementById('kpi-stockA').textContent=sd.A;
+  document.getElementById('kpi-stockA-sub').textContent=sd.As;
+  document.getElementById('kpi-stockP').textContent=sd.P;
+  document.getElementById('kpi-stockP-sub').textContent=sd.Ps;
+  document.getElementById('kpi-stockC').textContent=sd.C;
+  document.getElementById('kpi-stockC-sub').textContent=sd.Cs;
+  document.getElementById('kpi-stockM').textContent=sd.M;
+  document.getElementById('kpi-stockM-sub').textContent=sd.Ms;
+  document.getElementById('kpi-stockTot').textContent=sd.T;
+  document.getElementById('kpi-stockTot-sub').textContent=sd.Ts;
+  document.getElementById('kpi-chancho').textContent=sd.Ch;
+  document.getElementById('kpi-chancho-sub').textContent=sd.Chs;
+}
+</script>
 
 </body>
 </html>
