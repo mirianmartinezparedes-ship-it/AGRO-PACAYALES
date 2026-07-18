@@ -5252,8 +5252,8 @@ cargarNotasServidor();
   </div>
   <div class="plt-body">
 
-    <!-- ═══ BARRA SUPERIOR: FECHA + INFO ═══ -->
-    <div style="display:flex;align-items:center;gap:14px;background:#f7f7f7;border-radius:10px;padding:10px 14px;margin-bottom:14px;border:1px solid #e0e0e0">
+    <!-- ═══ BARRA SUPERIOR (DIARIO) ═══ -->
+    <div id="plt-diario-topbar" style="display:flex;align-items:center;gap:14px;background:#f7f7f7;border-radius:10px;padding:10px 14px;margin-bottom:14px;border:1px solid #e0e0e0">
       <div class="plt-day-sel-row" style="margin:0">
         <span class="plt-day-sel-lbl" style="color:#555">📅 Fecha</span>
         <select class="plt-day-select" id="plt-day-sel" onchange="selectDay(parseInt(this.value))" style="border-color:#bbb;color:#333;background:#fff;font-weight:600">
@@ -5265,9 +5265,9 @@ cargarNotasServidor();
         </select>
       </div>
       <div id="plt-day-infobar" style="font-size:.78rem;font-weight:600;color:#555;flex:1">
-        Guía EG07-2994 &nbsp;·&nbsp; OC: 14306656 / 14306746 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 60 sacos acopio ingresados</span>
+        Guía EG07-2994 &nbsp;·&nbsp; OC: 14306656 / 14306746 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 65 sacos acopio ingresados</span> <span style='color:#555;font-size:.78rem;font-weight:500'>(C1: 60 + C2: 5)</span>
       </div>
-      <a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,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" download="Balance_Semana29.xlsx" style="text-decoration:none;flex-shrink:0">
+      <a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,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" download="Balance_Semana29.xlsx" style="text-decoration:none;flex-shrink:0">
         <button style="background:#1b5e20;color:#fff;border:none;border-radius:22px;padding:10px 20px;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18)">
           <span style="background:#fff;color:#1b5e20;font-weight:900;font-size:.8rem;border-radius:4px;padding:2px 5px;font-family:Arial,sans-serif;line-height:1">X</span>
           Descargar Reporte
@@ -5275,60 +5275,70 @@ cargarNotasServidor();
       </a>
     </div>
 
-    <!-- Título STOCK -->
-    <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">
+    <!-- ═══ BARRA SUPERIOR (SEMANAL) ═══ -->
+    <div id="plt-semanal-topbar" style="display:none;align-items:center;gap:14px;background:#f7f7f7;border-radius:10px;padding:10px 14px;margin-bottom:14px;border:1px solid #e0e0e0">
+      <span style="font-size:.78rem;font-weight:700;color:#555">📆 Semana</span>
+      <select style="border:1px solid #bbb;border-radius:8px;padding:5px 10px;font-size:.85rem;font-weight:700;color:#333;background:#fff;cursor:pointer">
+        <option selected>Semana 29 · 13–19 Jul 2026</option>
+      </select>
+      <div style="flex:1;font-size:.78rem;font-weight:600;color:#555">Balance acumulado de producción, despacho y merma</div>
+    </div>
 
-      <!-- IZQUIERDA: resumen stock -->
+    <!-- Título STOCK -->
+    <div id="plt-daily-kpi-section" style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">
+
+      <!-- IZQUIERDA: resumen del día -->
+      <div id="plt-merma-panel" style="flex:1;min-width:210px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:.78rem">
+        <div style="font-weight:800;color:#444;margin-bottom:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Resumen del día · 17/07</div>
+        <table style="width:100%;border-collapse:collapse" id="plt-merma-table">
+          <tr><td style="color:#555;padding:3px 0">📦 Ingreso (65 s × 95 kg)</td><td style="text-align:right;font-weight:800;font-size:.88rem">6,175 kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>
+          <tr><td style="color:#555;padding:3px 0">🎋 Jabas clasificadas (312 j)</td><td style="text-align:right;font-weight:800;font-size:.88rem">5,102 kg <span style="color:#1565c0;font-weight:700;font-size:.82em">83%</span></td></tr>
+          <tr><td style="color:#555;padding:3px 0">🐷 Chancho producido (11 s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">1,045 kg <span style="color:#795548;font-weight:700;font-size:.82em">17%</span></td></tr>
+          <tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:5px">Total clasificado</td><td style="text-align:right;font-weight:900;font-size:.92rem;padding-top:5px">6,147 kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>
+          <tr><td style="font-weight:800;color:#1b5e20;padding-top:3px">📉 Merma</td><td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.95rem">28 kg (0.5%)</td></tr>
+          <tr style="border-top:1px solid #e0e0e0"><td style="color:#888;padding-top:5px;font-size:.7rem">🚛 Despacho del día</td><td style="text-align:right;color:#888;font-size:.7rem;padding-top:5px">3,413 kg</td></tr>
+        </table>
+      </div>
+
+      <!-- DERECHA: stock por calidad -->
       <div style="flex:2;min-width:0">
-        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px">📦 Stock acumulado semana</div>
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px">📦 Stock del día</div>
         <!-- Fila 1: TOTAL + CHANCHO -->
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <div class="plt-kpi" style="background:#f0f0f0;flex:1">
             <div class="plt-kpi-lbl">TOTAL</div>
-            <div class="plt-kpi-val" id="kpi-stockTot" style="font-size:1.5rem!important">94 jabas</div>
-            <div class="plt-kpi-sub" id="kpi-stockTot-sub">al 16/07</div>
+            <div class="plt-kpi-val" id="kpi-stockTot" style="font-size:1.5rem!important">198 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockTot-sub">al 17/07</div>
           </div>
           <div class="plt-kpi" style="flex:1">
             <div class="plt-kpi-lbl">CHANCHO</div>
-            <div class="plt-kpi-val" id="kpi-chancho">9 sacos</div>
-            <div class="plt-kpi-sub" id="kpi-chancho-sub">al 16/07 · Sem. 29</div>
+            <div class="plt-kpi-val" id="kpi-chancho">5 sacos</div>
+            <div class="plt-kpi-sub" id="kpi-chancho-sub">al 17/07 · Sem. 29</div>
           </div>
         </div>
         <!-- Fila 2: calidades A P C M -->
         <div style="display:flex;gap:8px">
           <div class="plt-kpi" style="flex:1">
             <div class="plt-kpi-lbl">A</div>
-            <div class="plt-kpi-val" id="kpi-stockA">35 jabas</div>
-            <div class="plt-kpi-sub" id="kpi-stockA-sub">≈ 525 kg<br>15 kg/jaba</div>
+            <div class="plt-kpi-val" id="kpi-stockA">71 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockA-sub">≈ 1,065 kg<br>15 kg/jaba</div>
           </div>
           <div class="plt-kpi" style="flex:1">
             <div class="plt-kpi-lbl">P</div>
-            <div class="plt-kpi-val" id="kpi-stockP">11 jabas</div>
-            <div class="plt-kpi-sub" id="kpi-stockP-sub">≈ 198 kg<br>18 kg/jaba</div>
+            <div class="plt-kpi-val" id="kpi-stockP">4 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockP-sub">≈ 72 kg<br>18 kg/jaba</div>
           </div>
           <div class="plt-kpi" style="flex:1">
             <div class="plt-kpi-lbl">C</div>
-            <div class="plt-kpi-val" id="kpi-stockC">12 jabas</div>
-            <div class="plt-kpi-sub" id="kpi-stockC-sub">≈ 204 kg<br>17 kg/jaba</div>
+            <div class="plt-kpi-val" id="kpi-stockC">9 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockC-sub">≈ 153 kg<br>17 kg/jaba</div>
           </div>
           <div class="plt-kpi" style="flex:1">
             <div class="plt-kpi-lbl">M</div>
-            <div class="plt-kpi-val" id="kpi-stockM">36 jabas</div>
-            <div class="plt-kpi-sub" id="kpi-stockM-sub">≈ 612 kg<br>17 kg/jaba</div>
+            <div class="plt-kpi-val" id="kpi-stockM">114 jabas</div>
+            <div class="plt-kpi-sub" id="kpi-stockM-sub">≈ 1,938 kg<br>17 kg/jaba</div>
           </div>
         </div>
-      </div>
-
-      <!-- DERECHA: comparativo merma dinámico -->
-      <div id="plt-merma-panel" style="flex:1;min-width:190px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:10px 12px;font-size:.74rem">
-        <div style="font-weight:800;color:#444;margin-bottom:8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Merma del día · 16/07</div>
-        <table style="width:100%;border-collapse:collapse" id="plt-merma-table">
-          <tr><td style="color:#555;padding:2px 0">📦 Ingreso</td><td style="text-align:right;font-weight:700">3,800 kg</td></tr>
-          <tr><td style="color:#555;padding:2px 0">🎋 Jabas</td><td style="text-align:right;font-weight:700">3,394 kg</td></tr>
-          <tr><td style="color:#555;padding:2px 0">🐷 Chancho</td><td style="text-align:right;font-weight:700">380 kg</td></tr>
-          <tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:4px">Total salida</td><td style="text-align:right;font-weight:800;padding-top:4px">3,774 kg</td></tr>
-          <tr><td style="font-weight:800;color:#1b5e20;padding-top:2px">📉 Merma</td><td style="text-align:right;font-weight:900;color:#1b5e20;font-size:.85rem">26 kg (0.7%)</td></tr>
-        </table>
       </div>
 
     </div>
@@ -5366,7 +5376,40 @@ cargarNotasServidor();
 
             <!-- ── 17/07 ── -->
             <div class="plt-day-panel dp-active" id="day-panel-4">
-<table class="plt-bal-tbl"><thead><tr><th>Calidad</th><th>Saldo ant.</th><th>🌿 Producción</th><th>🚛 Despacho</th><th>🔄 Saldo cierre · 17/07</th></tr></thead><tbody><tr><td>A</td><td class="col-ant">35 j</td><td class="col-prod">99 j</td><td class="col-desp">67 j<span class="kg-sub">1,005 kg</span></td><td class="col-cierre">67 j<span class="kg-sub">1,005 kg</span></td></tr><tr><td>P</td><td class="col-ant">11 j</td><td class="col-prod">4 j</td><td class="col-desp">11 j<span class="kg-sub">198 kg</span></td><td class="col-cierre">4 j<span class="kg-sub">72 kg</span></td></tr><tr><td>C</td><td class="col-ant">12 j</td><td class="col-prod">9 j</td><td class="col-desp">12 j<span class="kg-sub">204 kg</span></td><td class="col-cierre">9 j<span class="kg-sub">153 kg</span></td></tr><tr><td>M</td><td class="col-ant">36 j</td><td class="col-prod">178 j</td><td class="col-desp">118 j<span class="kg-sub">2,006 kg</span></td><td class="col-cierre">96 j<span class="kg-sub">1,632 kg</span></td></tr><tr class="tot-row"><td>TOTAL</td><td class="col-ant">94 j</td><td class="col-prod">290 j</td><td class="col-desp">208 j<span class="kg-sub">3,413 kg</span></td><td class="col-cierre">176 j</td></tr><tr class="ch-row"><td>Chancho</td><td class="col-ant">9 s</td><td class="col-prod">10 s</td><td class="col-desp" style="color:#e65100;font-weight:800">💰 5 s venta</td><td class="col-cierre">14 s</td></tr></tbody></table>
+<div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:6px">
+  <div style="font-size:.72rem;font-weight:800;color:#2e7d32;margin-bottom:8px">🌿 COMPRA 1 · 60 SACOS</div>
+  <table class="plt-bal-tbl" style="background:transparent"><thead><tr><th>Calidad</th><th>Saldo ant.</th><th>🌿 Producción<br><span style="font-weight:500;font-size:.75rem">Compra 1 · 60 sacos</span></th><th>🚛 Despacho</th><th>🔄 Saldo tras C1</th></tr></thead><tbody><tr><td>A</td><td class="col-ant">35 j</td><td class="col-prod">99 j</td><td class="col-desp">67 j<span class="kg-sub">1,005 kg</span></td><td class="col-cierre">67 j<span class="kg-sub">1,005 kg</span></td></tr><tr><td>P</td><td class="col-ant">11 j</td><td class="col-prod">4 j</td><td class="col-desp">11 j<span class="kg-sub">198 kg</span></td><td class="col-cierre">4 j<span class="kg-sub">72 kg</span></td></tr><tr><td>C</td><td class="col-ant">12 j</td><td class="col-prod">9 j</td><td class="col-desp">12 j<span class="kg-sub">204 kg</span></td><td class="col-cierre">9 j<span class="kg-sub">153 kg</span></td></tr><tr><td>M</td><td class="col-ant">36 j</td><td class="col-prod">178 j</td><td class="col-desp">118 j<span class="kg-sub">2,006 kg</span></td><td class="col-cierre">96 j<span class="kg-sub">1,632 kg</span></td></tr><tr class="tot-row"><td>TOTAL</td><td class="col-ant">94 j</td><td class="col-prod">290 j</td><td class="col-desp">208 j<span class="kg-sub">3,413 kg</span></td><td class="col-cierre">176 j</td></tr><tr class="ch-row"><td>Chancho</td><td class="col-ant">9 s</td><td class="col-prod">10 s</td><td class="col-desp" style="color:#e65100;font-weight:800">💰 15 s venta</td><td class="col-cierre">4 s</td></tr></tbody></table>
+</div>
+<div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:10px 14px">
+  <div style="font-size:.72rem;font-weight:800;color:#2e7d32;margin-bottom:8px">🌿 COMPRA 2 · 5 SACOS ADICIONALES</div>
+  <table class="plt-bal-tbl" style="background:transparent"><thead><tr><th>Calidad</th><th>Saldo ant.</th><th>🌿 Producción<br><span style="font-weight:500;font-size:.75rem">Compra 2 · 5 sacos</span></th><th>🚛 Despacho</th><th>🔄 Saldo final · 17/07</th></tr></thead><tbody>
+  <tr><td>A</td><td class="col-ant">67 j</td><td class="col-prod">+4 j</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">71 j<span class="kg-sub">1,065 kg</span></td></tr>
+  <tr><td>P</td><td class="col-ant">4 j</td><td class="col-prod" style="color:#aaa">—</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">4 j<span class="kg-sub">72 kg</span></td></tr>
+  <tr><td>C</td><td class="col-ant">9 j</td><td class="col-prod" style="color:#aaa">—</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">9 j<span class="kg-sub">153 kg</span></td></tr>
+  <tr><td>M</td><td class="col-ant">96 j</td><td class="col-prod">+18 j</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">114 j<span class="kg-sub">1,938 kg</span></td></tr>
+  <tr class="tot-row"><td>TOTAL</td><td class="col-ant">176 j</td><td class="col-prod">+22 j</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">198 j</td></tr>
+  <tr class="ch-row"><td>Chancho</td><td class="col-ant">4 s</td><td class="col-prod">+1 s</td><td class="col-desp" style="color:#aaa">—</td><td class="col-cierre">5 s</td></tr>
+  </tbody></table>
+</div>
+<!-- Resumen combinado día 17/07 -->
+<div style="margin-top:10px;background:#f3f0fa;border-left:4px solid #5c35a0;border-radius:0 8px 8px 0;padding:12px 14px">
+  <div style="font-size:.85rem;font-weight:900;color:#5c35a0;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em">📊 PRODUCCIÓN TOTAL DEL DÍA · C1 + C2 = 65 SACOS</div>
+  <table class="plt-bal-tbl" style="background:transparent"><thead><tr>
+    <th>Calidad</th>
+    <th>C1 (60 s)</th>
+    <th>C2 (5 s)</th>
+    <th style="color:#5c35a0">= Total prod.</th>
+    <th>🚛 Despacho</th>
+    <th>🔄 Saldo final</th>
+  </tr></thead><tbody>
+  <tr><td>A</td><td class="col-ant">99 j</td><td class="col-ant">4 j</td><td class="col-prod" style="color:#5c35a0;font-weight:800">103 j<span class="kg-sub">1,545 kg</span></td><td class="col-desp">67 j<span class="kg-sub">1,005 kg</span></td><td class="col-cierre">71 j<span class="kg-sub">1,065 kg</span></td></tr>
+  <tr><td>P</td><td class="col-ant">4 j</td><td class="col-ant" style="color:#aaa">—</td><td class="col-prod" style="color:#5c35a0;font-weight:800">4 j<span class="kg-sub">72 kg</span></td><td class="col-desp">11 j<span class="kg-sub">198 kg</span></td><td class="col-cierre">4 j<span class="kg-sub">72 kg</span></td></tr>
+  <tr><td>C</td><td class="col-ant">9 j</td><td class="col-ant" style="color:#aaa">—</td><td class="col-prod" style="color:#5c35a0;font-weight:800">9 j<span class="kg-sub">153 kg</span></td><td class="col-desp">12 j<span class="kg-sub">204 kg</span></td><td class="col-cierre">9 j<span class="kg-sub">153 kg</span></td></tr>
+  <tr><td>M</td><td class="col-ant">178 j</td><td class="col-ant">18 j</td><td class="col-prod" style="color:#5c35a0;font-weight:800">196 j<span class="kg-sub">3,332 kg</span></td><td class="col-desp">118 j<span class="kg-sub">2,006 kg</span></td><td class="col-cierre">114 j<span class="kg-sub">1,938 kg</span></td></tr>
+  <tr class="tot-row"><td>TOTAL</td><td class="col-ant">290 j</td><td class="col-ant">22 j</td><td class="col-prod" style="color:#5c35a0;font-weight:800">312 j<span class="kg-sub">5,102 kg</span></td><td class="col-desp">208 j<span class="kg-sub">3,413 kg</span></td><td class="col-cierre">198 j</td></tr>
+  <tr class="ch-row"><td>Chancho</td><td class="col-ant">10 s</td><td class="col-ant">1 s</td><td class="col-prod" style="color:#5c35a0;font-weight:800">11 s prod.</td><td class="col-desp" style="color:#e65100;font-weight:800">💰 15 s venta</td><td class="col-cierre">5 s</td></tr>
+  </tbody></table>
+</div>
               </div><!-- day-panel-4 -->
 
         </div><!-- .plt-day-content -->
@@ -5377,6 +5420,85 @@ cargarNotasServidor();
     <!-- ═══ VISTA SEMANAL ═══ -->
     <div id="plt-view-semanal" style="display:none">
 
+  <!-- ══ KPIs SEMANALES ══ -->
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:16px">
+
+    <!-- IZQUIERDA: resumen semanal (ingreso/jabas/chancho/merma) -->
+    <div style="flex:1;min-width:210px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:10px;padding:12px 14px;font-size:.78rem">
+      <div style="font-weight:800;color:#444;margin-bottom:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em">📊 Resumen Semana 29</div>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="color:#555;padding:3px 0">📦 Ingreso total (225 s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">21,375 kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>
+        <tr><td style="color:#555;padding:3px 0">🎋 Jabas clasificadas (1,153 j)</td><td style="text-align:right;font-weight:800;font-size:.88rem">18,856 kg <span style="color:#1565c0;font-weight:700;font-size:.82em">88%</span></td></tr>
+        <tr><td style="color:#555;padding:3px 0">🐷 Chancho producido (29 s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">2,755 kg <span style="color:#795548;font-weight:700;font-size:.82em">13%</span></td></tr>
+        <tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:5px">Total clasificado</td><td style="text-align:right;font-weight:900;font-size:.92rem;padding-top:5px">21,611 kg <span style="color:#aaa;font-weight:500;font-size:.78em">101%</span></td></tr>
+        <tr><td style="font-weight:800;color:#b71c1c;padding-top:3px">⬆️ Sobrante</td><td style="text-align:right;font-weight:900;color:#b71c1c;font-size:.95rem">-236 kg (-1.1%)</td></tr>
+        <tr style="border-top:1px solid #e0e0e0"><td style="color:#888;padding-top:5px;font-size:.7rem">🚛 Despacho semana</td><td style="text-align:right;color:#888;font-size:.7rem;padding-top:5px">16,121 kg</td></tr>
+      </table>
+      <div style="margin-top:8px;font-size:.68rem;color:#aaa">225 sacos × 95 kg = 21,375 · 29 s chancho × 95 = 2,755 · Jabas = suma diaria</div>
+    </div>
+
+    <!-- DERECHA: KPIs semanales -->
+    <div style="flex:2;min-width:0">
+      <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#666;margin-bottom:6px">📦 Stock Semana 29 · 13–17 Jul 2026</div>
+      <!-- Fila 1: sacos ingresados + producción + despacho -->
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <div class="plt-kpi" style="background:#e3f2fd;flex:1">
+          <div class="plt-kpi-lbl" style="color:#0d47a1">SACOS COMPRADOS</div>
+          <div class="plt-kpi-val" style="color:#0d47a1;font-size:1.3rem!important">225 sacos</div>
+          <div class="plt-kpi-sub">semana 29 total</div>
+        </div>
+        <div class="plt-kpi" style="background:#e8f5e9;flex:1">
+          <div class="plt-kpi-lbl" style="color:#1b5e20">PRODUCCIÓN</div>
+          <div class="plt-kpi-val" style="color:#1b5e20;font-size:1.3rem!important">1,153 jabas</div>
+          <div class="plt-kpi-sub">jabas procesadas</div>
+        </div>
+        <div class="plt-kpi" style="background:#f3e5f5;flex:1">
+          <div class="plt-kpi-lbl" style="color:#4a148c">DESPACHO</div>
+          <div class="plt-kpi-val" style="color:#4a148c;font-size:1.3rem!important">16,121 kg</div>
+          <div class="plt-kpi-sub">984 jabas enviadas</div>
+        </div>
+        <div class="plt-kpi" style="flex:1">
+          <div class="plt-kpi-lbl">SALDO ACTUAL</div>
+          <div class="plt-kpi-val" style="font-size:1.3rem!important">198 jabas</div>
+          <div class="plt-kpi-sub">al 17/07 en planta</div>
+        </div>
+      </div>
+      <!-- Fila 2: calidades saldo + chancho -->
+      <div style="display:flex;gap:8px">
+        <div class="plt-kpi" style="flex:1">
+          <div class="plt-kpi-lbl">A · saldo</div>
+          <div class="plt-kpi-val" style="font-size:1.1rem!important">71 jabas</div>
+          <div class="plt-kpi-sub">≈ 1,065 kg</div>
+        </div>
+        <div class="plt-kpi" style="flex:1">
+          <div class="plt-kpi-lbl">P · saldo</div>
+          <div class="plt-kpi-val" style="font-size:1.1rem!important">4 jabas</div>
+          <div class="plt-kpi-sub">≈ 72 kg</div>
+        </div>
+        <div class="plt-kpi" style="flex:1">
+          <div class="plt-kpi-lbl">C · saldo</div>
+          <div class="plt-kpi-val" style="font-size:1.1rem!important">9 jabas</div>
+          <div class="plt-kpi-sub">≈ 153 kg</div>
+        </div>
+        <div class="plt-kpi" style="flex:1">
+          <div class="plt-kpi-lbl">M · saldo</div>
+          <div class="plt-kpi-val" style="font-size:1.1rem!important">114 jabas</div>
+          <div class="plt-kpi-sub">≈ 1,938 kg</div>
+        </div>
+        <div class="plt-kpi" style="background:#fff8f0;flex:1.2">
+          <div class="plt-kpi-lbl" style="color:#4e342e">🐷 CHANCHO</div>
+          <div style="display:flex;gap:6px;margin-top:4px;font-size:.72rem;font-weight:700;text-align:center">
+            <div style="flex:1"><div style="color:#795548">Prod</div><div style="color:#4e342e;font-size:.95rem">29 s</div></div>
+            <div style="flex:1"><div style="color:#e65100">Venta</div><div style="color:#e65100;font-size:.95rem">24 s</div></div>
+            <div style="flex:1"><div style="color:#4e342e">Saldo</div><div style="color:#4e342e;font-size:.95rem">5 s</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ═══════════════════════════ -->
+
   <div class="plt-sec" style="padding:14px 16px">
     <h3 style="margin-bottom:14px">📆 Balance Diario · Semana 29 · 13–17 Jul 2026</h3>
 
@@ -5386,7 +5508,7 @@ cargarNotasServidor();
       <!-- ── Grupo headers ─────────────────────────────────────── -->
       <thead>
         <tr>
-          <th colspan="3" style="padding:8px 10px;background:#37474f;color:#fff;text-align:center;font-size:.72rem;letter-spacing:.05em;border-radius:8px 0 0 0">FECHA</th>
+          <th colspan="3" style="padding:8px 10px;background:#37474f;color:#fff;text-align:center;border-radius:8px 0 0 0"><div style="font-size:.82rem;font-weight:900;letter-spacing:.04em">SEMANA 29</div><div style="font-size:.68rem;font-weight:400;opacity:.85;margin-top:2px">Lun 13 – Dom 19 Jul 2026</div></th>
           <th colspan="5" style="padding:8px 10px;background:#1565c0;color:#fff;text-align:center;font-size:.72rem;letter-spacing:.05em">🌿 PRODUCCIÓN (jabas)</th>
           <th colspan="6" style="padding:8px 10px;background:#1b5e20;color:#fff;text-align:center;font-size:.72rem;letter-spacing:.05em">🚛 DESPACHO A SUPESA</th>
           <th colspan="5" style="padding:8px 10px;background:#4527a0;color:#fff;text-align:center;font-size:.72rem;letter-spacing:.05em">🔄 SALDO EN PLANTA</th>
@@ -5552,39 +5674,39 @@ cargarNotasServidor();
           <td style="padding:7px 8px;text-align:center;color:#4527a0;border-bottom:1px solid #eee;background:#f5f0ff">9</td>
           <td style="padding:7px 8px;text-align:center;color:#4527a0;border-bottom:1px solid #eee;background:#f5f0ff">96</td>
           <td style="padding:7px 8px;text-align:center;font-weight:900;color:#311b92;border-bottom:1px solid #eee;background:#ede7f6">176 j</td>
-          <!-- Chancho: prod=10s, venta=5s, saldo=14s -->
-          <td style="padding:7px 8px;text-align:center;color:#795548;border-bottom:1px solid #eee;background:#fff8f0">10 s</td><td style="padding:7px 8px;text-align:center;font-weight:800;color:#e65100;border-bottom:1px solid #eee;background:#fff8f0">5 s</td><td style="padding:7px 8px;text-align:center;font-weight:800;color:#4e342e;border-bottom:1px solid #eee;background:#efebe9">14 s</td>
+          <!-- Chancho: prod=11s, venta=15s, saldo=5s -->
+          <td style="padding:7px 8px;text-align:center;color:#795548;border-bottom:1px solid #eee;background:#fff8f0">11 s</td><td style="padding:7px 8px;text-align:center;font-weight:800;color:#e65100;border-bottom:1px solid #eee;background:#fff8f0">15 s</td><td style="padding:7px 8px;text-align:center;font-weight:800;color:#4e342e;border-bottom:1px solid #eee;background:#efebe9">5 s</td>
           <td style="padding:7px 8px;text-align:center;font-weight:800;color:#1b5e20;border-bottom:1px solid #eee;background:#f1f8e9">+14 kg</td>
           <td style="padding:7px 8px;text-align:center;font-weight:800;color:#1b5e20;border-bottom:1px solid #eee;background:#f1f8e9">+0.2%</td>
         </tr>
         <tr style="background:#eceff1;border-top:2px solid #90a4ae">
           <td colspan="3" style="padding:8px 10px;text-align:center;font-weight:900;font-size:.85rem;color:#263238">SEMANA 29</td>
-          <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">398</td>
+          <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">402</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">59</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">66</td>
-          <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">608</td>
-          <td style="padding:8px;text-align:center;font-weight:900;color:#0d47a1;background:#bfdbfe">1,131 j</td>
+          <td style="padding:8px;text-align:center;font-weight:800;color:#0d47a1;background:#dbeafe">626</td>
+          <td style="padding:8px;text-align:center;font-weight:900;color:#0d47a1;background:#bfdbfe">1,153 j</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#1b5e20;background:#dcfce7">331</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#1b5e20;background:#dcfce7">55</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#1b5e20;background:#dcfce7">57</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#1b5e20;background:#dcfce7">541</td>
           <td style="padding:8px;text-align:center;font-weight:900;color:#1b5e20;background:#bbf7d0">984 j</td>
           <td style="padding:8px;text-align:center;font-weight:900;color:#1b5e20;background:#bbf7d0">16,121 kg</td>
-          <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">67</td>
+          <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">71</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">4</td>
           <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">9</td>
-          <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">96</td>
-          <td style="padding:8px;text-align:center;font-weight:900;color:#311b92;background:#ddd6fe">176 j</td>
-          <td style="padding:8px;text-align:center;font-weight:800;color:#4e342e;background:#efebe9">28 s prod.</td><td style="padding:8px;text-align:center;font-weight:900;color:#e65100;background:#fff8f0">14 s venta</td><td style="padding:8px;text-align:center;font-weight:900;color:#4e342e;background:#d7ccc8">14 s saldo</td>
-          <td style="padding:8px;text-align:center;font-weight:900;color:#555;background:#fff3e0">-250 kg</td>
-          <td style="padding:8px;text-align:center;font-weight:900;color:#555;background:#fff3e0">-1.2%</td>
+          <td style="padding:8px;text-align:center;font-weight:800;color:#311b92;background:#ede7f6">114</td>
+          <td style="padding:8px;text-align:center;font-weight:900;color:#311b92;background:#ddd6fe">198 j</td>
+          <td style="padding:8px;text-align:center;font-weight:800;color:#4e342e;background:#efebe9">29 s prod.</td><td style="padding:8px;text-align:center;font-weight:900;color:#e65100;background:#fff8f0">24 s venta</td><td style="padding:8px;text-align:center;font-weight:900;color:#4e342e;background:#d7ccc8">5 s saldo</td>
+          <td style="padding:8px;text-align:center;font-weight:900;color:#555;background:#fff3e0">-236 kg</td>
+          <td style="padding:8px;text-align:center;font-weight:900;color:#555;background:#fff3e0">-1.1%</td>
         </tr>
       </tbody>
     </table>
     </div>
 
     <div class="plt-note" style="margin-top:10px">
-      ⚖️ Merma = Ingreso (sacos × 95 kg) − Jabas producidas (kg) − Chancho (95 kg/saco) &nbsp;·&nbsp; 13–16/07: 40 s/día · 17/07: 60 s
+      ⚖️ Merma = Ingreso (sacos × 95 kg) − Jabas producidas (kg) − Chancho (95 kg/saco) &nbsp;·&nbsp; 13–16/07: 40 s/día · 17/07: 65 s
       &nbsp;·&nbsp; Merma negativa = arrastre de stock semana anterior &nbsp;·&nbsp;
       Conversión: A=15 · P=18 · C=17 · M=17 kg/jaba
     </div>
@@ -5608,15 +5730,20 @@ function enterCampo(){
 function enterPlanta(){
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('planta-view').classList.add('active');
+  initPlanta();
 }
 function backToLanding(){
   document.getElementById('landing').classList.remove('hidden');
   document.getElementById('campo-back').style.display='none';
   document.getElementById('planta-view').classList.remove('active');
 }
+function initPlanta(){selectDay(4);}
 function setPlantaView(v){
   document.getElementById('plt-view-diario').style.display = v==='diario' ? 'block' : 'none';
   document.getElementById('plt-view-semanal').style.display = v==='semanal' ? 'block' : 'none';
+  document.getElementById('plt-diario-topbar').style.display = v==='diario' ? 'flex' : 'none';
+  document.getElementById('plt-semanal-topbar').style.display = v==='semanal' ? 'flex' : 'none';
+  document.getElementById('plt-daily-kpi-section').style.display = v==='diario' ? 'flex' : 'none';
   document.getElementById('tog-diario').classList.toggle('active', v==='diario');
   document.getElementById('tog-semanal').classList.toggle('active', v==='semanal');
 }
@@ -5636,7 +5763,7 @@ function selectDay(idx){
     {A:'18 jabas',As:'≈ 270 kg<br>15 kg/jaba',P:'0 jabas',Ps:'0 kg<br>18 kg/jaba',C:'0 jabas',Cs:'0 kg<br>17 kg/jaba',M:'47 jabas',Ms:'≈ 799 kg<br>17 kg/jaba',T:'65 jabas',Ts:'al 14/07',Ch:'9 sacos',Chs:'al 14/07 · Sem. 29'},
     {A:'30 jabas',As:'≈ 450 kg<br>15 kg/jaba',P:'11 jabas',Ps:'≈ 198 kg<br>18 kg/jaba',C:'12 jabas',Cs:'≈ 204 kg<br>17 kg/jaba',M:'35 jabas',Ms:'≈ 595 kg<br>17 kg/jaba',T:'88 jabas',Ts:'al 15/07',Ch:'5 sacos',Chs:'al 15/07 · Sem. 29'},
     {A:'35 jabas',As:'≈ 525 kg<br>15 kg/jaba',P:'11 jabas',Ps:'≈ 198 kg<br>18 kg/jaba',C:'12 jabas',Cs:'≈ 204 kg<br>17 kg/jaba',M:'36 jabas',Ms:'≈ 612 kg<br>17 kg/jaba',T:'94 jabas',Ts:'al 16/07',Ch:'9 sacos',Chs:'al 16/07 · Sem. 29'},
-    {A:'67 jabas',As:'≈ 1,005 kg<br>15 kg/jaba',P:'4 jabas',Ps:'≈ 72 kg<br>18 kg/jaba',C:'9 jabas',Cs:'≈ 153 kg<br>17 kg/jaba',M:'96 jabas',Ms:'≈ 1,632 kg<br>17 kg/jaba',T:'176 jabas',Ts:'al 17/07',Ch:'14 sacos',Chs:'al 17/07 · Sem. 29'}
+    {A:'71 jabas',As:'≈ 1,065 kg<br>15 kg/jaba',P:'4 jabas',Ps:'≈ 72 kg<br>18 kg/jaba',C:'9 jabas',Cs:'≈ 153 kg<br>17 kg/jaba',M:'114 jabas',Ms:'≈ 1,938 kg<br>17 kg/jaba',T:'198 jabas',Ts:'al 17/07',Ch:'5 sacos',Chs:'al 17/07 · Sem. 29'}
   ][idx];
   document.getElementById('kpi-stockA').textContent=sd.A;
   document.getElementById('kpi-stockA-sub').innerHTML=sd.As;
@@ -5658,32 +5785,34 @@ function selectDay(idx){
     "Guía EG07-2984 &nbsp;·&nbsp; OC: 14288888 / 14288927 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 40 sacos acopio ingresados</span>",
     "Guía EG07-2986 &nbsp;·&nbsp; OC: 14298060 / 14298010 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 40 sacos acopio ingresados</span>",
     "Guía EG07-2992 &nbsp;·&nbsp; OC: 14302074 / 14301856 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 40 sacos acopio ingresados</span>",
-    "Guía EG07-2994 &nbsp;·&nbsp; OC: 14306656 / 14306746 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 60 sacos acopio ingresados</span>"
+    "Guía EG07-2994 &nbsp;·&nbsp; OC: 14306656 / 14306746 &nbsp;·&nbsp; <span style='color:#1b5e20;font-size:.95rem;font-weight:800'>📦 65 sacos acopio ingresados</span> <span style='color:#555;font-size:.78rem;font-weight:500'>(C1: 60 + C2: 5)</span>"
   ];
   if(bar) bar.innerHTML=infos[idx];
 
   // ── Panel de merma ────────────────────────────────────────
   var md=[
-    {f:'13/07',ing:3800,j:3877,ch_s:2,ch:190,sal:4067,mer:-267,pct:-7.0},
-    {f:'14/07',ing:3800,j:3134,ch_s:7,ch:665,sal:3799,mer:1,pct:0.0},
-    {f:'15/07',ing:3800,j:3349,ch_s:5,ch:475,sal:3824,mer:-24,pct:-0.6},
-    {f:'16/07',ing:3800,j:3394,ch_s:4,ch:380,sal:3774,mer:26,pct:0.7},
-    {f:'17/07',ing:5700,j:4736,ch_s:10,ch:950,sal:5686,mer:14,pct:0.2}
+    {f:'13/07',s:40,ing:3800,j:3877,jn:257,ch_s:2,ch:190,sal:4067,mer:-267,pct:-7.0,desp:0},
+    {f:'14/07',s:40,ing:3800,j:3134,jn:206,ch_s:7,ch:665,sal:3799,mer:1,pct:0.0,desp:0},
+    {f:'15/07',s:40,ing:3800,j:3349,jn:222,ch_s:5,ch:475,sal:3824,mer:-24,pct:-0.6,desp:0},
+    {f:'16/07',s:40,ing:3800,j:3394,jn:226,ch_s:4,ch:380,sal:3774,mer:26,pct:0.7,desp:0},
+    {f:'17/07',s:65,ing:6175,j:5102,jn:312,ch_s:11,ch:1045,sal:6147,mer:28,pct:0.5,desp:3413}
   ];
   var mv=md[idx];
   var mcolor=mv.mer>=0?'#1b5e20':'#e65100';
   var mlabel=mv.mer>=0?'📉 Merma':'⬆️ Sobrante';
   var mval=mv.mer>=0?('+'+mv.mer+' kg ('+mv.pct.toFixed(1)+'%)'):(mv.mer+' kg ('+mv.pct.toFixed(1)+'%)');
+  var despRow=mv.desp>0?'<tr style="border-top:1px solid #e0e0e0"><td style="color:#888;padding-top:5px;font-size:.7rem">🚛 Despacho del día</td><td style="text-align:right;color:#888;font-size:.7rem;padding-top:5px">'+mv.desp.toLocaleString()+' kg</td></tr>':'';
   var mpanel=document.getElementById('plt-merma-panel');
   if(mpanel){
     mpanel.innerHTML=
-      '<div style="font-weight:800;color:#444;margin-bottom:8px;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Merma del día · '+mv.f+'</div>'+
+      '<div style="font-weight:800;color:#444;margin-bottom:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Resumen del día · '+mv.f+'</div>'+
       '<table style="width:100%;border-collapse:collapse" id="plt-merma-table">'+
-      '<tr><td style="color:#555;padding:2px 0">📦 Ingreso</td><td style="text-align:right;font-weight:700">'+mv.ing.toLocaleString()+' kg</td></tr>'+
-      '<tr><td style="color:#555;padding:2px 0">🎋 Jabas</td><td style="text-align:right;font-weight:700">'+mv.j.toLocaleString()+' kg</td></tr>'+
-      '<tr><td style="color:#555;padding:2px 0">🐷 Chancho ('+mv.ch_s+' s)</td><td style="text-align:right;font-weight:700">'+mv.ch+' kg</td></tr>'+
-      '<tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:4px">Total salida</td><td style="text-align:right;font-weight:800;padding-top:4px">'+mv.sal.toLocaleString()+' kg</td></tr>'+
-      '<tr><td style="font-weight:800;color:'+mcolor+';padding-top:2px">'+mlabel+'</td><td style="text-align:right;font-weight:900;color:'+mcolor+';font-size:.85rem">'+mval+'</td></tr>'+
+      '<tr><td style="color:#555;padding:3px 0">📦 Ingreso ('+mv.s+' s × 95 kg)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.ing.toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>'+
+      '<tr><td style="color:#555;padding:3px 0">🎋 Jabas clasificadas ('+mv.jn+' j)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.j.toLocaleString()+' kg <span style="color:#1565c0;font-weight:700;font-size:.82em">'+Math.round(mv.j/mv.ing*100)+'%</span></td></tr>'+
+      '<tr><td style="color:#555;padding:3px 0">🐷 Chancho producido ('+mv.ch_s+' s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.ch.toLocaleString()+' kg <span style="color:#795548;font-weight:700;font-size:.82em">'+Math.round(mv.ch/mv.ing*100)+'%</span></td></tr>'+
+      '<tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:5px">Total clasificado</td><td style="text-align:right;font-weight:900;font-size:.92rem;padding-top:5px">'+mv.sal.toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">'+Math.round(mv.sal/mv.ing*100)+'%</span></td></tr>'+
+      '<tr><td style="font-weight:800;color:'+mcolor+';padding-top:3px">'+mlabel+'</td><td style="text-align:right;font-weight:900;color:'+mcolor+';font-size:.95rem">'+mval+'</td></tr>'+
+      despRow+
       '</table>';
   }
 }
