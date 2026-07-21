@@ -356,7 +356,7 @@ select.sl{border:2px solid #4caf50;border-radius:8px;padding:6px 12px;font-size:
   <div><h1>🌱 GESTION CAMPO 2026</h1><p>Totales · Resumen · Calendario · Pedido · Presupuesto General · Excesos</p></div>
   <div style="display:flex;align-items:center;gap:10px">
     <button id="campo-back" onclick="backToLanding()">← Inicio</button>
-    <button onclick="exportarNotas()" title="Exportar notas para subir a GitHub" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">📝 Exportar notas</button>
+    <button onclick="exportarNotas()" title="Guardar todos los comentarios (campo + calendario) para subir a GitHub" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">💾 Guardar todo</button>
     <div style="font-size:.72rem;opacity:.8" id="hdr-fecha"></div>
   </div>
 </header>
@@ -1223,7 +1223,6 @@ function buildCalUI(){
     +'<button class="nav-btn" onclick="navM(-1)">&#8592; Anterior</button><span class="mes-lbl" id="mes-lbl"></span><button class="nav-btn" onclick="navM(1)">Siguiente &#8594;</button>'
     +'<button id="cal-btn-sem" class="nav-btn" onclick="toggleCalSemanal()" style="background:#e8f0fe;border-color:#7986cb;color:#3949ab;font-size:.75rem">📆 Semanal</button>'
     +'<div style="margin-left:auto;display:flex;gap:6px">'
-    +'<button class="nav-btn" style="background:#e8f5e9;border-color:#81c784;font-size:.75rem" onclick="exportarBitacora()" title="Guardar todos los comentarios en un archivo">💾 Guardar</button>'
     +'<span id="gh-sync-indicator" style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap"></span>'
     +'</div></div>'
     +'<div class="cal-layout" style="margin-top:6px"><div class="cal-side" id="cal-side"><div class="si-empty">Selecciona un lote para ver su información</div></div>'
@@ -3480,37 +3479,6 @@ function exportarPedidoExcel(tipo){
 }
 
 /* ── TAB 3: STOCK DEL MES ── */
-function exportarBitacora(){
-  const data=loadStatus();
-  const n=Object.keys(data).length;
-  if(!n){alert('No hay comentarios guardados todavía.');return;}
-  const hoy=new Date();
-  const nombre='notas_campo.json';
-  const payload=JSON.stringify({version:1,exportado:hoy.toISOString(),comentarios:data},null,2);
-  const a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(payload);
-  a.download=nombre;a.click();
-  setTimeout(()=>alert('✅ Bitácora descargada: '+nombre+'\n\n📌 IMPORTANTE: Sube este archivo a GitHub para que tu jefe pueda ver los comentarios.\n\nVe a: github.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES'),200);
-}
-function importarBitacora(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{
-      const obj=JSON.parse(e.target.result);
-      const comentarios=obj.comentarios||obj;  // support both formats
-      const n=Object.keys(comentarios).length;
-      if(confirm('¿Cargar '+n+' comentarios desde "'+file.name+'"?\n\nEsto reemplazará los comentarios actuales del navegador.')){
-        saveAllStatus(comentarios);
-        drawCal();
-        if(calLote)updateSidebar();
-        alert('✅ Bitácora cargada correctamente ('+n+' registros).');
-      }
-    }catch(err){alert('❌ Error al leer el archivo. Asegúrate de seleccionar un archivo de bitácora válido.');}
-    input.value='';
-  };
-  reader.readAsText(file);
-}
 /* ── COMMENT LOG ── */
 function toggleCalCrono(btn,id){
   const p=document.getElementById(id);
@@ -4248,14 +4216,6 @@ function descargarMensajeVacio(){
 window.MENSAJE_GLOBAL='';
 fetch('https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/mensaje.txt?_='+Date.now())
   .then(r=>{if(!r.ok)throw new Error();return r.text();}).then(t=>{window.MENSAJE_GLOBAL=t.trim();if(t.trim()&&calLote)updateSidebar();}).catch(()=>{});
-
-/* ── BITÁCORA REMOTA (desde GitHub, solo en github.io) ── */
-if(window.location.hostname.includes('github.io')){
-  const BASE='https://raw.githubusercontent.com/mirianmartinezparedes-ship-it/AGRO-PACAYALES/main/';
-  const tryFetch=urls=>urls.reduce((p,url)=>p.catch(()=>fetch(url).then(r=>{if(!r.ok)throw new Error();return r.json();})),Promise.reject());
-  tryFetch([BASE+'notas_campo.json?_='+Date.now()])
-    .then(data=>{const c=data.comentarios||data;saveAllStatus(c);if(calLote)updateSidebar();}).catch(()=>{});
-}
 
 /* ── REPORTE DE COSTOS ── */
 function crDetalle(btn,id){var d=document.getElementById(id);if(!d)return;var open=d.style.display==='block';d.style.display=open?'none':'block';btn.textContent=open?'Ver detalle ▼':'Ocultar ▲';}
@@ -5128,18 +5088,22 @@ function abrirBitacoraCompleta(filtrLote){
 }
 function cerrarBitacoraCompleta(){document.getElementById('bitlog-bg').style.display='none';}
 
-/* ── NOTAS SYNC: exportar e importar desde comentarios.json ── */
+/* ── NOTAS SYNC: exportar e importar desde comentarios.json (un solo botón, notas + calendario) ── */
 async function exportarNotas(){
-  const notes={};
+  const notas={};
   for(let i=0;i<localStorage.length;i++){
     const k=localStorage.key(i);
     if(k&&k.startsWith('agro_nota_')){
-      try{notes[k]=JSON.parse(localStorage.getItem(k));}catch(e){}
+      try{notas[k]=JSON.parse(localStorage.getItem(k));}catch(e){}
     }
   }
-  const count=Object.keys(notes).length;
-  if(count===0){alert('No hay notas guardadas todavía.');return;}
-  const json=JSON.stringify(notes,null,2);
+  const calendario=loadStatus();
+  const nNotas=Object.keys(notas).length;
+  const nCal=Object.keys(calendario).length;
+  if(nNotas===0 && nCal===0){alert('No hay comentarios guardados todavía.');return;}
+  const payload={version:2,exportado:new Date().toISOString(),notas,calendario};
+  const json=JSON.stringify(payload,null,2);
+  const resumen=nNotas+' nota'+(nNotas!==1?'s':'')+' de campo + '+nCal+' comentario'+(nCal!==1?'s':'')+' de calendario';
 
   // Intentar guardar con diálogo nativo (Chrome/Edge) → el usuario elige la carpeta
   if('showSaveFilePicker' in window){
@@ -5151,7 +5115,7 @@ async function exportarNotas(){
       const wr=await fh.createWritable();
       await wr.write(json);
       await wr.close();
-      alert('✅ comentarios.json guardado ('+count+' notas).\nAhora ejecuta push-agro.sh en Terminal.');
+      alert('✅ comentarios.json guardado ('+resumen+').\nAhora ejecuta push-agro.sh en Terminal.');
       return;
     }catch(e){if(e.name==='AbortError')return;}  // usuario canceló
   }
@@ -5162,21 +5126,26 @@ async function exportarNotas(){
   a.download='comentarios.json';
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  alert('✅ Guardado ('+count+' notas). Muévelo a la carpeta GESTION COSTOS y ejecuta push-agro.sh');
+  alert('✅ Guardado ('+resumen+'). Muévelo a la carpeta GESTION COSTOS y ejecuta push-agro.sh');
 }
 
 function cargarNotasServidor(){
   fetch('./comentarios.json?t='+Date.now())
     .then(r=>{if(!r.ok)throw new Error('no-file');return r.json();})
     .then(data=>{
-      let cargadas=0;
-      Object.entries(data).forEach(([k,v])=>{
+      let cargadas=0,cargadasCal=0;
+      const notas=data.notas||data;  // compat con archivos viejos (formato plano, sin "notas")
+      Object.entries(notas).forEach(([k,v])=>{
         if(k.startsWith('agro_nota_')){
           localStorage.setItem(k,JSON.stringify(v));
           cargadas++;
         }
       });
-      if(cargadas>0)console.log('Notas cargadas desde servidor: '+cargadas);
+      if(data.calendario && typeof data.calendario==='object'){
+        saveAllStatus(data.calendario);
+        cargadasCal=Object.keys(data.calendario).length;
+      }
+      if(cargadas>0||cargadasCal>0)console.log('Cargado desde servidor: '+cargadas+' notas, '+cargadasCal+' calendario');
     })
     .catch(()=>{});  // silent - no hay archivo todavía
 }

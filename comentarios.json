@@ -1,58 +1,120 @@
 {
-  "agro_nota_MOD 8C-26_🧪_Fungicida": {
-    "txt": "esta por verificar, actualizar cuadro.",
-    "ts": "11/7/2026, 2:00:16 p. m."
+  "version": 2,
+  "exportado": "2026-07-21T03:28:26.581Z",
+  "notas": {
+    "agro_nota_MOD 8C-26_🧪_Fungicida": {
+      "txt": "esta por verificar, actualizar cuadro.",
+      "ts": "11/7/2026, 2:00:16 p. m."
+    },
+    "agro_nota_MOD5C_26_🧪_Foliar": {
+      "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
+      "ts": "11/7/2026, 3:44:53 p. m."
+    },
+    "agro_nota_MOD 8C-26_AGROQUIMICO": {
+      "txt": "Se aplicó más por temas de presencia de hongos y plagas (ácaro hialino) También se aplicó MOVENTO porque no había producto para controlar Picador Chupador,\nNo se aplicó Herbicida por estrés de planta y se va hacer deshierbo.",
+      "ts": "11/7/2026, 5:43:30 p. m."
+    },
+    "agro_nota_MOD 4C_26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "10 de julio no se está aplicando de acuerdo al presupuesto porque está el módulo sin plagas.",
+      "ts": "18/7/2026, 12:05:58 p. m."
+    },
+    "agro_nota_MOD 8C-26_FERTILIZANTE": {
+      "txt": "se aplicó 25 kg es 0.80 ha debido ser 20 kilos no más.",
+      "ts": "11/7/2026, 4:34:11 p. m."
+    },
+    "agro_nota_MARINO CP_26_AGROQUIMICO_HERBICIDA": {
+      "txt": "LA APLCACION DE HERBIDA NO SE HIZO TODO FUE MANUAL.",
+      "ts": "18/7/2026, 11:59:32 a. m."
+    },
+    "agro_nota_POZO-C_🧪_Insecticida": {
+      "txt": "Se aplicó más por la plaga.",
+      "ts": "11/7/2026, 3:36:32 p. m."
+    },
+    "agro_nota_MOD-6C_AGROQUIMICO_INSECTICIDA": {
+      "txt": "18 de julio están programando para la otra semana aplicar MATAMOSCA, no está en el presupuesto, aprobado por Rubén. También estaba programado Deltaplus para el 20-07 pero no se va aplicar porqeu quieren aplicar solo productos biológicos.",
+      "ts": "18/7/2026, 12:11:39 p. m."
+    },
+    "agro_nota_BUSTAMANTE CP_26_🧪_Fungicida": {
+      "txt": "PRUEBA",
+      "ts": "10/7/2026, 11:02:14 p. m."
+    },
+    "agro_nota_CALAGUAC_2026_AGROQUIMICO_ENMIENDA": {
+      "txt": "YA NO SE VA APLICAR ENMIENDA PORQUE EL CULTIVO ESTÁ GRANDE.",
+      "ts": "18/7/2026, 11:52:58 a. m."
+    },
+    "agro_nota_MOD5C_26_AGROQUIMICO": {
+      "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
+      "ts": "11/7/2026, 4:47:12 p. m."
+    },
+    "agro_nota_MOD 11C-26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "18 JULIO SE PRESENTA PROBLEMA DE HONGO, PROBLEMA RADICULAR.",
+      "ts": "18/7/2026, 12:02:15 p. m."
+    },
+    "agro_nota_MOD-6C_AGROQUIMICO": {
+      "txt": "No se aplicó herbicida por falta de producto.\n18-07 se está aplicado otros productos porque solo quieren aplicar productos biológicos por decisión de Rubén y Bustamante.",
+      "ts": "18/7/2026, 12:12:14 p. m."
+    },
+    "agro_nota_MARINO CP_26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "01 DE JULIO, NO SE APLICÓ INSECTICIDA NO NECESITA APLICACIÓN. POR EL MOMENTO",
+      "ts": "18/7/2026, 11:57:21 a. m."
+    }
   },
-  "agro_nota_MOD5C_26_🧪_Foliar": {
-    "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
-    "ts": "11/7/2026, 3:44:53 p. m."
-  },
-  "agro_nota_MOD 8C-26_AGROQUIMICO": {
-    "txt": "Se aplicó más por temas de presencia de hongos y plagas (ácaro hialino) También se aplicó MOVENTO porque no había producto para controlar Picador Chupador,\nNo se aplicó Herbicida por estrés de planta y se va hacer deshierbo.",
-    "ts": "11/7/2026, 5:43:30 p. m."
-  },
-  "agro_nota_MOD 4C_26_AGROQUIMICO_INSECTICIDA": {
-    "txt": "10 de julio no se está aplicando de acuerdo al presupuesto porque está el módulo sin plagas.",
-    "ts": "18/7/2026, 12:05:58 p. m."
-  },
-  "agro_nota_MOD 8C-26_FERTILIZANTE": {
-    "txt": "se aplicó 25 kg es 0.80 ha debido ser 20 kilos no más.",
-    "ts": "11/7/2026, 4:34:11 p. m."
-  },
-  "agro_nota_MARINO CP_26_AGROQUIMICO_HERBICIDA": {
-    "txt": "LA APLCACION DE HERBIDA NO SE HIZO TODO FUE MANUAL.",
-    "ts": "18/7/2026, 11:59:32 a. m."
-  },
-  "agro_nota_POZO-C_🧪_Insecticida": {
-    "txt": "Se aplicó más por la plaga.",
-    "ts": "11/7/2026, 3:36:32 p. m."
-  },
-  "agro_nota_MOD-6C_AGROQUIMICO_INSECTICIDA": {
-    "txt": "18 de julio están programando para la otra semana aplicar MATAMOSCA, no está en el presupuesto, aprobado por Rubén. También estaba programado Deltaplus para el 20-07 pero no se va aplicar porqeu quieren aplicar solo productos biológicos.",
-    "ts": "18/7/2026, 12:11:39 p. m."
-  },
-  "agro_nota_BUSTAMANTE CP_26_🧪_Fungicida": {
-    "txt": "PRUEBA",
-    "ts": "10/7/2026, 11:02:14 p. m."
-  },
-  "agro_nota_CALAGUAC_2026_AGROQUIMICO_ENMIENDA": {
-    "txt": "YA NO SE VA APLICAR ENMIENDA PORQUE EL CULTIVO ESTÁ GRANDE.",
-    "ts": "18/7/2026, 11:52:58 a. m."
-  },
-  "agro_nota_MOD5C_26_AGROQUIMICO": {
-    "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
-    "ts": "11/7/2026, 4:47:12 p. m."
-  },
-  "agro_nota_MOD 11C-26_AGROQUIMICO_INSECTICIDA": {
-    "txt": "18 JULIO SE PRESENTA PROBLEMA DE HONGO, PROBLEMA RADICULAR.",
-    "ts": "18/7/2026, 12:02:15 p. m."
-  },
-  "agro_nota_MOD-6C_AGROQUIMICO": {
-    "txt": "No se aplicó herbicida por falta de producto.\n18-07 se está aplicado otros productos porque solo quieren aplicar productos biológicos por decisión de Rubén y Bustamante.",
-    "ts": "18/7/2026, 12:12:14 p. m."
-  },
-  "agro_nota_MARINO CP_26_AGROQUIMICO_INSECTICIDA": {
-    "txt": "01 DE JULIO, NO SE APLICÓ INSECTICIDA NO NECESITA APLICACIÓN. POR EL MOMENTO",
-    "ts": "18/7/2026, 11:57:21 a. m."
+  "calendario": {
+    "agro_nota_MOD 8C-26_🧪_Fungicida": {
+      "txt": "esta por verificar, actualizar cuadro.",
+      "ts": "11/7/2026, 2:00:16 p. m."
+    },
+    "agro_nota_MOD5C_26_🧪_Foliar": {
+      "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
+      "ts": "11/7/2026, 3:44:53 p. m."
+    },
+    "agro_nota_MOD 8C-26_AGROQUIMICO": {
+      "txt": "Se aplicó más por temas de presencia de hongos y plagas (ácaro hialino) También se aplicó MOVENTO porque no había producto para controlar Picador Chupador,\nNo se aplicó Herbicida por estrés de planta y se va hacer deshierbo.",
+      "ts": "11/7/2026, 5:43:30 p. m."
+    },
+    "agro_nota_MOD 4C_26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "10 de julio no se está aplicando de acuerdo al presupuesto porque está el módulo sin plagas.",
+      "ts": "18/7/2026, 12:05:58 p. m."
+    },
+    "agro_nota_MOD 8C-26_FERTILIZANTE": {
+      "txt": "se aplicó 25 kg es 0.80 ha debido ser 20 kilos no más.",
+      "ts": "11/7/2026, 4:34:11 p. m."
+    },
+    "agro_nota_MARINO CP_26_AGROQUIMICO_HERBICIDA": {
+      "txt": "LA APLCACION DE HERBIDA NO SE HIZO TODO FUE MANUAL.",
+      "ts": "18/7/2026, 11:59:32 a. m."
+    },
+    "agro_nota_POZO-C_🧪_Insecticida": {
+      "txt": "Se aplicó más por la plaga.",
+      "ts": "11/7/2026, 3:36:32 p. m."
+    },
+    "agro_nota_MOD-6C_AGROQUIMICO_INSECTICIDA": {
+      "txt": "18 de julio están programando para la otra semana aplicar MATAMOSCA, no está en el presupuesto, aprobado por Rubén. También estaba programado Deltaplus para el 20-07 pero no se va aplicar porqeu quieren aplicar solo productos biológicos.",
+      "ts": "18/7/2026, 12:11:39 p. m."
+    },
+    "agro_nota_BUSTAMANTE CP_26_🧪_Fungicida": {
+      "txt": "PRUEBA",
+      "ts": "10/7/2026, 11:02:14 p. m."
+    },
+    "agro_nota_CALAGUAC_2026_AGROQUIMICO_ENMIENDA": {
+      "txt": "YA NO SE VA APLICAR ENMIENDA PORQUE EL CULTIVO ESTÁ GRANDE.",
+      "ts": "18/7/2026, 11:52:58 a. m."
+    },
+    "agro_nota_MOD5C_26_AGROQUIMICO": {
+      "txt": "Se está haciendo ensayo para cortar la cosecha , por eso se está aplicando más foliares.",
+      "ts": "11/7/2026, 4:47:12 p. m."
+    },
+    "agro_nota_MOD 11C-26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "18 JULIO SE PRESENTA PROBLEMA DE HONGO, PROBLEMA RADICULAR.",
+      "ts": "18/7/2026, 12:02:15 p. m."
+    },
+    "agro_nota_MOD-6C_AGROQUIMICO": {
+      "txt": "No se aplicó herbicida por falta de producto.\n18-07 se está aplicado otros productos porque solo quieren aplicar productos biológicos por decisión de Rubén y Bustamante.",
+      "ts": "18/7/2026, 12:12:14 p. m."
+    },
+    "agro_nota_MARINO CP_26_AGROQUIMICO_INSECTICIDA": {
+      "txt": "01 DE JULIO, NO SE APLICÓ INSECTICIDA NO NECESITA APLICACIÓN. POR EL MOMENTO",
+      "ts": "18/7/2026, 11:57:21 a. m."
+    }
   }
 }
