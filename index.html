@@ -821,6 +821,14 @@ function progFmtFecha(iso){
   const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return dias[dt.getDay()]+' '+d+' '+meses[m-1];
 }
+/* Reescribe frases cortas de reprogramacion a un texto mas claro, conservando
+   cualquier motivo adicional que la usuaria haya escrito despues (p.ej. ", porque..."). */
+function progFmtNota(txt){
+  if(!txt) return txt;
+  const full=/se\s+va\s+correr\s+para\s+la\s+otra\s+semana/i;
+  if(full.test(txt)) return txt.replace(full, 'Se va reprogramar aplicación para la otra semana');
+  return txt.replace(/se\s+va\s+correr/i, 'Se va reprogramar aplicación');
+}
 const PROG_EST_INFO={
   conforme:{ico:'✅',label:'Conforme',bg:'#e8f5e9',fg:'#2e7d32',bd:'#2e7d32'},
   desviacion:{ico:'⚠️',label:'Con desviación',bg:'#fff3e0',fg:'#e65100',bd:'#e65100'},
@@ -878,7 +886,7 @@ function progCardHTML(item){
   h+='<span style="background:'+info.bg+';color:'+info.fg+';border:1.5px solid '+info.bd+';border-radius:20px;padding:4px 12px;font-size:.75rem;font-weight:800;white-space:nowrap">'+info.ico+' '+info.label+'</span>';
   h+='</div>';
   h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:9px">'+item.productos.map(function(p){return '<span style="background:#f1f3f4;color:#444;border:1px solid #e0e0e0;border-radius:6px;padding:3px 9px;font-size:.72rem;font-weight:600">'+p+'</span>';}).join('')+'</div>';
-  if(r.txt)h+='<div style="margin-top:8px;font-size:.8rem;color:#555;background:#fafafa;border-radius:6px;padding:8px 10px">📝 '+r.txt+(r.fuente==='manual'?' <span style="color:#999">(marcado por ti)</span>':'')+'</div>';
+  if(r.txt)h+='<div style="margin-top:8px;font-size:.8rem;color:#555;background:#fafafa;border-radius:6px;padding:8px 10px">📝 '+progFmtNota(r.txt)+(r.fuente==='manual'?' <span style="color:#999">(marcado por ti)</span>':'')+'</div>';
   if(!item.estado_excel||item.estado_excel==='pendiente'){
     h+='<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">';
     h+='<button onclick="progMark(\''+r.key+'\',\'conforme\')" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #2e7d32;border-radius:16px;padding:4px 12px;font-size:.72rem;font-weight:700;cursor:pointer">✅ Conforme</button>';
