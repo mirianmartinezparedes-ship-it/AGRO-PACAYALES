@@ -6862,7 +6862,7 @@ async function guardarHTMLConDialogo(html){
     try{
       const fh = await window.showSaveFilePicker({
         id: 'agro-index-html',
-        suggestedName: 'SISTEMA.html',
+        suggestedName: 'index.html',
         types: [{description:'HTML', accept:{'text/html':['.html']}}]
       });
       const wr = await fh.createWritable();
@@ -6878,7 +6878,7 @@ async function guardarHTMLConDialogo(html){
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'SISTEMA.html';
+  a.download = 'index.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -9305,6 +9305,7 @@ function setPlantaView(v){
 }
 function selectSemanaPlanta(v){ /* obsoleto: la vista semanal ahora es una sola tabla de totales, ya no hay selector por semana */ }
 function selectDay(idx){
+  window._pltDayIdx=idx;
   document.querySelectorAll('.plt-day-panel').forEach((p,i)=>{
     p.classList.toggle('dp-active', i===idx);
   });
@@ -9408,17 +9409,64 @@ function selectDay(idx){
         '</table>';
     } else {
       var despRow=mv.desp>0?'<tr style="border-top:1px solid #e0e0e0"><td style="color:#888;padding-top:5px;font-size:.7rem">🚛 Despacho del día</td><td style="text-align:right;color:#888;font-size:.7rem;padding-top:5px">'+mv.desp.toLocaleString()+' kg</td></tr>':'';
-      mpanel.innerHTML=
-        '<div style="font-weight:800;color:#444;margin-bottom:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Resumen del día · '+mv.f+'</div>'+
-        '<table style="width:100%;border-collapse:collapse" id="plt-merma-table">'+
-        '<tr><td style="color:#555;padding:3px 0">📦 Ingreso ('+mv.s+' s × '+PLT_KG_SACO+' kg aprox)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.ing.toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>'+
-        '<tr><td style="color:#555;padding:3px 0">🎋 Jabas seleccionadas ('+mv.jn+' j)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.j.toLocaleString()+' kg <span style="color:#1565c0;font-weight:700;font-size:.82em">'+Math.round(mv.j/mv.ing*100)+'%</span></td></tr>'+
-        '<tr><td style="color:#555;padding:3px 0">🐷 Chancho producido ('+mv.ch_s+' s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+mv.ch.toLocaleString()+' kg <span style="color:#795548;font-weight:700;font-size:.82em">'+Math.round(mv.ch/mv.ing*100)+'%</span></td></tr>'+
-        '<tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:5px">Total clasificado</td><td style="text-align:right;font-weight:900;font-size:.92rem;padding-top:5px">'+mv.sal.toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">'+Math.round(mv.sal/mv.ing*100)+'%</span></td></tr>'+
-        '<tr><td style="font-weight:800;color:'+mcolor+';padding-top:3px">'+mlabel+'</td><td style="text-align:right;font-weight:900;color:'+mcolor+';font-size:.95rem">'+mval+'</td></tr>'+
-        despRow+
-        '</table>';
+      window._pltMvCur=mv;
+      window._pltMvTab=0;
+      mpanel.innerHTML=pltMermaPanelHTML(mv,0,despRow);
     }
+  }
+}
+function pltMermaRowsHTML(item){
+  var ing=item.ing||0;
+  var jPct= ing>0?Math.round((item.j||0)/ing*100):0;
+  var chPct= ing>0?Math.round((item.ch||0)/ing*100):0;
+  var malPct= ing>0?Math.round((item.mal||0)/ing*100):0;
+  var salPct= ing>0?Math.round((item.sal||0)/ing*100):0;
+  var dMer=-(item.mer||0), dPct=-(item.pct||0);
+  var mcolor=(item.mer||0)>=0?'#b71c1c':'#2e7d32';
+  var mlabel=(item.mer||0)>=0?'📉 Merma':'⬆️ Sobrante';
+  var mval=(dMer>=0?'+':'')+dMer.toFixed(2)+' kg ('+(dPct>=0?'+':'')+dPct.toFixed(1)+'%)';
+  // Descarte (MALOGRADO) — pedido usuaria 19/08: mostrarlo como línea propia,
+  // solo cuando hay algo que mostrar (para no ensuciar días sin descarte).
+  var descarteRow = (item.mal||0)>0
+    ? '<tr><td style="color:#555;padding:3px 0">🗑️ Descarte</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+item.mal.toLocaleString()+' kg <span style="color:#8d6e63;font-weight:700;font-size:.82em">'+malPct+'%</span></td></tr>'
+    : '';
+  return '<tr><td style="color:#555;padding:3px 0">📦 Ingreso ('+(item.s||0)+' s × '+PLT_KG_SACO+' kg aprox)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+ing.toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">100%</span></td></tr>'+
+    '<tr><td style="color:#555;padding:3px 0">🎋 Jabas seleccionadas ('+(item.jn||0)+' j)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+(item.j||0).toLocaleString()+' kg <span style="color:#1565c0;font-weight:700;font-size:.82em">'+jPct+'%</span></td></tr>'+
+    '<tr><td style="color:#555;padding:3px 0">🐷 Chancho producido ('+(item.ch_s||0)+' s)</td><td style="text-align:right;font-weight:800;font-size:.88rem">'+(item.ch||0).toLocaleString()+' kg <span style="color:#795548;font-weight:700;font-size:.82em">'+chPct+'%</span></td></tr>'+
+    descarteRow+
+    '<tr style="border-top:1px solid #ddd"><td style="font-weight:700;color:#333;padding-top:5px">Total clasificado</td><td style="text-align:right;font-weight:900;font-size:.92rem;padding-top:5px">'+(item.sal||0).toLocaleString()+' kg <span style="color:#aaa;font-weight:500;font-size:.78em">'+salPct+'%</span></td></tr>'+
+    '<tr><td style="font-weight:800;color:'+mcolor+';padding-top:3px">'+mlabel+'</td><td style="text-align:right;font-weight:900;color:'+mcolor+';font-size:.95rem">'+mval+'</td></tr>';
+}
+function pltMermaPanelHTML(mv,tab,despRow){
+  var bt=mv.bt||[];
+  var showTabs=bt.length>=2;
+  var tabsHTML='';
+  if(showTabs){
+    tabsHTML='<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">'+
+      '<button onclick="pltMermaTab(0)" style="padding:4px 12px;border-radius:14px;border:1px solid '+(tab===0?'#2e7d32':'#ccc')+';background:'+(tab===0?'#2e7d32':'#fff')+';color:'+(tab===0?'#fff':'#555')+';font-size:.68rem;font-weight:700;cursor:pointer">Todo el día</button>'+
+      bt.map(function(b){return '<button onclick="pltMermaTab('+b.n+')" style="padding:4px 12px;border-radius:14px;border:1px solid '+(tab===b.n?'#2e7d32':'#ccc')+';background:'+(tab===b.n?'#2e7d32':'#fff')+';color:'+(tab===b.n?'#fff':'#555')+';font-size:.68rem;font-weight:700;cursor:pointer">Selección '+b.n+'</button>';}).join('')+
+      '</div>';
+  }
+  var item = (tab===0) ? mv : (bt.find(function(b){return b.n===tab;}) || mv);
+  var titleSuffix = (tab===0) ? '' : ' · Selección '+tab;
+  var rows=pltMermaRowsHTML(item);
+  var rowDesp = (tab===0) ? (despRow||'') : '';
+  return '<div style="font-weight:800;color:#444;margin-bottom:10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em">⚖️ Resumen del día · '+mv.f+titleSuffix+'</div>'+
+    tabsHTML+
+    '<table style="width:100%;border-collapse:collapse" id="plt-merma-table">'+rows+rowDesp+'</table>';
+}
+function pltMermaTab(n){
+  var mv=window._pltMvCur; if(!mv) return;
+  window._pltMvTab=n;
+  var mpanel=document.getElementById('plt-merma-panel');
+  var despRow= mv.desp>0?'<tr style="border-top:1px solid #e0e0e0"><td style="color:#888;padding-top:5px;font-size:.7rem">🚛 Despacho del día</td><td style="text-align:right;color:#888;font-size:.7rem;padding-top:5px">'+mv.desp.toLocaleString()+' kg</td></tr>':'';
+  if(mpanel) mpanel.innerHTML=pltMermaPanelHTML(mv,n,despRow);
+  // Sincronizar también el panel "Balance por Jornada" del mismo día (pedido usuaria 19/08)
+  var di=window._pltDayIdx;
+  var rec=window._pltDsMap && window._pltDsMap[di];
+  if(rec){
+    var panelEl=document.getElementById('day-panel-'+di);
+    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, n);
   }
 }
 
@@ -9510,6 +9558,11 @@ function parsePlantaMovimientos(wb){
       saldoA:run.A, saldoP:run.P, saldoC:run.C, saldoM:run.M, saldoTot:run.A+run.P+run.C+run.M,
       chProd:0, chProdKg:0, chVenta:0, chTicket:'', chNotas:[], chSaldo:run.ch, tras:0, malKg:0,
       mermaKg:0, mermaPct:0, desp_only:false,
+      // Cuando hay más de una COMPRA en el mismo día, cada tanda de PROCESO que sigue se
+      // guarda aparte en procesoBatches (pedido usuaria 19/08: "tengo dos procesos, quiero
+      // que se vea por separado la selección, que no se junte"). _batchN cuenta la tanda
+      // actual; prodA/prodP/etc siguen siendo el TOTAL del día (no se toca nada de eso).
+      procesoBatches:[], _batchN:0,
       // cierre del día ANTERIOR capturado al crear el día — saldo anterior exacto
       prevSaldoA:run.A, prevSaldoP:run.P, prevSaldoC:run.C, prevSaldoM:run.M,
       prevSaldoTot:run.A+run.P+run.C+run.M, prevChSaldo:run.ch,
@@ -9546,10 +9599,20 @@ function parsePlantaMovimientos(wb){
     // Ingreso de sacos: no solo COMPRA (a terceros) -- también CAMPOS PROPIOS (cosecha
     // propia, p.ej. Lote de Casas). La usuaria anota el lote en la Observación (pedido
     // usuaria 11/08: "no solamente cuando diga compra, sino también... de lotes").
-    if(tipo==='COMPRA' || tipo==='CAMPOS PROPIOS'){ p.ingr_s+=cant; p.ingr_kg+=kg; if(tipo==='CAMPOS PROPIOS' && obs) p.loteObs=(p.loteObs?p.loteObs+' + ':'')+obs; }
+    if(tipo==='COMPRA' || tipo==='CAMPOS PROPIOS'){
+      p.ingr_s+=cant; p.ingr_kg+=kg; if(tipo==='CAMPOS PROPIOS' && obs) p.loteObs=(p.loteObs?p.loteObs+' + ':'')+obs;
+      p._batchN=(p._batchN||0)+1;
+      const _bnC=p._batchN;
+      if(!p.procesoBatches[_bnC-1]) p.procesoBatches[_bnC-1]={n:_bnC,ingr_s:0,ingr_kg:0,prodA:0,prodP:0,prodC:0,prodM:0,chProd:0,chProdKg:0,malKg:0,despA:0,despP:0,despC:0,despM:0,despTotKg:0};
+      p.procesoBatches[_bnC-1].ingr_s+=cant;
+      p.procesoBatches[_bnC-1].ingr_kg+=kg;
+    }
     else if(tipo==='PROCESO'){
-      if(cal==='Chancho'){ p.chProd+=cant; p.chProdKg+=kg; run.ch+=cant; }
-      else if(QF[cal]!=null){ p['prod'+cal]+=cant; run[cal]+=cant; }
+      const _bn = p._batchN>0 ? p._batchN : 1;
+      if(!p.procesoBatches[_bn-1]) p.procesoBatches[_bn-1]={n:_bn,ingr_s:0,ingr_kg:0,prodA:0,prodP:0,prodC:0,prodM:0,chProd:0,chProdKg:0,malKg:0,despA:0,despP:0,despC:0,despM:0,despTotKg:0};
+      const _b = p.procesoBatches[_bn-1];
+      if(cal==='Chancho'){ p.chProd+=cant; p.chProdKg+=kg; run.ch+=cant; _b.chProd+=cant; _b.chProdKg+=kg; }
+      else if(QF[cal]!=null){ p['prod'+cal]+=cant; run[cal]+=cant; _b['prod'+cal]+=cant; }
     }
     else if(tipo.indexOf('ENVÍO')===0 || tipo.indexOf('ENVIO')===0){
       if(uni==='jabas' && QF[cal]!=null){
@@ -9558,6 +9621,14 @@ function parsePlantaMovimientos(wb){
       } else { p.despTotKg+=kg; }
       if(doc && p._guias.indexOf(doc)<0) p._guias.push(doc);
       p.fecha_desp = fecha;
+      // Despacho por tanda (pedido usuaria 19/08: "en Selección 2 no hubo despacho a
+      // Supesa, fue solo en la primera") — se cuenta en la selección que esté en curso
+      // en ese momento, igual que el resto de campos por tanda.
+      const _bnE = p._batchN>0 ? p._batchN : 1;
+      if(!p.procesoBatches[_bnE-1]) p.procesoBatches[_bnE-1]={n:_bnE,ingr_s:0,ingr_kg:0,prodA:0,prodP:0,prodC:0,prodM:0,chProd:0,chProdKg:0,malKg:0,despA:0,despP:0,despC:0,despM:0,despTotKg:0};
+      const _bE = p.procesoBatches[_bnE-1];
+      if(uni==='jabas' && QF[cal]!=null){ _bE['desp'+cal]=(_bE['desp'+cal]||0)+cant; _bE.despTotKg=(_bE.despTotKg||0)+cant*QF[cal]; }
+      else { _bE.despTotKg=(_bE.despTotKg||0)+kg; }
     }
     else if(tipo==='VENTA CHANCHO'){
       // Ventas chicas registradas en kg (ej. venta suelta a un cliente) NO restan
@@ -9581,7 +9652,14 @@ function parsePlantaMovimientos(wb){
     }
     else if(tipo==='DEVOLUCIÓN'){ if(QF[cal]!=null) run[cal]+=cant; }
     else if(tipo==='TRASIEGO'){ if(QF[cal]!=null){ run[cal]-=cant; p.tras+=cant; } }
-    else if(tipo==='MALOGRADO'){ p.malKg+=kg; }
+    else if(tipo==='MALOGRADO'){
+      p.malKg+=kg;
+      // Descarte por tanda (pedido usuaria 19/08): se cuenta en la selección que
+      // esté en curso ese momento, igual que el resto de campos por tanda.
+      const _bnM = p._batchN>0 ? p._batchN : 1;
+      if(!p.procesoBatches[_bnM-1]) p.procesoBatches[_bnM-1]={n:_bnM,ingr_s:0,ingr_kg:0,prodA:0,prodP:0,prodC:0,prodM:0,chProd:0,chProdKg:0,malKg:0,despA:0,despP:0,despC:0,despM:0,despTotKg:0};
+      p.procesoBatches[_bnM-1].malKg=(p.procesoBatches[_bnM-1].malKg||0)+kg;
+    }
     // REPROCESO / OTRA SALIDA: no mueven jabas del panel
     snap(p);
   }
@@ -9892,9 +9970,15 @@ function pltDaySummary(fecha, pedidos, byDate, byDespachoDate, byProcesoDate){
   // ayer puede seleccionarse hoy, y debe verse en el panel de HOY.
   const prodA=sum(prRows,'prodA'), prodP=sum(prRows,'prodP'), prodC=sum(prRows,'prodC'), prodM=sum(prRows,'prodM');
   const prodTot = prodA+prodP+prodC+prodM;
+  // Tandas de selección del día (ver parsePlantaMovimientos) — se juntan y renumeran
+  // por si prRows trae más de un pedido para la misma fecha de proceso.
+  const procesoBatches = prRows.reduce((a,p)=>a.concat((p.procesoBatches||[]).filter(b=>b)), []).map((b,i)=>({...b, n:i+1}));
   const chProd = sum(prRows,'chProd'), chProdKg = sum(prRows,'chProdKg'), chVenta = sum(ps,'chVenta');
   const chNotas = ps.reduce((a,p)=>a.concat(p.chNotas||[]), []);
   const mermaKg = ps.filter(p=>!p.desp_only).reduce((a,p)=>a+p.mermaKg,0);
+  // Descarte (MALOGRADO) del día — pedido usuaria 19/08: mostrarlo aparte, ya
+  // restado dentro de mermaKg más arriba (viene de p.mermaKg en el parser).
+  const malKg = sum(ps,'malKg');
 
   const despA=sum(dsRows,'despA'), despP=sum(dsRows,'despP'), despC=sum(dsRows,'despC'), despM=sum(dsRows,'despM');
   const despTotJ = despA+despP+despC+despM;
@@ -9923,20 +10007,37 @@ function pltDaySummary(fecha, pedidos, byDate, byDespachoDate, byProcesoDate){
     fecha, dia: dia_lbl,
     ingr_s, ingr_kg, propioS, propioKg, compradoS, loteDetalle,
     procesado_s, procesado_kg, pendiente_s, pendiente_kg,
-    prodA, prodP, prodC, prodM, prodTot,
+    prodA, prodP, prodC, prodM, prodTot, procesoBatches,
     despA, despP, despC, despM, despTotJ, despTotKg: Math.trunc(despTotKg),
     saldoA:last.saldoA, saldoP:last.saldoP, saldoC:last.saldoC, saldoM:last.saldoM, saldoTot:last.saldoTot,
     prevSaldoA:last.prevSaldoA, prevSaldoP:last.prevSaldoP, prevSaldoC:last.prevSaldoC,
     prevSaldoM:last.prevSaldoM, prevSaldoTot:last.prevSaldoTot,
     chProd, chProdKg, chVenta, chNotas, chSaldo:last.chSaldo, prevChSaldo:last.prevChSaldo,
     guia: guias.length ? Array.from(new Set(guias)).join(' + ') : '—',
-    mermaKg,
+    mermaKg, malKg,
     mermaPct: procesado_kg ? (mermaKg/procesado_kg*100) : 0,
   };
 }
 
 /* ── HTML del panel diario (Diario > panel de un día, id="day-panel-N") ── */
 function pltDayPanelInner(idx, ds, saPrev, weekLabel){
+  return `<div class="plt-day-panel" id="day-panel-${idx}">${pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, 0)}
+            </div><!-- day-panel-${idx} -->`;
+}
+function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab){
+  const bs = (ds.procesoBatches||[]).filter(b=>b);
+  const activeBatch = (batchTab>0) ? bs.find(b=>b.n===batchTab) : null;
+  const view = activeBatch ? {
+    prodA: activeBatch.prodA||0, prodP: activeBatch.prodP||0, prodC: activeBatch.prodC||0, prodM: activeBatch.prodM||0,
+    chProd: activeBatch.chProd||0, chProdKg: activeBatch.chProdKg||0,
+    despA: activeBatch.despA||0, despP: activeBatch.despP||0, despC: activeBatch.despC||0, despM: activeBatch.despM||0,
+    despTotKg: activeBatch.despTotKg||0
+  } : {
+    prodA: ds.prodA, prodP: ds.prodP, prodC: ds.prodC, prodM: ds.prodM, chProd: ds.chProd, chProdKg: ds.chProdKg,
+    despA: ds.despA, despP: ds.despP, despC: ds.despC, despM: ds.despM, despTotKg: ds.despTotKg
+  };
+  const viewProdTot = view.prodA+view.prodP+view.prodC+view.prodM;
+  const viewDespTotJ = view.despA+view.despP+view.despC+view.despM;
   const r = (cal, ant, ant_kg, sel, selKgPer, desp, despKg, cierre, cierreKg) => {
     const a = ant>0 ? `${pltNfmt(ant)} j <span class="kg-sub">${pltFmt0(ant_kg)} kg</span>` : '<span style="color:#aaa">0 j</span>';
     const s = sel>0 ? `${pltNfmt(sel)} j <span class="kg-sub">${pltFmt0(sel*selKgPer)} kg</span>` : '<span style="color:#aaa">0 j</span>';
@@ -9976,22 +10077,62 @@ function pltDayPanelInner(idx, ds, saPrev, weekLabel){
       })()
     : '';
 
+  // Pestañas Todo el día / Selección N — pedido usuaria 19/08: al elegir una tanda
+  // también debe cambiar esta tabla (Balance por Jornada), no solo el panel de arriba.
+  const batchTabsHTML = (() => {
+    if(bs.length < 2) return '';
+    const btn = (n, lbl) => `<button onclick="pltMermaTab(${n})" style="padding:4px 12px;border-radius:14px;border:1px solid ${batchTab===n?'#2e7d32':'#ccc'};background:${batchTab===n?'#2e7d32':'#fff'};color:${batchTab===n?'#fff':'#555'};font-size:.68rem;font-weight:700;cursor:pointer">${lbl}</button>`;
+    return `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">${btn(0,'Todo el día')}${bs.map(b=>btn(b.n,'Selección '+b.n)).join('')}</div>`;
+  })();
+  const batchBanner = activeBatch ? `<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;background:#ede7f6;border:1.5px solid #9575cd;border-radius:8px;padding:6px 10px">`
+    + `<span>🔀</span>`
+    + `<div style="font-size:.7rem;color:#4527a0">Mostrando solo la <strong>Selección ${activeBatch.n}</strong> de este día (incluye el despacho que salió durante esta selección, si hubo). Saldo anterior y saldo cierre siguen siendo del día completo.</div>`
+    + `</div>` : '';
+
+  // Cuando hubo más de una COMPRA+PROCESO el mismo día, se avisa la selección de cada
+  // tanda por separado (pedido usuaria 19/08) — solo se muestra en la vista "Todo el día",
+  // ya que en cada pestaña de Selección la tabla de arriba ya queda filtrada a esa tanda.
+  const batchNote = (() => {
+    if(activeBatch) return '';
+    if(bs.length < 2) return '';
+    const linea = b => {
+      const qs=[];
+      if(b.prodA>0) qs.push(`A=${pltNfmt(b.prodA)}j`);
+      if(b.prodP>0) qs.push(`P=${pltNfmt(b.prodP)}j`);
+      if(b.prodC>0) qs.push(`C=${pltNfmt(b.prodC)}j`);
+      if(b.prodM>0) qs.push(`M=${pltNfmt(b.prodM)}j`);
+      if(b.chProd>0) qs.push(`Chancho=${pltNfmt(b.chProd)}s`);
+      const totKg=(b.prodA*15+b.prodP*18+b.prodC*17+b.prodM*17)+(b.chProdKg||0);
+      return `<strong>Selección ${b.n}:</strong> ${qs.join(', ')||'—'} <span style="color:#888">(${pltFmt0(totKg)} kg)</span>`;
+    };
+    return `
+  <div style="margin-top:8px;display:flex;align-items:flex-start;gap:8px;background:#ede7f6;border:1.5px solid #9575cd;border-radius:8px;padding:8px 12px">`
+      + `
+    <span>🔀</span>`
+      + `
+    <div style="font-size:.72rem;color:#4527a0;line-height:1.7">${bs.map(linea).join('<br>')}</div>`
+      + `
+  </div>`;
+  })();
+
   const saA=saPrev.saldoA||0, saP=saPrev.saldoP||0, saC=saPrev.saldoC||0, saM=saPrev.saldoM||0, saTot=saPrev.saldoTot||0;
   const saAkg=saA*15, saMkg=saM*17;
-  const despAkg=ds.despA*15, despPkg=ds.despP*18, despCkg=ds.despC*17, despMkg=ds.despM*17;
+  const despAkg=view.despA*15, despPkg=view.despP*18, despCkg=view.despC*17, despMkg=view.despM*17;
   const saldAkg=ds.saldoA*15, saldMkg=ds.saldoM*17;
-  const procTotKg = (ds.prodA*15+ds.prodP*18+ds.prodC*17+ds.prodM*17) + (ds.chProdKg||0);
+  const procTotKg = (view.prodA*15+view.prodP*18+view.prodC*17+view.prodM*17) + (view.chProdKg||0);
+  const merLabelShown = activeBatch ? merLabel+' (día completo)' : merLabel;
 
-  return `<div class="plt-day-panel" id="day-panel-${idx}">
-<div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:10px 14px">
+  return `<div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:10px 14px">
   <div style="font-size:.72rem;font-weight:800;color:#2e7d32;margin-bottom:8px">📦 SELECCIÓN + 🚛 DESPACHO · ${titulo} · ${ingresoTxt} · ${ds.guia} · ${weekLabel}</div>
+  ${batchTabsHTML}
+  ${batchBanner}
   <table class="plt-bal-tbl" style="background:transparent">
     <thead><tr>
       <th>Calidad</th><th>Saldo ant.</th><th>Selección</th><th>Despacho</th><th style="background:#bbdefb;color:#0d47a1">Saldo cierre</th>
     </tr></thead>
     <tbody>
-      ${r('A', saA, saAkg, ds.prodA, 15, ds.despA, despAkg, ds.saldoA, saldAkg)}      ${r('P', saP, 0, ds.prodP, 18, ds.despP, despPkg, ds.saldoP, ds.saldoP*18)}      ${r('C', saC, 0, ds.prodC, 17, ds.despC, despCkg, ds.saldoC, ds.saldoC*17)}      ${r('M', saM, saMkg, ds.prodM, 17, ds.despM, despMkg, ds.saldoM, saldMkg)}      <tr class="tot-row"><td>TOTAL</td><td>${saTot} j</td><td style="font-weight:900;font-size:1.05rem;color:#1b5e20;background:#e8f5e9;border:2px solid #2e7d32;border-radius:8px">${ds.prodTot} j <span class="kg-sub" style="color:#c62828;font-weight:800">${pltFmt0(procTotKg)} kg</span></td><td>${ds.despTotJ} j <span class="kg-sub">${pltFmt0(ds.despTotKg)} kg</span></td><td style="background:#bbdefb;color:#0d47a1;font-weight:900">${ds.saldoTot} j</td></tr>
-      <tr class="ch-row"><td>Chancho</td><td>${pltNfmt(saPrev.chSaldo||0)} s</td><td>${pltNfmt(ds.chProd)} s <span class="kg-sub">${pltFmt0(ds.chProdKg)} kg</span></td><td style="color:#aaa">—</td><td style="background:#e3f2fd;color:#0d47a1;font-weight:800">${pltNfmt(ds.chSaldo)} s</td></tr>
+      ${r('A', saA, saAkg, view.prodA, 15, view.despA, despAkg, ds.saldoA, saldAkg)}      ${r('P', saP, 0, view.prodP, 18, view.despP, despPkg, ds.saldoP, ds.saldoP*18)}      ${r('C', saC, 0, view.prodC, 17, view.despC, despCkg, ds.saldoC, ds.saldoC*17)}      ${r('M', saM, saMkg, view.prodM, 17, view.despM, despMkg, ds.saldoM, saldMkg)}      <tr class="tot-row"><td>TOTAL</td><td>${saTot} j</td><td style="font-weight:900;font-size:1.05rem;color:#1b5e20;background:#e8f5e9;border:2px solid #2e7d32;border-radius:8px">${viewProdTot} j <span class="kg-sub" style="color:#c62828;font-weight:800">${pltFmt0(procTotKg)} kg</span></td><td>${viewDespTotJ} j <span class="kg-sub">${pltFmt0(view.despTotKg)} kg</span></td><td style="background:#bbdefb;color:#0d47a1;font-weight:900">${ds.saldoTot} j</td></tr>
+      <tr class="ch-row"><td>Chancho</td><td>${pltNfmt(saPrev.chSaldo||0)} s</td><td>${pltNfmt(view.chProd)} s <span class="kg-sub">${pltFmt0(view.chProdKg)} kg</span></td><td style="color:#aaa">—</td><td style="background:#e3f2fd;color:#0d47a1;font-weight:800">${pltNfmt(ds.chSaldo)} s</td></tr>
     </tbody>
   </table>${(ds.chNotas&&ds.chNotas.length) ? `
   <div style="margin-top:6px;font-size:.68rem;color:#795548;background:#fff8f0;border:1px solid #ffe0b2;border-radius:6px;padding:5px 10px">
@@ -9999,10 +10140,9 @@ function pltDayPanelInner(idx, ds, saPrev, weekLabel){
   </div>` : ''}
   <div style="margin-top:8px;font-size:.7rem;color:#555;background:#fff;border-radius:6px;padding:6px 10px">
     <strong>Guía ${ds.guia}</strong> · A=${ds.saldoA}j (${pltFmt0(saldAkg)} kg) + M=${ds.saldoM}j (${pltFmt0(saldMkg)} kg) = ${pltFmt0(ds.saldoA*15+ds.saldoM*17)} kg saldo &nbsp;·&nbsp;
-    <span style="color:${merColor};font-weight:700">${merLabel}: ${pltFmtSigned0(-ds.mermaKg)} kg (${(-ds.mermaPct).toFixed(1)}%)</span>
-  </div>${pendienteNote}${loteNote}
-</div>
-            </div><!-- day-panel-${idx} -->`;
+    <span style="color:${merColor};font-weight:700">${merLabelShown}: ${pltFmtSigned0(-ds.mermaKg)} kg (${(-ds.mermaPct).toFixed(1)}%)</span>
+  </div>${batchNote}${pendienteNote}${loteNote}
+</div>`;
 }
 
 function pltKpiBlockHtml(opts){
@@ -10204,7 +10344,7 @@ function recalcularPlanta(wb){
     if((ps.length===0 || ps.every(p=>p.ingr_s===0)) && prRows.length===0){
       const dsOnly = byDespachoDate.get(fecha) || [];
       const dp = ps.length ? ps.reduce((a,p)=>a+p.despTotKg,0) : dsOnly.reduce((a,p)=>a+p.despTotKg,0);
-      mdArr.push({f:fecha,s:0,ing:0,j:0,jn:0,ch_s:0,ch:0,sal:0,mer:0,pct:0,desp:dp,tras:0});
+      mdArr.push({f:fecha,s:0,ing:0,j:0,jn:0,ch_s:0,ch:0,mal:0,sal:0,mer:0,pct:0,desp:dp,tras:0,bt:[]});
     } else {
       const ingr_s = ps.reduce((a,p)=>a+p.ingr_s,0);
       const ingr_kg = ps.reduce((a,p)=>a+p.ingr_kg,0);
@@ -10213,12 +10353,29 @@ function recalcularPlanta(wb){
       const jTot = pA+pP+pC+pM;
       const jkg = pA*15+pP*18+pC*17+pM*17;
       const chs = prRows.reduce((a,p)=>a+p.chProd,0), chkg=prRows.reduce((a,p)=>a+p.chProdKg,0);
-      const sal=jkg+chkg, mer=Math.round((ingr_kg-sal)*100)/100;
+      // Descarte (MALOGRADO) del día — pedido usuaria 19/08: mostrarlo como línea
+      // aparte (no como parte de la merma sin explicar) y contarlo dentro de lo
+      // "clasificado", para que la Merma quede como lo realmente no explicado.
+      const mal = ps.reduce((a,p)=>a+(p.malKg||0),0);
+      const sal=jkg+chkg+mal, mer=Math.round((ingr_kg-sal)*100)/100;
       const pct = ingr_kg>0 ? Math.round((mer/ingr_kg*100)*10)/10 : 0;
       const dsOnly = byDespachoDate.get(fecha) || [];
       const dp = ps.length ? ps.filter(p=>p.desp_only).reduce((a,p)=>a+p.despTotKg,0) : dsOnly.reduce((a,p)=>a+p.despTotKg,0);
       const trasKg = prRows.reduce((a,p)=>a+(p.tras||0),0)*15; // trasiego contado en kg (factor A, referencial)
-      mdArr.push({f:fecha,s:ingr_s,ing:ingr_kg,j:jkg,jn:jTot,ch_s:chs,ch:chkg,sal,mer,pct,desp:Math.trunc(dp),tras:trasKg});
+      // Detalle por tanda de compra+selección (pedido usuaria 19/08: "tengo dos
+      // procesos... quiero verlos por separado, todo el detalle"). Se calcula con el
+      // mismo criterio que el total del día (arriba), pero por cada tanda.
+      const bt = prRows.reduce((a,p)=>a.concat((p.procesoBatches||[]).filter(b=>b)), []).map((b,i)=>{
+        const bjTot=(b.prodA||0)+(b.prodP||0)+(b.prodC||0)+(b.prodM||0);
+        const bjkg=(b.prodA||0)*15+(b.prodP||0)*18+(b.prodC||0)*17+(b.prodM||0)*17;
+        const bmal=b.malKg||0;
+        const bsal=bjkg+(b.chProdKg||0)+bmal;
+        const bmer=Math.round(((b.ingr_kg||0)-bsal)*100)/100;
+        const bpct=(b.ingr_kg||0)>0 ? Math.round((bmer/b.ingr_kg*100)*10)/10 : 0;
+        return {n:i+1, s:b.ingr_s||0, ing:b.ingr_kg||0, j:bjkg, jn:bjTot, ch_s:b.chProd||0, ch:b.chProdKg||0,
+                mal:bmal, sal:bsal, mer:bmer, pct:bpct, prodA:b.prodA||0,prodP:b.prodP||0,prodC:b.prodC||0,prodM:b.prodM||0};
+      });
+      mdArr.push({f:fecha,s:ingr_s,ing:ingr_kg,j:jkg,jn:jTot,ch_s:chs,ch:chkg,mal,sal,mer,pct,desp:Math.trunc(dp),tras:trasKg,bt});
     }
 
     const closing = pltDayClosingRobust(pedidos, fecha) || {};
@@ -10460,6 +10617,19 @@ function actualizarPlantaDOM(calc){
     return 'SEM. ' + (29 + semanas);
   };
   const sel = document.getElementById('plt-day-sel');
+  // Capturamos la FECHA (no el índice) actualmente seleccionada, porque el índice de
+  // cada fecha dentro de MD_ORDER puede correrse al recalcular (p.ej. al agregarse
+  // días nuevos). Si guardamos solo el índice viejo, tras el recálculo ese índice
+  // puede apuntar a OTRA fecha y el panel "Resumen del día" mostraría datos de un
+  // día equivocado (o un placeholder) aunque el <select> siga mostrando el texto
+  // correcto.
+  const curFechaBefore = (() => {
+    if(!sel) return null;
+    const optSel = sel.options[sel.selectedIndex];
+    if(!optSel) return null;
+    if(optSel.dataset && optSel.dataset.fecha) return optSel.dataset.fecha;
+    return null; // bake antiguo sin data-fecha: no hay forma fiable de saber la fecha
+  })();
 
   MD_ORDER.forEach((fecha, idx) => {
     // (antes los paneles 0..6 eran "históricos" y no se regeneraban — ahora TODOS se
@@ -10486,6 +10656,10 @@ function actualizarPlantaDOM(calc){
     // log de MOVIMIENTOS si está disponible, si no se invierte cierre − producido +
     // vendido). Pedido de la usuaria (10/08): mostrarlo en vez del guion fijo.
     prev.chSaldo = (ds.prevChSaldo!=null) ? ds.prevChSaldo : (ds.chSaldo - ds.chProd + ds.chVenta);
+    // Guardar ds/prev/weekLabel por idx para poder re-renderizar este panel al
+    // cambiar de pestaña (Todo el día / Selección N) sin recalcular todo — pedido usuaria 19/08.
+    window._pltDsMap = window._pltDsMap || {};
+    window._pltDsMap[idx] = {ds, prev, weekLabel: weekLabelFor(fecha)};
     const panelInner = pltDayPanelInner(idx, ds, prev, weekLabelFor(fecha));
 
     let panelEl = document.getElementById('day-panel-'+idx);
@@ -10508,21 +10682,36 @@ function actualizarPlantaDOM(calc){
       const label = `${diaLbl} ${fecha.slice(0,2)} ${PLANTA_MESES[mesIdx]}`;
       // quitar insignia 🆕 vieja de todas las opciones
       sel.querySelectorAll('option').forEach(o=>{ o.textContent = o.textContent.replace(' 🆕',''); });
-      let opt = sel.querySelector(`option[value="${idx}"]`);
+      // Buscamos la opción por FECHA (data-fecha), no por índice: el índice de una
+      // misma fecha puede cambiar de una corrida a otra, así que si buscáramos por
+      // value="idx" podríamos encontrar (y renombrar) la opción de OTRA fecha.
+      let opt = sel.querySelector(`option[data-fecha="${fecha}"]`);
       const isNewest = (idx === MD_ORDER.length-1);
       if(opt){
+        opt.value = String(idx); // reasignar por si el índice se corrió
         opt.textContent = label + (isNewest ? ' 🆕' : '');
       } else {
         opt = document.createElement('option');
         opt.value = String(idx);
+        opt.dataset.fecha = fecha;
         opt.textContent = label + (isNewest ? ' 🆕' : '');
         sel.insertBefore(opt, sel.firstChild);
       }
     }
   });
 
-  // 5) refrescar la vista actual del día seleccionado con los datos nuevos
-  const curIdx = sel ? parseInt(sel.value,10) : 5;
+  // 5) refrescar la vista actual del día seleccionado con los datos nuevos.
+  // Preferimos resolver por la FECHA que estaba seleccionada antes de recalcular
+  // (curFechaBefore), buscando su índice NUEVO en MD_ORDER — así, aunque el índice
+  // se haya corrido, seguimos mostrando el mismo día que la usuaria tenía abierto.
+  let curIdx;
+  if(curFechaBefore){
+    const nuevoIdx = MD_ORDER.indexOf(curFechaBefore);
+    curIdx = (nuevoIdx >= 0) ? nuevoIdx : (sel ? parseInt(sel.value,10) : 5);
+  } else {
+    curIdx = sel ? parseInt(sel.value,10) : 5;
+  }
+  if(sel && !isNaN(curIdx)) sel.value = String(curIdx);
   if(typeof selectDay === 'function') selectDay(isNaN(curIdx) ? 5 : curIdx);
 }
 
