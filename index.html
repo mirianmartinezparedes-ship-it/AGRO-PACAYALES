@@ -10030,7 +10030,7 @@ function parsePlantaMovimientos(wb){
       if(cal.toUpperCase()==='CHANCHO'){ if(uni==='sacos') run.ch+=cant; }
       else if(QF[cal]!=null){ run[cal]+=cant; }
     }
-    else if(tipo==='DEVOLUCIÓN'){ if(QF[cal]!=null) run[cal]+=cant; }
+    else if(tipo==='DEVOLUCIÓN' || tipo==='REPROCESO'){ if(QF[cal]!=null) run[cal]+=cant; }
     else if(tipo==='TRASIEGO'){ if(QF[cal]!=null){ run[cal]-=cant; p.tras+=cant; } }
     else if(tipo==='MALOGRADO'){
       p.malKg+=kg;
@@ -10040,7 +10040,11 @@ function parsePlantaMovimientos(wb){
       if(!p.procesoBatches[_bnM-1]) p.procesoBatches[_bnM-1]={n:_bnM,ingr_s:0,ingr_kg:0,prodA:0,prodP:0,prodC:0,prodM:0,chProd:0,chProdKg:0,malKg:0,despA:0,despP:0,despC:0,despM:0,despTotKg:0};
       p.procesoBatches[_bnM-1].malKg=(p.procesoBatches[_bnM-1].malKg||0)+kg;
     }
-    // REPROCESO / OTRA SALIDA: no mueven jabas del panel
+    // OTRA SALIDA: no mueve jabas del panel (REPROCESO ya se sumó arriba, junto con DEVOLUCIÓN —
+    // lo reprocesado sí es stock real, no se mezcla con prod*/SELECCIÓN del proceso normal
+    // del día para no alterar el rendimiento de sacos comprados. Pedido usuaria 02/09: rechazo
+    // de M del domingo, reprocesado el lunes, debía sumarse al saldo pero como "segundo proceso"
+    // separado del de los sacos comprados ese día).
     snap(p);
   }
   for(const p of pedidos){
