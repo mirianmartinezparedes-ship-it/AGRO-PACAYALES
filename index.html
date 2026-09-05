@@ -11245,7 +11245,7 @@ function buildDriveWorkbook(raw){
   }
 
   return {
-    SheetNames: ['codigos','MANO DE OBRA','TRABAJOS MAQUINARIA-TRACTOR','VALES','PRESUPUESTO','MOVIMIENTOS'],
+    SheetNames: ['codigos','MANO DE OBRA','TRABAJOS MAQUINARIA-TRACTOR','APLICACIONES','PRESUPUESTO','MOVIMIENTOS'],
     Sheets: {
       // {cellDates:true} es imprescindible: sin esto, aoa_to_sheet() guarda
       // los objetos Date que ya convertimos como CELDA NUMÉRICA (el número de
@@ -11255,7 +11255,7 @@ function buildDriveWorkbook(raw){
       'codigos': XLSX.utils.aoa_to_sheet(codigosRows, {cellDates:true}),
       'MANO DE OBRA': XLSX.utils.aoa_to_sheet(moRows, {cellDates:true}),
       'TRABAJOS MAQUINARIA-TRACTOR': XLSX.utils.aoa_to_sheet(maqRows, {cellDates:true}),
-      'VALES': XLSX.utils.aoa_to_sheet(valRows, {cellDates:true}),
+      'APLICACIONES': XLSX.utils.aoa_to_sheet(valRows, {cellDates:true}),
       'PRESUPUESTO': XLSX.utils.aoa_to_sheet(pptoRows, {cellDates:true}),
       'MOVIMIENTOS': XLSX.utils.aoa_to_sheet(movRows, {cellDates:true}),
     }
@@ -11308,7 +11308,7 @@ async function actualizarTodoDesdeDrive(silencioso){
   if(document.getElementById('stk-mes-sel')) buildStock();
   if(document.getElementById('crono-sel')) buildCronoTab();
   if(document.getElementById('ppto-gen-btns')) buildPptoGeneral();
-  buildExcesos();
+  if(document.getElementById('panel-exc')) buildExcesos();
   buildComentarios();
 
   if(!silencioso) alert('✅ Datos actualizados desde Google Drive.');
