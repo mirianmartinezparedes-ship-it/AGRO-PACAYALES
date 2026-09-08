@@ -3357,11 +3357,11 @@ function renderGenPlanillaSemanal(){
     h+='<tr id="'+uidSem+'" style="display:none;background:#f9fbe7"><td colspan="6" style="padding:6px 16px 12px 34px">';
     Object.keys(w.porDia).sort().forEach(dStr=>{
       const pd=w.porDia[dStr];
-      h+='<div style="margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #dce775">'
-        +'<div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:800;color:#33691e;margin-bottom:2px">'
+      h+='<div style="margin-bottom:1px;padding:2px 0 1px;border-bottom:1px dashed #dce775;line-height:1.15">'
+        +'<div style="display:flex;justify-content:space-between;font-size:.75rem;font-weight:800;color:#33691e">'
         +'<span>📅 '+pd.lbl+'</span><span>'+Fv(pd.total)+'</span></div>';
       pd.labores.forEach(lb=>{
-        h+='<div style="font-size:.7rem;color:#616161;padding:1px 0 1px 14px;display:flex;justify-content:space-between;gap:10px">'
+        h+='<div style="font-size:.7rem;color:#616161;padding:0 0 0 14px;display:flex;justify-content:space-between;gap:10px">'
           +'<span>🌱 '+lb.lote+' · '+lb.labor+' <em style="color:#9e9e9e">('+lb.estado+')</em></span>'
           +'<span style="font-weight:700;white-space:nowrap">'+Fv(lb.monto)+'</span></div>';
       });
@@ -4865,6 +4865,11 @@ function buildCronoSummary(l){
       // cuando la fila no trae esa categoría (p.ej. entradas sintéticas de SIEMBRA que
       // vienen de TRABAJOS MAQUINARIA-TRACTOR).
       let act=e.catReal ? e.catReal.toUpperCase() : normMO(e.sub||e.cat||'LABOR');
+      // 'Siembra'/'Resiembra' en LABORES (columna Categoría) es el mismo concepto que
+      // 'Semilla/Siembra' en PRESUPUESTO — sin este alias salían como dos filas
+      // separadas (una 100% presupuesto sin ejecutar, otra 100% real como Extra)
+      // en vez de comparar el gasto contra su presupuesto real (pedido usuaria 05/09).
+      if(act==='SIEMBRA'||act==='RESIEMBRA')act='SEMILLA/SIEMBRA';
       // Mano de obra de esparcido/roseado de guano (p.ej. "Vaciar Guano/Humusy rosiado",
       // "supervisión de roseado de guano") a veces viene etiquetada como PREPARACION DE
       // TERRENO en el Excel, pero es parte del costo del guano — va junto al guano como
@@ -5266,8 +5271,8 @@ function buildCronoSummary(l){
   else{const rp=grandReal/grandPptoHoy*100;gtRitmoTxt=(rp>=95?'✅ ':rp>=60?'🟡 ':'🔴 ')+rp.toFixed(0)+'%';gtRitmoBg=rp>=95?'#1b5e20':rp>=60?'#f9a825':'#b71c1c';}
   h+='<tr style="background:#37474f;color:#fff;font-weight:800;font-size:.8rem;border-top:3px solid #263238">';
   h+='<td style="padding:10px 14px">TOTAL GENERAL</td>';
-  h+='<td style="padding:10px 14px;text-align:right;background:#607d8b">'+_F(grandPpto)+'</td>';
-  h+='<td style="padding:10px 14px;text-align:right;background:#2e7d32;font-size:.85rem">'+_F(grandReal)+'</td>';
+  h+='<td style="padding:10px 14px;text-align:right;background:#607d8b">'+_F(grandPpto)+(_vm===1?'<div style="font-size:.58rem;color:#cfd8dc;font-weight:400">Total lote: '+Fv2(Math.round(grandPpto*ha*100)/100)+'</div>':'')+'</td>';
+  h+='<td style="padding:10px 14px;text-align:right;background:#2e7d32;font-size:.85rem">'+_F(grandReal)+(_vm===1?'<div style="font-size:.58rem;color:#c8e6c9;font-weight:400">Total lote: '+Fv2(Math.round(grandReal*ha*100)/100)+'</div>':'')+'</td>';
   h+='<td style="padding:10px 14px;text-align:right;background:'+gtRitmoBg+'">'+gtRitmoTxt+'</td>';
   const desvGt=desviacionCell(grandPptoHoy,grandReal);
   h+='<td style="padding:10px 14px;text-align:right;background:'+desvGt.color+'">'+desvGt.txt+'</td>';
