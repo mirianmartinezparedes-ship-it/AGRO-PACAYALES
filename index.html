@@ -11180,13 +11180,17 @@ function buildDriveWorkbook(raw){
   }
 
   /* ---- TRABAJOS MAQUINARIA-TRACTOR (= SERVICIOS) ----
-     Drive: A Fecha|B Nombre(lote)|C Cultivo|D Ha|E DESCRIPCIÓN|F ACTIVIDAD|
-     G Estado|H Costo total|I COSTO POR HA (9 columnas).
+     Drive (actualizado 08/09 — se insertó la columna "N°HAS TRA" entre
+     DESCRIPCIÓN y ACTIVIDAD, corriendo todo lo de la derecha un puesto):
+     A Fecha|B Nombre(lote)|C Cultivo|D Ha (total del lote)|E DESCRIPCIÓN|
+     F N°HAS TRA (has reales trabajadas, nueva)|G ACTIVIDAD|H Estado|
+     I Costo total|J COSTO POR HA (10 columnas).
      parseCostosExcel espera: row[0]=fecha,row[2]=lote,row[4]=ha,row[6]=desc,
-     row[7]=actividad,row[12]=costo_total → remapeo 0→0,1→2,3→4,4→6,5→7,7→12. */
+     row[7]=actividad,row[12]=costo_total → remapeo 0→0,1→2,3→4,4→6,6→7,8→12
+     (5→7 y 7→12 quedaron obsoletos con la columna nueva; corregido). */
   const maqRows = [['']]; // fila 0 = header dummy (celda no vacía, ver nota más arriba sobre aoa_to_sheet)
   for(let i=1;i<raw.servicios.length;i++){
-    const r = driveRowPad(raw.servicios[i], 9);
+    const r = driveRowPad(raw.servicios[i], 10);
     if(r.every(c=>c==null||c==='')) continue;
     const t = new Array(13).fill(null);
     t[0] = driveSerialToDate(r[0]);
@@ -11196,10 +11200,18 @@ function buildDriveWorkbook(raw){
     // columna Ha de SERVICIOS trae una fecha en vez de un número. Mismo
     // efecto que tendría un valor Date real leído por Excel: se descarta a 0.
     if(typeof ha === 'number' && ha > 3000) ha = 0;
+    // Columna F "N°HAS TRA" (has REALES trabajadas, agregada 08/09): cuando
+    // el trabajo no cubrió el lote completo (ej. ANGULO C_26: lote de 16.5 ha
+    // pero el tractor solo trabajó 14 ha) se usa esa cifra real en vez de las
+    // ha totales del lote. Si la celda viene vacía (filas antiguas, o
+    // trabajos que sí cubrieron el lote entero) se sigue usando la Ha del
+    // lote como antes (pedido usuaria 08/09).
+    const haReal = driveDenumify(r[5]);
+    if(typeof haReal === 'number' && haReal > 0) ha = haReal;
     t[4] = ha;
     t[6] = r[4];
-    t[7] = r[5];
-    t[12] = driveDenumify(r[7]);
+    t[7] = r[6];
+    t[12] = driveDenumify(r[8]);
     maqRows.push(t);
   }
 
