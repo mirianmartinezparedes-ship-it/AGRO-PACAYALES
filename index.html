@@ -2033,7 +2033,8 @@ function buildCalUI(){
     +'<span id="gh-sync-indicator" style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap"></span>'
     +'</div></div>'
     +'<div class="cal-layout" style="margin-top:6px"><div class="cal-side" id="cal-side"><div class="si-empty">Selecciona un lote para ver su información</div></div>'
-    +'<div class="cal-main"><div id="cal-cont"></div></div></div>';
+    +'<div class="cal-main"><div id="cal-cont"></div></div></div>'
+    +'<div id="cal-totales" style="margin-top:14px"></div>';
   drawCal();
   // Apply sync status now that toolbar exists
   setTimeout(()=>{if(!getGHToken())setSyncStatus('notoken');else setSyncStatus('idle');},200);
@@ -2511,10 +2512,12 @@ function drawCal(){
     for(let i=0;i<7;i++)h+='<span style="font-weight:'+(i===0||i===6?'800':'600')+'">'+DS_SEM[i]+'</span>';
     h+='</div><div class="cal-body" style="grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(180px,auto)">';
     let _hoyInWeek=false;
+    const _diasTotales=[];
     for(let i=0;i<7;i++){
       const d=new Date(sem0.getTime()+i*86400000);
       const dNum=d.getDate();
       const dStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(dNum).padStart(2,'0');
+      _diasTotales.push({iso:dStr,lbl:DS_SEM[i]+' '+dNum+' '+MESES_S[d.getMonth()],esH:dStr===_hoyStr});
       if(dStr===_hoyStr)_hoyInWeek=true;
       const esH=(dStr===_hoyStr);
       const esPas=d<new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate());
@@ -2550,6 +2553,7 @@ function drawCal(){
     document.getElementById('cal-cont').innerHTML=h;
     if(_hoyInWeek)showDayReport(_hoyStr);
     else if(!calLote){const sidEl=document.getElementById('cal-side');if(sidEl)sidEl.innerHTML='<h3>📋 Todos los lotes</h3><div style="color:#888;font-size:.72rem;margin-top:10px">👆 Haz clic en un día para ver las actividades de todos los lotes.</div>';}
+    renderCalTotales(_diasTotales,loteFil,'Semana: '+rng);
     return;
   }
 
@@ -2560,6 +2564,7 @@ function drawCal(){
   DS.forEach(d=>h+='<span>'+d+'</span>');
   h+='</div><div class="cal-body">';
   for(let i=0;i<primer;i++)h+='<div class="cd vacio"></div>';
+  const _diasTotalesM=[];
   for(let d=1;d<=diasM;d++){
     const esH=(d===hoy.getDate()&&calMes===hoy.getMonth()&&calAnio===hoy.getFullYear());
     const esPas=new Date(calAnio,calMes,d)<new Date(hoy.getFullYear(),hoy.getMonth(),hoy.getDate());
@@ -2583,6 +2588,7 @@ function drawCal(){
       +(esCosecha?'<div style="font-size:.6rem;font-weight:800;color:#f9a825;background:#fff8e1;border-radius:5px;padding:2px 6px;margin-bottom:3px;width:fit-content">🏆 '+(calLote?'COSECHA':'COSECHA: '+cosechasDia[d].map(l=>l.slice(0,10)).join(', '))+'</div>':'');
     h+=_diaChips(d,_dStr);
     h+='</div>';
+    _diasTotalesM.push({iso:_dStr,lbl:DS[new Date(calAnio,calMes,d).getDay()]+' '+d,esH});
   }
   h+='</div></div>';
   document.getElementById('cal-cont').innerHTML=h;
@@ -2595,6 +2601,116 @@ function drawCal(){
       else if(sidEl){sidEl.innerHTML='<h3>📋 Todos los lotes</h3><div style="color:#888;font-size:.72rem;margin-top:10px">👆 Haz clic en un día para ver las actividades de todos los lotes.</div>';}
     },10);
   }
+  renderCalTotales(_diasTotalesM,loteFil,MESES[calMes]+' '+calAnio);
+}
+
+/* ── TOTALES DE GASTO POR DÍA (bloque debajo del calendario) ──
+   Pedido usuaria 15/09: al fondo de la pestaña Calendario, un total de
+   cuánto se gastó cada día, separado en 3 categorías grandes — Mano de
+   Obra, Maquinaria y Agroquímicos (agroquímico+fertilizante+insumo van
+   juntos en "Agroquímicos", como ella los nombró) — para poder cuadrar
+   su planilla diaria y comparar lo presupuestado de la semana vs lo real. */
+function _calRealDia(iso,lotes){
+  let mo=0,maq=0,agro=0;
+  lotes.forEach(l=>{
+    (((DATA.mano_obra||{})[l.lote]||{})[iso]||[]).forEach(e=>{mo+=e.costo||0;});
+    (((DATA.maquinaria||{})[l.lote]||{})[iso]||[]).forEach(e=>{maq+=e.costo_total||0;});
+    (((DATA.vales||{})[l.lote]||{})[iso]||[]).forEach(e=>{agro+=e.costo_total||e.costo||0;});
+  });
+  return {mo,maq,agro};
+}
+function _calPptoDia(iso,lotes){
+  let mo=0,maq=0,agro=0;
+  const fecha=new Date(iso+'T12:00:00');
+  const isEstabEx=s=>(s||'').toUpperCase().includes('ESTABLEC');
+  lotes.forEach(l=>{
+    if(!l.siembra)return;
+    const siembra=new Date(l.siembra+'T12:00:00');
+    const dds=Math.round((fecha-siembra)/86400000);
+    const sched=(DATA.ppto&&DATA.ppto[l.pk])||{};
+    const cats=sched[String(dds)];
+    if(!cats)return;
+    const ha=l.ha||1;
+    /* Misma lógica de clasificación "broad" que usa buildExcesos() — se
+       basa en la categoría (cat) de la que viene el ítem, no solo en
+       is_labor/cat_broad sueltos (que muchas veces vienen vacíos). */
+    Object.entries(cats).forEach(([cat,items])=>{
+      const catK=cat.toUpperCase();
+      const isMaq=['MAQUINARIA','COSECHADORA','PREPARACION DE TERRENO','TRACTOR'].some(k=>catK.includes(k));
+      items.forEach(it=>{
+        let broad;
+        if(isMaq)broad='TRABAJO CON MAQUINARIA';
+        else if(it.is_labor)broad=isEstabEx(it.cat_broad||cat)?'COSTOS DE ESTABLECIMIENTO':'MANO DE OBRA';
+        else broad=(it.cat_broad||cat||'OTROS').toUpperCase();
+        const soles=(it.cph||0)*ha;
+        if(broad==='MANO DE OBRA')mo+=soles;
+        else if(broad.includes('MAQUINARIA'))maq+=soles;
+        else agro+=soles;
+      });
+    });
+  });
+  return {mo,maq,agro};
+}
+function renderCalTotales(diasArr,lotes,periodoLbl){
+  const cont=document.getElementById('cal-totales');
+  if(!cont)return;
+  if(!diasArr||!diasArr.length){cont.innerHTML='';return;}
+  const Fv=v=>Math.round(v)===0?'<span style="color:#ccc">—</span>':'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const Fv0=v=>'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const COL={mo:'#bf360c',maq:'#4a148c',agro:'#e65100'};
+  const sumR={mo:0,maq:0,agro:0},sumP={mo:0,maq:0,agro:0};
+  let rows='';
+  diasArr.forEach(dia=>{
+    const r=_calRealDia(dia.iso,lotes);
+    const p=_calPptoDia(dia.iso,lotes);
+    sumR.mo+=r.mo;sumR.maq+=r.maq;sumR.agro+=r.agro;
+    sumP.mo+=p.mo;sumP.maq+=p.maq;sumP.agro+=p.agro;
+    const totDia=r.mo+r.maq+r.agro;
+    rows+='<tr'+(dia.esH?' style="background:#e8f5e9"':'')+'>'
+      +'<td style="padding:5px 10px;font-weight:700;color:#333;white-space:nowrap;font-size:.72rem">'+dia.lbl+(dia.esH?' <span style="font-size:.55rem;background:#2e7d32;color:#fff;padding:1px 5px;border-radius:5px">HOY</span>':'')+'</td>'
+      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.mo+'">'+Fv(r.mo)+'</td>'
+      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.maq+'">'+Fv(r.maq)+'</td>'
+      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.agro+'">'+Fv(r.agro)+'</td>'
+      +'<td style="padding:5px 10px;text-align:right;font-size:.74rem;font-weight:800;color:'+(totDia>0?'#1b5e20':'#ccc')+'">'+Fv(totDia)+'</td>'
+      +'</tr>';
+  });
+  const totR=sumR.mo+sumR.maq+sumR.agro, totP=sumP.mo+sumP.maq+sumP.agro;
+  const pctRow=(lbl,ico,r,p,c)=>{
+    const pct=p>0?Math.round(r/p*100):null;
+    const barC=pct===null?'#bbb':pct>110?'#b71c1c':pct>=90?'#2e7d32':'#f9a825';
+    return '<div style="flex:1;min-width:140px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px"><span style="font-size:.68rem;font-weight:700;color:'+c+'">'+ico+' '+lbl+'</span>'
+      +'<span style="font-size:.7rem;font-weight:800;color:'+barC+'">'+(pct===null?'—':pct+'%')+'</span></div>'
+      +'<div style="background:#eee;border-radius:4px;height:6px"><div style="width:'+(pct===null?0:Math.min(pct,100))+'%;height:6px;background:'+barC+';border-radius:4px'+(pct!==null&&pct>110?';box-shadow:0 0 0 2px #ef9a9a':'')+'"></div></div>'
+      +'<div style="font-size:.6rem;color:#888;margin-top:2px">Real '+Fv0(r)+' · Ppto '+Fv0(p)+'</div>'
+      +'</div>';
+  };
+  let h='<div style="background:#fff;border-radius:12px;border:1.5px solid #dcedc8;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">';
+  h+='<div style="background:#1b5e20;color:#fff;padding:10px 16px;font-weight:800;font-size:.85rem">💰 Totales de gasto — '+periodoLbl+(lotes.length<((typeof DATA!=='undefined'&&DATA.resumen)?DATA.resumen.length:lotes.length)?' <span style="font-weight:500;opacity:.85;font-size:.68rem">('+lotes.length+' lote'+(lotes.length!==1?'s':'')+' filtrado'+(lotes.length!==1?'s':'')+')</span>':'')+'</div>';
+  h+='<div style="max-height:340px;overflow-y:auto;overflow-x:auto"><table style="width:100%;min-width:480px;border-collapse:collapse">';
+  h+='<thead style="position:sticky;top:0;background:#f1f8e9;z-index:1"><tr>'
+    +'<th style="padding:6px 10px;text-align:left;font-size:.63rem;color:#607d8b;text-transform:uppercase">Día</th>'
+    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.mo+';text-transform:uppercase">🧑‍🌾 M. Obra</th>'
+    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.maq+';text-transform:uppercase">🚜 Maquinaria</th>'
+    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.agro+';text-transform:uppercase">🧪 Agroquímicos</th>'
+    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:#1b5e20;text-transform:uppercase">Total día</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody>';
+  h+='<tfoot><tr style="background:#e8f5e9;border-top:2px solid #a5d6a7">'
+    +'<td style="padding:7px 10px;font-weight:800;font-size:.72rem;color:#1b5e20">TOTAL '+periodoLbl.split(':')[0].trim().toUpperCase()+'</td>'
+    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.mo+'">'+Fv0(sumR.mo)+'</td>'
+    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.maq+'">'+Fv0(sumR.maq)+'</td>'
+    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.agro+'">'+Fv0(sumR.agro)+'</td>'
+    +'<td style="padding:7px 10px;text-align:right;font-weight:900;font-size:.78rem;color:#1b5e20">'+Fv0(totR)+'</td>'
+    +'</tr></tfoot>';
+  h+='</table></div>';
+  h+='<div style="padding:12px 16px;border-top:1.5px solid #f0f0f0;display:flex;gap:18px;flex-wrap:wrap">';
+  h+=pctRow('Mano de Obra','🧑‍🌾',sumR.mo,sumP.mo,COL.mo);
+  h+=pctRow('Maquinaria','🚜',sumR.maq,sumP.maq,COL.maq);
+  h+=pctRow('Agroquímicos','🧪',sumR.agro,sumP.agro,COL.agro);
+  h+='</div>';
+  h+='<div style="padding:0 16px 12px;font-size:.63rem;color:#999">Presupuestado total del período: '+Fv0(totP)+' · % = real ÷ presupuestado de cada categoría.</div>';
+  h+='</div>';
+  cont.innerHTML=h;
 }
 /* ── REPORTE DIARIO — click en celda del calendario ── */
 function calDayClick(dStr,evt){
@@ -5195,15 +5311,28 @@ function buildCronoSummary(l){
       // TERRENO en el Excel, pero es parte del costo del guano — va junto al guano como
       // material bajo COSTOS DE ESTABLECIMIENTO, no como mano de obra de prep. de terreno.
       let broadMO='MANO DE OBRA';
+      const catUpMO=(e.cat||'').toUpperCase();
+      const subUpMO=(e.sub||'').toUpperCase();
       if(act==='PREPARACION DE TERRENO' && /GUANO|ROSIAD|HUMYS/i.test(e.sub||'')){
         broadMO='COSTOS DE ESTABLECIMIENTO';
         act='GUANO DE POLLO';
-      } else if((e.cat||'').toUpperCase()==='MANO DE OBRA' && /TRACTOR/i.test(e.sub||'')){
+      } else if(catUpMO==='TRABAJO CON MAQUINARIA' || (catUpMO==='MANO DE OBRA' && /TRACTOR/.test(subUpMO))){
         // Labores con tractor (Cultivo con tractor, Aporque con tractor, Gradeo con
-        // tractor, etc.) registradas como "MANO DE OBRA" en el Excel en realidad las
-        // hace personal con tractor (Rubén, Ruddy, Pitoy) — es trabajo de maquinaria.
+        // tractor, Cosecha con tractor, etc.) son trabajo de maquinaria, sea que
+        // vengan ya bien etiquetadas como "TRABAJO CON MAQUINARIA" en el Excel/Drive,
+        // o etiquetadas como "MANO DE OBRA" con "tractor" en la sub-labor (caso ya
+        // conocido, personal que opera el tractor: Rubén, Ruddy, Pitoy). ANTES, una
+        // fila ya correctamente etiquetada como "TRABAJO CON MAQUINARIA" no tenía
+        // ninguna regla que la reconociera como tal y caía en "MANO DE OBRA" por
+        // defecto — inflando Mano de Obra y dejando "Cosechadora" siempre en "Sin
+        // ejecutar" aunque tuviera presupuesto (corregido 15/09, caso "Cosecha con
+        // Tractor" S/400, lote POZO-C).
         broadMO='TRABAJO CON MAQUINARIA';
-      } else if((e.cat||'').toUpperCase()==='PETROLEO'){
+        // "Cosecha con tractor" debe comparar contra el presupuesto de "Cosechadora"
+        // (la clave que usa PRESUPUESTO para esa línea) en vez de quedar como
+        // "COSECHA" suelta sin comparar contra ningún presupuesto.
+        if(act==='COSECHA' && /TRACTOR/.test(subUpMO)) act='COSECHADORA';
+      } else if(catUpMO==='PETROLEO'){
         // El combustible (PETROLEO) de una labor con tractor/máquina es costo de
         // maquinaria, no de mano de obra — antes se quedaba metido en "Mano de Obra"
         // por defecto e inflaba esa categoría (pedido usuaria 15/09, caso MOD 9C-26).
