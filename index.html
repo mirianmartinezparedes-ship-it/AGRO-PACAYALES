@@ -343,7 +343,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 </head>
 <body>
 <!-- ══ CONTROL DE ZOOM (fijo, visible en todas las vistas) ══ -->
-<div id="zoom-ctrl" style="position:fixed;top:8px;right:8px;z-index:99998;display:flex;align-items:center;gap:2px;background:#ffffff;border:1.5px solid #cfd8dc;border-radius:20px;padding:3px 4px;box-shadow:0 2px 8px rgba(0,0,0,.18);font-family:'Segoe UI',Arial,sans-serif;user-select:none">
+<div id="zoom-ctrl" style="position:fixed;top:66px;right:8px;z-index:99998;display:flex;align-items:center;gap:2px;background:#ffffff;border:1.5px solid #cfd8dc;border-radius:20px;padding:3px 4px;box-shadow:0 2px 8px rgba(0,0,0,.18);font-family:'Segoe UI',Arial,sans-serif;user-select:none">
   <button onclick="cambiarZoom(-10)" title="Achicar letra" style="width:26px;height:26px;border:none;border-radius:50%;background:#eceff1;color:#37474f;font-size:13px;font-weight:800;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">A-</button>
   <span id="zoom-pct" style="font-size:11px;font-weight:700;color:#546e7a;min-width:34px;text-align:center">100%</span>
   <button onclick="cambiarZoom(10)" title="Agrandar letra" style="width:26px;height:26px;border:none;border-radius:50%;background:#e8f5e9;color:#1b5e20;font-size:13px;font-weight:800;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">A+</button>
@@ -425,7 +425,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   </div>
 </div>
 <header>
-  <div><h1>🌱 GESTION CAMPO 2026</h1><p>Totales · Resumen · Calendario · Presupuesto General · Programación · Comentarios</p></div>
+  <div><h1>🌱 GESTION CAMPO 2026</h1><p>Totales · Resumen · Calendario · Presupuesto · Programación · Comentarios</p></div>
   <div style="display:flex;align-items:center;gap:10px">
     <button id="campo-back" onclick="backToLanding()" style=""><span style="font-size:1.35rem;line-height:1">🏠</span><span>Inicio</span></button>
     <input type="file" id="campo-file-input" accept=".xlsx" style="display:none" onchange="actualizarCampoDesdeExcel(this.files[0])">
@@ -438,9 +438,9 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   <button class="tab-btn" id="btn-tot" onclick="showTab('tot')">📈 Totales</button>
   <button class="tab-btn" id="btn-res" onclick="showTab('res')">📊 Resumen</button>
   <button class="tab-btn" id="btn-cal" onclick="showTab('cal')">📅 Calendario</button>
-  <button class="tab-btn" id="btn-ppto" onclick="showTab('ppto')">📊 Presupuesto General</button>
+  <button class="tab-btn" id="btn-ppto" onclick="showTab('ppto')">📊 Presupuesto</button>
   <button class="tab-btn tab-active" id="btn-prog" onclick="showTab('prog')">🌱 Etapas</button>
-  
+  <button class="tab-btn" id="btn-ctrl" onclick="showTab('ctrl')">🎯 Control</button>
   <button class="tab-btn" id="btn-com" onclick="showTab('com')">💬 Comentarios</button>
 </div>
 <div id="panel-tot" class="panel"><div style="max-width:960px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">📈 Total de Hectáreas Activas</h2><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:.62rem;color:#888;font-weight:600">Últ. actualización: 29/08/2026</span></div></div><div class="tot-banner" style="margin-bottom:20px"><div><div style="font-size:.95rem;font-weight:700;opacity:.85">TOTAL ACTIVOS — 21 lotes</div><div style="font-size:.78rem;opacity:.6;margin-top:6px">44.4 ha Amarillo  ·  18.2 ha Pintura</div><div style="font-size:.72rem;opacity:.5;margin-top:4px">S/. 564,834.58 real  ·  S/. 989,021.09 ppto</div></div><div style="text-align:right"><div class="tot-banner-ha">62.6</div><div style="font-size:1rem;font-weight:700;opacity:.8;margin-top:-4px">ha activas</div></div></div><div style="background:#efebe9;border:1.5px solid #8d6e63;border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:.75rem"><div style="font-weight:800;color:#5d4037;margin-bottom:4px">🌱 Lotes aún por sembrar (no suman al total de ha activas)</div><div style="color:#5d4037;margin-top:3px">• <b>LA VICTORIA C_26</b> — 10.0 ha · siembra programada para 15/09/2026</div></div><div style="display:flex;gap:16px;margin-bottom:16px"><div style="flex:1;background:#fff;border-radius:14px;border:2px solid #f9a82520;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07)"><div style="background:#f9a825;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:.65rem;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.05em">🌿 CAMOTE AMARILLO</div><div style="font-size:1.6rem;font-weight:800;line-height:1.1">44.4 ha</div></div><div style="text-align:right;font-size:.7rem;opacity:.8">15 lotes</div></div><div style="display:flex"><div style="flex:1;padding:10px 12px;border-left:none"><div style="font-size:.62rem;font-weight:800;color:#607d8b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Gravedad</div><div style="font-size:1rem;font-weight:800;color:#f9a825">32.6 ha</div><div style="font-size:.62rem;color:#888;margin-bottom:8px">9 lotes</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">RUDA-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">CALAGUAC_2026</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">CASAS_2026</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.9 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">CALAGUA2-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.6 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">DINA CA-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.3 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">VENERANDA C_26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">4.5 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">POZO-C1</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.8 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05);opacity:.6"><span style="font-size:.68rem;color:#333;font-weight:600">LA VICTORIA C_26 <span style="font-size:.58rem;background:#8d6e63;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">🌱 POR SEMBRAR</span></span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">10.0 ha (no cuenta)</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">ANGULO C126</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">16.5 ha</span></div></div><div style="background:#eee;border-radius:4px;height:5px;margin-top:6px"><div style="width:1%;height:5px;background:#4caf50;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.6rem;color:#999">Real: S/. 339,452.97</span><span style="font-size:.6rem;font-weight:700;color:#4caf50">1%</span></div></div><div style="flex:1;padding:10px 12px;border-left:1px solid #f0f0f0"><div style="font-size:.62rem;font-weight:800;color:#607d8b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Sistema</div><div style="font-size:1rem;font-weight:800;color:#f9a825">11.8 ha</div><div style="font-size:.62rem;color:#888;margin-bottom:8px">6 lotes</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">MOD5C_26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">MOD 2-3C _26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">MOD 11C-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">MOD 7C-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.3 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">GABINO C_26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">4.5 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">CALAGUA3-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.0 ha</span></div></div><div style="background:#eee;border-radius:4px;height:5px;margin-top:6px"><div style="width:2%;height:5px;background:#4caf50;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.6rem;color:#999">Real: S/. 115,312.73</span><span style="font-size:.6rem;font-weight:700;color:#4caf50">2%</span></div></div></div></div><div style="flex:1;background:#fff;border-radius:14px;border:2px solid #2e7d3220;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.07)"><div style="background:#2e7d32;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:.65rem;font-weight:700;opacity:.8;text-transform:uppercase;letter-spacing:.05em">🌿 CAMOTE PINTURA</div><div style="font-size:1.6rem;font-weight:800;line-height:1.1">18.2 ha</div></div><div style="text-align:right;font-size:.7rem;opacity:.8">7 lotes</div></div><div style="display:flex"><div style="flex:1;padding:10px 12px;border-left:none"><div style="font-size:.62rem;font-weight:800;color:#607d8b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Gravedad</div><div style="font-size:1rem;font-weight:800;color:#2e7d32">14.4 ha</div><div style="font-size:.62rem;color:#888;margin-bottom:8px">3 lotes</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">ESMERALDA CP-26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">2.3 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">MARINO CP_26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">7.6 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:600">BUSTAMANTE CP_26</span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">4.5 ha</span></div></div><div style="background:#eee;border-radius:4px;height:5px;margin-top:6px"><div style="width:1%;height:5px;background:#4caf50;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.6rem;color:#999">Real: S/. 130,797.01</span><span style="font-size:.6rem;font-weight:700;color:#4caf50">1%</span></div></div><div style="flex:1;padding:10px 12px;border-left:1px solid #f0f0f0"><div style="font-size:.62rem;font-weight:800;color:#607d8b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Sistema</div><div style="font-size:1rem;font-weight:800;color:#2e7d32">3.8 ha</div><div style="font-size:.62rem;color:#888;margin-bottom:8px">4 lotes</div><div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:800">MOD 8C-26 <span style="font-size:.6rem;background:#f9a825;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">S</span></span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">0.8 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:800">MOD-6CP-26 <span style="font-size:.6rem;background:#f9a825;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">S</span></span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:800">MOD 4C_26 <span style="font-size:.6rem;background:#f9a825;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">S</span></span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.0 ha</span></div><div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.05)"><span style="font-size:.68rem;color:#333;font-weight:800">MOD 9C-26 <span style="font-size:.6rem;background:#f9a825;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">S</span></span><span style="font-size:.65rem;color:#999;margin-left:8px;white-space:nowrap">1.0 ha</span></div></div><div style="background:#eee;border-radius:4px;height:5px;margin-top:6px"><div style="width:2%;height:5px;background:#4caf50;border-radius:4px"></div></div><div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:.6rem;color:#999">Real: S/. 44,245.06</span><span style="font-size:.6rem;font-weight:700;color:#4caf50">2%</span></div></div></div></div></div><div style="font-size:.68rem;color:#777;margin-bottom:12px">💡 <span style="background:#f9a825;color:#fff;border-radius:4px;padding:1px 5px;font-weight:700">S</span> = Lote semillero <span style="font-weight:700;color:#f9a825;margin-left:6px">4 lotes (3.8 ha)</span></div><div style="background:#fff8e1;border:2px solid #f9a825;border-radius:10px;padding:12px 18px;margin-bottom:14px"><div style="font-size:.78rem;font-weight:800;color:#f9a825;margin-bottom:6px">🔄 Lotes resembrados — no duplicar en el conteo</div><div style="font-size:.72rem;color:#4e342e;margin-top:4px;line-height:1.6"><b>POZO-C</b> (3.8 ha total): cosechado (07-jun.) → resiembra activa: <b>POZO-C1</b> (1.8 ha).<br><span style="color:#795548">⚠️ No sumar las 1.8 ha de <b>POZO-C1</b> más las 3.8 ha de <b>POZO-C</b> — son el mismo campo.</span></div></div><div style="background:#37474f;color:#fff;border-radius:10px;padding:14px 20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:.8rem;font-weight:700;opacity:.85">🗓️ Total Sembrado — Campaña 2026</span><span style="font-size:1.3rem;font-weight:800">76.4 ha</span></div><div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px;margin-top:4px"><div style="font-size:.62rem;opacity:.55;margin-bottom:4px">Incluye lotes culminados:</div><div style="font-size:.65rem;opacity:.7;margin-top:3px">✓ <b>POZO-C</b> (3.8 ha · cos. 07-jun.) → resiembra activa: <b>POZO-C1</b> 1.8 ha</div></div></div><div style="margin-top:28px"><div id="tot-header-row" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px"><h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">📊 Estado General por Lote</h2><div id="tot-pills" style="display:flex;gap:7px;flex-wrap:wrap;align-items:center"><span id="tot-pill-todos" title="Mostrar todos" style="background: rgb(55, 71, 79); color: rgb(255, 255, 255); padding: 4px 13px; border-radius: 14px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Todos</span><span data-filtro="rojo" style="background: rgb(227, 242, 253); color: rgb(21, 101, 192); padding: 4px 13px; border-radius: 14px; font-size: 0.72rem; font-weight: 700; cursor: pointer; border: 1.5px solid transparent;">🔵 22 retrasados</span></div></div><div style="overflow:auto;max-height:600px;border:1px solid #ddd;border-radius:8px"><table style="width:100%;border-collapse:collapse;font-size:.76rem;min-width:660px"><thead><tr style="background:#37474f;color:#fff;position:sticky;top:0;z-index:4"><th style="padding:9px 14px;text-align:left;background:#37474f">LOTE</th><th style="padding:9px 10px;text-align:center;background:#37474f">Ha</th><th style="padding:9px 10px;text-align:center;background:#37474f">Día</th><th style="padding:9px 14px;text-align:right;background:#607d8b">Ppto/ha<br><span style="font-size:.6rem;font-weight:400;color:#cfd8dc">Total cultivo</span></th><th style="padding:9px 14px;text-align:right;background:#2e7d32">Real/ha<br><span style="font-size:.6rem;font-weight:400;color:#c8e6c9">Gastado</span></th><th style="padding:9px 14px;text-align:center;background:#37474f">RITMO<br><span style="font-size:.6rem;font-weight:400;color:#b0bec5">Real vs esperado hoy</span></th><th style="padding:9px 14px;text-align:right;background:#37474f">% Ppto<br><span style="font-size:.6rem;font-weight:400;color:#b0bec5">Del total</span></th></tr></thead><tbody><tr id="tot-hdr-CA_GRAVEDAD" style="background:#fff8e1"><td colspan="7" style="padding:8px 14px;font-weight:800;color:#f9a825;font-size:.78rem">🌿 CAMOTE AMARILLO · Gravedad</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='LA VICTORIA C_26';renderCronoLote('LA VICTORIA C_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">LA VICTORIA C_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">10.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+-15</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 4,407.00</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 6,497.32</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('LA VICTORIA C_26','CA_GRAVEDAD',-15,event)" style="cursor:pointer;background:#ffcdd2;color:#b71c1c;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔴 147% 🔔</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 4,407.00</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">147.4%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='ANGULO C126';renderCronoLote('ANGULO C126');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">ANGULO C126</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">16.5</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+47</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 13,399.97</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 5,873.62</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('ANGULO C126','CA_GRAVEDAD',47,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 8%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 69,279.45</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">43.8%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='POZO-C1';renderCronoLote('POZO-C1');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">POZO-C1</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.8</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+74</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 13,989.14</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 10,026.64</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('POZO-C1','CA_GRAVEDAD',74,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 4%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 269,042.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">71.7%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='VENERANDA C_26';renderCronoLote('VENERANDA C_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">VENERANDA C_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">4.5</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+108</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 15,161.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 7,736.67</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('VENERANDA C_26','CA_GRAVEDAD',108,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 1%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 580,462.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">51.0%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='DINA CA-26';renderCronoLote('DINA CA-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">DINA CA-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.3</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+151</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,881.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 11,077.60</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('DINA CA-26','CA_GRAVEDAD',151,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 584,182.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">58.7%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='CALAGUA2-26';renderCronoLote('CALAGUA2-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">CALAGUA2-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.6</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+157</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,881.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 10,547.01</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('CALAGUA2-26','CA_GRAVEDAD',157,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 584,182.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">55.9%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='CALAGUAC_2026';renderCronoLote('CALAGUAC_2026');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">CALAGUAC_2026</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+179</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,881.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 12,098.43</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('CALAGUAC_2026','CA_GRAVEDAD',179,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 584,182.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">64.1%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='RUDA-26';renderCronoLote('RUDA-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">RUDA-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+193</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,881.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 13,243.15</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('RUDA-26','CA_GRAVEDAD',193,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 584,182.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">70.1%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='CASAS_2026';renderCronoLote('CASAS_2026');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">CASAS_2026</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.9</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+228</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,881.91</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 16,578.65</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('CASAS_2026','CA_GRAVEDAD',228,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 3%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 584,182.70</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">87.8%</td></tr><tr id="tot-hdr-CA_SISTEMA" style="background:#fff8e1"><td colspan="7" style="padding:8px 14px;font-weight:800;color:#bf360c;font-size:.78rem">🌿 CAMOTE AMARILLO · Sistema</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='CALAGUA3-26';renderCronoLote('CALAGUA3-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">CALAGUA3-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+102</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 13,349.96</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 6,877.21</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('CALAGUA3-26','CA_SISTEMA',102,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 450,648.05</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">51.5%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='GABINO C_26';renderCronoLote('GABINO C_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">GABINO C_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">4.5</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+122</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 13,867.36</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 8,665.48</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('GABINO C_26','CA_SISTEMA',122,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 574,741.00</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">62.5%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 2-3C _26';renderCronoLote('MOD 2-3C _26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 2-3C _26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+133</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 14,144.31</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 13,172.21</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 2-3C _26','CA_SISTEMA',133,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 574,990.45</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">93.1%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 7C-26';renderCronoLote('MOD 7C-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 7C-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.3</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+135</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 14,144.31</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 9,221.57</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 7C-26','CA_SISTEMA',135,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 574,990.45</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">65.2%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 11C-26';renderCronoLote('MOD 11C-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 11C-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+138</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 14,144.31</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 10,185.40</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 11C-26','CA_SISTEMA',138,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 574,990.45</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">72.0%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CA_SISTEMA" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD5C_26';renderCronoLote('MOD5C_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD5C_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+151</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 17,809.31</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 14,045.79</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD5C_26','CA_SISTEMA',151,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 2%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 578,655.45</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">78.9%</td></tr><tr id="tot-hdr-CP_GRAVEDAD" style="background:#e8f5e9"><td colspan="7" style="padding:8px 14px;font-weight:800;color:#1b5e20;font-size:.78rem">🌿 CAMOTE PINTURA · Gravedad</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='BUSTAMANTE CP_26';renderCronoLote('BUSTAMANTE CP_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">BUSTAMANTE CP_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">4.5</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+90</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 17,598.46</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 12,821.73</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('BUSTAMANTE CP_26','CP_GRAVEDAD',90,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 5%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 275,084.44</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">72.9%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_GRAVEDAD" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MARINO CP_26';renderCronoLote('MARINO CP_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MARINO CP_26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">7.6</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+125</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,221.14</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 5,303.12</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MARINO CP_26','CP_GRAVEDAD',125,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 1%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 453,047.68</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">29.1%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_GRAVEDAD" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='ESMERALDA CP-26';renderCronoLote('ESMERALDA CP-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">ESMERALDA CP-26</div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">2.3</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+135</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 18,401.14</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 14,258.92</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('ESMERALDA CP-26','CP_GRAVEDAD',135,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 3%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 453,227.68</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">77.5%</td></tr><tr id="tot-hdr-CP_SISTEMA" style="background:#f1f8e9"><td colspan="7" style="padding:8px 14px;font-weight:800;color:#2e7d32;font-size:.78rem">🌿 CAMOTE PINTURA · Sistema</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_SISTEMA" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 9C-26';renderCronoLote('MOD 9C-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 9C-26<span style="background:#f9a825;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span></div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+45</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 15,478.95</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 8,615.56</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 9C-26','CP_SISTEMA',45,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 10%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 86,061.56</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">55.7%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_SISTEMA" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD-6CP-26';renderCronoLote('MOD-6CP-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD-6CP-26<span style="background:#f9a825;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span></div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+66</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 16,207.24</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 5,654.79</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD-6CP-26','CP_SISTEMA',66,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 4%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 161,542.50</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">34.9%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_SISTEMA" style="background:#fff;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 4C_26';renderCronoLote('MOD 4C_26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fff'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 4C_26<span style="background:#f9a825;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span></div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">1.0</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+69</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 16,207.24</td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 13,810.65</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 4C_26','CP_SISTEMA',69,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 9%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 161,542.50</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">85.2%</td></tr><tr class="tot-lote-row" data-ritmo="rojo" data-pk="CP_SISTEMA" style="background:#fafafa;border-bottom:1px solid #eee;cursor:pointer" onclick="showTab('crono');setTimeout(()=&gt;{var s=document.getElementById('crono-sel');if(s){s.value='MOD 8C-26';renderCronoLote('MOD 8C-26');}},80)" onmouseover="this.style.background='#f0f4f8'" onmouseout="this.style.background='#fafafa'"><td style="padding:7px 14px"><div style="font-weight:700;color:#1b5e20">MOD 8C-26<span style="background:#f9a825;color:#fff;border-radius:4px;padding:0 4px;font-size:.58rem;font-weight:700;margin-left:5px">S</span></div><div style="font-size:.57rem;color:#bbb">→ ver detalle</div></td><td style="padding:7px 10px;text-align:center;color:#555">0.8</td><td style="padding:7px 10px;text-align:center;font-weight:800;color:#2e7d32">D+97</td><td style="padding:7px 14px;text-align:right;color:#546e7a;font-weight:600">S/. 480,909.71<div style="font-size:.55rem;color:#aaa">total lote</div></td><td style="padding:7px 14px;text-align:right;font-weight:800;color:#1b5e20;font-size:.8rem">S/. 16,164.06</td><td style="padding:7px 14px;text-align:center"><span onclick="event.stopPropagation();showMacroPopup('MOD 8C-26','CP_SISTEMA',97,event)" style="cursor:pointer;background:#e3f2fd;color:#1565c0;font-weight:700;font-size:.72rem;padding:4px 12px;border-radius:14px;white-space:nowrap" title="Clic para ver detalle por categoría">🔵 8%</span><div style="font-size:.57rem;color:#bbb;margin-top:2px">esperado S/. 198,472.83</div></td><td style="padding:7px 14px;text-align:right;font-weight:700;color:#1565c0">118.3%</td></tr></tbody></table></div></div></div></div>
@@ -450,6 +450,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <div id="panel-crono" class="panel"><div class="cal-toolbar" style="flex-wrap:wrap;gap:8px"><label style="font-weight:700;color:#2e7d32">🌿 Lote:</label><select class="sl" id="crono-sel" onchange="renderCronoLote(this.value)" style="min-width:220px"><option value="">— Selecciona un lote —</option><option value="LA VICTORIA C_26">LA VICTORIA C_26 (AMARILLO, 15-set.)</option><option value="MOD 9C-26">MOD 9C-26 (PINTURA, 17-jul.)</option><option value="ANGULO C126">ANGULO C126 (AMARILLO, 15-jul.)</option><option value="MOD-6CP-26">MOD-6CP-26 (PINTURA, 26-jun.)</option><option value="MOD 4C_26">MOD 4C_26 (PINTURA, 23-jun.)</option><option value="POZO-C1">POZO-C1 (AMARILLO, 18-jun.)</option><option value="BUSTAMANTE CP_26">BUSTAMANTE CP_26 (PINTURA, 02-jun.)</option><option value="MOD 8C-26">MOD 8C-26 (PINTURA, 26-may.)</option><option value="CALAGUA3-26">CALAGUA3-26 (AMARILLO, 21-may.)</option><option value="VENERANDA C_26">VENERANDA C_26 (AMARILLO, 15-may.)</option><option value="GABINO C_26">GABINO C_26 (AMARILLO, 01-may.)</option><option value="MARINO CP_26">MARINO CP_26 (PINTURA, 28-abr.)</option><option value="MOD 2-3C _26">MOD 2-3C _26 (AMARILLO, 20-abr.)</option><option value="ESMERALDA CP-26">ESMERALDA CP-26 (PINTURA, 18-abr.)</option><option value="MOD 7C-26">MOD 7C-26 (AMARILLO, 18-abr.)</option><option value="MOD 11C-26">MOD 11C-26 (AMARILLO, 15-abr.)</option><option value="MOD5C_26">MOD5C_26 (AMARILLO, 02-abr.)</option><option value="DINA CA-26">DINA CA-26 (AMARILLO, 02-abr.)</option><option value="CALAGUA2-26">CALAGUA2-26 (AMARILLO, 27-mar.)</option><option value="CALAGUAC_2026">CALAGUAC_2026 (AMARILLO, 05-mar.)</option><option value="RUDA-26">RUDA-26 (AMARILLO, 19-feb.)</option><option value="CASAS_2026">CASAS_2026 (AMARILLO, 15-ene.)</option><option value="POZO-C">POZO-C (AMARILLO, 09-dic.)</option></select><button id="crono-report-btn" onclick="openCostReport(document.getElementById('crono-sel').value)" style="display:none;background:#1b5e20;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer">📊 Reporte</button><button id="crono-excel-btn" onclick="descargarExcelTodosLotes()" style="background:#0d6efd;color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer">📥 Descargar Excel</button><span id="crono-meta" style="font-size:.75rem;color:#607d8b;margin-left:4px"></span><button id="crono-view-btn" onclick="cronoViewToggle()" style="margin-left:auto;background:#e8eaf6;border:1.5px solid #3949ab;color:#283593;border-radius:8px;padding:5px 12px;font-size:.75rem;font-weight:700;cursor:pointer">📊 Ver total lote</button></div><div id="crono-body" style="padding:16px 20px"><div style="text-align:center;color:#bbb;padding:60px 0;font-size:.95rem">Selecciona un lote para ver el cronograma</div></div></div>
 <div id="panel-ppto" class="panel"></div>
 <div id="panel-prog" class="panel active"><div id="panel-etapas-inner" style="padding:12px 14px"></div></div>
+<div id="panel-ctrl" class="panel"><div id="panel-ctrl-inner" style="padding:12px 14px"></div></div>
 
 <div id="panel-com" class="panel"><div style="padding:16px 20px 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><input id="com-search" oninput="filterComentarios()" placeholder="🔎 Buscar por lote o texto…" style="flex:1;min-width:220px;max-width:420px;padding:9px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:.85rem"><span style="font-size:.75rem;color:#888">13 comentarios en 8 lotes</span></div><div id="com-list" style="padding:8px 20px 30px"><div class="com-lote-block" data-lote="calaguac_2026" style="margin-bottom:18px"><div style="font-weight:800;font-size:.9rem;color:#1b5e20;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="cursor:pointer" onclick="goToCrono('CALAGUAC_2026')" title="Ver bitácora/costos de este lote">🌱 CALAGUAC_2026</span><span style="font-weight:600;font-size:.7rem;color:#888">(1 nota)</span></div><div class="com-note-row" data-text="agroquimico enmienda ya no se va aplicar enmienda porque el cultivo está grande." style="background:#f7f9f6;border-left:3px solid #66bb6a;border-radius:6px;padding:9px 12px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-weight:700;font-size:.75rem;color:#2e7d32">AGROQUIMICO ENMIENDA</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:#999">18/7/2026, 11:52:58 a. m.</span><button onclick="borrarComentario('agro_nota_CALAGUAC_2026_AGROQUIMICO_ENMIENDA')" title="Eliminar comentario" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:700;cursor:pointer">🗑</button></span></div><div style="font-size:.82rem;color:#333;margin-top:4px;white-space:pre-wrap">YA NO SE VA APLICAR ENMIENDA PORQUE EL CULTIVO ESTÁ GRANDE.</div></div></div><div class="com-lote-block" data-lote="marino cp_26" style="margin-bottom:18px"><div style="font-weight:800;font-size:.9rem;color:#1b5e20;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="cursor:pointer" onclick="goToCrono('MARINO CP_26')" title="Ver bitácora/costos de este lote">🌱 MARINO CP_26</span><span style="font-weight:600;font-size:.7rem;color:#888">(2 notas)</span></div><div class="com-note-row" data-text="agroquimico herbicida la aplcacion de herbida no se hizo todo fue manual." style="background:#f7f9f6;border-left:3px solid #66bb6a;border-radius:6px;padding:9px 12px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-weight:700;font-size:.75rem;color:#2e7d32">AGROQUIMICO HERBICIDA</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:#999">18/7/2026, 11:59:32 a. m.</span><button onclick="borrarComentario('agro_nota_MARINO CP_26_AGROQUIMICO_HERBICIDA')" title="Eliminar comentario" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:700;cursor:pointer">🗑</button></span></div><div style="font-size:.82rem;color:#333;margin-top:4px;white-space:pre-wrap">LA APLCACION DE HERBIDA NO SE HIZO TODO FUE MANUAL.</div></div><div class="com-note-row" data-text="agroquimico insecticida 01 de julio, no se aplicó insecticida no necesita aplicación. por el momento" style="background:#f7f9f6;border-left:3px solid #66bb6a;border-radius:6px;padding:9px 12px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-weight:700;font-size:.75rem;color:#2e7d32">AGROQUIMICO INSECTICIDA</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:#999">18/7/2026, 11:57:21 a. m.</span><button onclick="borrarComentario('agro_nota_MARINO CP_26_AGROQUIMICO_INSECTICIDA')" title="Eliminar comentario" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:700;cursor:pointer">🗑</button></span></div><div style="font-size:.82rem;color:#333;margin-top:4px;white-space:pre-wrap">01 DE JULIO, NO SE APLICÓ INSECTICIDA NO NECESITA APLICACIÓN. POR EL MOMENTO</div></div></div><div class="com-lote-block" data-lote="mod 4c_26" style="margin-bottom:18px"><div style="font-weight:800;font-size:.9rem;color:#1b5e20;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="cursor:pointer" onclick="goToCrono('MOD 4C_26')" title="Ver bitácora/costos de este lote">🌱 MOD 4C_26</span><span style="font-weight:600;font-size:.7rem;color:#888">(1 nota)</span></div><div class="com-note-row" data-text="agroquimico insecticida 10 de julio no se está aplicando de acuerdo al presupuesto porque está el módulo sin plagas." style="background:#f7f9f6;border-left:3px solid #66bb6a;border-radius:6px;padding:9px 12px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-weight:700;font-size:.75rem;color:#2e7d32">AGROQUIMICO INSECTICIDA</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:#999">18/7/2026, 12:05:58 p. m.</span><button onclick="borrarComentario('agro_nota_MOD 4C_26_AGROQUIMICO_INSECTICIDA')" title="Eliminar comentario" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:700;cursor:pointer">🗑</button></span></div><div style="font-size:.82rem;color:#333;margin-top:4px;white-space:pre-wrap">10 de julio no se está aplicando de acuerdo al presupuesto porque está el módulo sin plagas.</div></div></div><div class="com-lote-block" data-lote="mod 8c-26" style="margin-bottom:18px"><div style="font-weight:800;font-size:.9rem;color:#1b5e20;margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="cursor:pointer" onclick="goToCrono('MOD 8C-26')" title="Ver bitácora/costos de este lote">🌱 MOD 8C-26</span><span style="font-weight:600;font-size:.7rem;color:#888">(3 notas)</span></div><div class="com-note-row" data-text="agroquimico se aplicó más por temas de presencia de hongos y plagas (ácaro hialino) también se aplicó movento porque no había producto para controlar picador chupador,
 no se aplicó herbicida por estrés de planta y se va hacer deshierbo." style="background:#f7f9f6;border-left:3px solid #66bb6a;border-radius:6px;padding:9px 12px;margin-bottom:7px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-weight:700;font-size:.75rem;color:#2e7d32">AGROQUIMICO</span><span style="display:flex;align-items:center;gap:8px"><span style="font-size:.68rem;color:#999">11/7/2026, 5:43:30 p. m.</span><button onclick="borrarComentario('agro_nota_MOD 8C-26_AGROQUIMICO')" title="Eliminar comentario" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:700;cursor:pointer">🗑</button></span></div><div style="font-size:.82rem;color:#333;margin-top:4px;white-space:pre-wrap">Se aplicó más por temas de presencia de hongos y plagas (ácaro hialino) También se aplicó MOVENTO porque no había producto para controlar Picador Chupador,
@@ -487,7 +488,7 @@ Object.values(DATA.vales||{}).forEach(dias=>{Object.values(dias).forEach(es=>{(A
 const Fmt=v=>'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const TABS=['tot','res','cal','crono','ppto','prog','gen','com'];
+const TABS=['tot','res','cal','crono','ppto','prog','ctrl','gen','com'];
 let calMes,calAnio,calLote='';
 let calSemanalMode=false,calSemIni=null;
 let _cViewMult=1; // 1 = por ha, ha = total lote
@@ -538,6 +539,7 @@ function showTab(t){
   if(t==='crono'&&!document.getElementById('crono-sel'))buildCronoTab();
   if(t==='ppto'&&!document.getElementById('ppto-gen-btns'))buildPptoGeneral();
   if(t==='prog'&&!document.getElementById('panel-prog').dataset.built){buildEtapas();document.getElementById('panel-prog').dataset.built='1';}
+  if(t==='ctrl')buildControlTab();
   if(t==='com')buildComentarios();
 }
 function goToCrono(loteName){
@@ -1093,39 +1095,69 @@ function cerrarDetalleEtapaLote(){
   if(m) m.remove();
 }
 
+/* Pedido usuaria 16/09: los importes del detalle por etapa venían siempre
+   por HECTÁREA (así está armado el presupuesto en la hoja PRESUPUESTO).
+   Ella quiere poder ver también el total POR LOTE (S/.ha × hectáreas del
+   lote), como el Bloque A (por ha) / Bloque B (por lote) del Excel de
+   ESMERALDA. En vez de duplicar todas las columnas, se agrega un botoncito
+   que alterna la vista completa entre "por Ha" y "por Lote" (multiplicando
+   todo por l.ha) — así no se recarga la pantalla con el doble de columnas. */
+let _etapaDetalleModo = 'ha'; // 'ha' | 'lote'
+function toggleEtapaDetalleModo(loteName){
+  _etapaDetalleModo = (_etapaDetalleModo==='ha') ? 'lote' : 'ha';
+  abrirDetalleEtapaLote(loteName);
+}
+
 function abrirDetalleEtapaLote(loteName){
   const l = (DATA.resumen||[]).find(x=>x.lote===loteName);
   if(!l) return;
+  cerrarDetalleEtapaLote(); // por si ya había uno abierto (p.ej. al alternar ha/lote)
   const tabla = tablaEtapas(l.pk);
   const pptoTot = pptoPorEtapa(l.pk);
   const realTot = realPorEtapa(l);
   const pptoCat = pptoPorEtapaCategoria(l.pk);
   const realCat = realPorEtapaCategoria(l);
   const etapaActual = etapaIdxPorDds(l.pk, l.dds);
+  const porLote = _etapaDetalleModo==='lote';
+  const factor = porLote ? (l.ha||1) : 1;
+  const loteEsc = l.lote.replace(/'/g,"\\'");
 
   let h = '<div id="etapa-lote-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)cerrarDetalleEtapaLote()">';
   h += '<div style="background:#fff;border-radius:14px;max-width:720px;width:100%;max-height:88vh;overflow-y:auto;padding:22px">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><h3 style="margin:0;color:#2e7d32">'+l.lote+'</h3><button onclick="cerrarDetalleEtapaLote()" style="background:#f5f5f5;border:1px solid #ddd;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:700;color:#666">✕</button></div>';
-  h += '<div style="font-size:.78rem;color:#888;margin-bottom:18px">Día '+l.dds+' DDS · '+l.ha+' ha · Todas las etapas del ciclo</div>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><h3 style="margin:0;color:#2e7d32">'+l.lote+'</h3><div style="display:flex;gap:6px;align-items:center;flex-shrink:0"><button onclick="toggleEtapaDetalleModo(\''+loteEsc+'\')" title="Alternar entre ver por hectárea o el total del lote" style="background:'+(porLote?'#1b5e20':'#e8f5e9')+';color:'+(porLote?'#fff':'#1b5e20')+';border:1px solid #a5d6a7;border-radius:14px;padding:0 12px;height:28px;cursor:pointer;font-weight:800;font-size:.68rem;white-space:nowrap">'+(porLote?'🌾 Por Lote':'📏 Por Ha')+'</button><button onclick="exportarDetalleEtapaExcel(\''+loteEsc+'\')" title="Descargar este detalle en Excel" style="background:#217346;color:#fff;border:none;border-radius:6px;width:32px;height:28px;cursor:pointer;font-weight:800;font-size:.62rem;letter-spacing:.02em">XLS</button><button onclick="cerrarDetalleEtapaLote()" style="background:#f5f5f5;border:1px solid #ddd;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:700;color:#666">✕</button></div></div>';
+  h += '<div style="font-size:.78rem;color:#888;margin-bottom:6px">Día '+l.dds+' DDS · '+l.ha+' ha · Todas las etapas del ciclo</div>';
+  h += '<div style="font-size:.72rem;font-weight:700;color:'+(porLote?'#1b5e20':'#607d8b')+';margin-bottom:18px">'+(porLote?'💰 Mostrando el TOTAL del lote ('+l.ha+' ha) — S/.ha × hectáreas':'📏 Mostrando S/. por HECTÁREA — toca el botón "Por Lote" para ver el total del lote')+'</div>';
 
   tabla.forEach((et,i)=>{
     const ppto = pptoTot[i], real = realTot[i];
     const pct = ppto>0 ? (real/ppto*100) : (real>0?999:0);
     const color = pct>=100?'#e53935':pct>=80?'#f9a825':'#43a047';
     const esActual = i===etapaActual;
+    /* Desviación de la etapa (parecido a la columna "DESVIACION ACUM" del
+       Excel 2.b ESMERALDA): Real - Ppto de toda la etapa. Positivo = sobrecosto
+       (rojo), negativo = por debajo del ppto / ahorro o error (naranja) —
+       pedido usuaria 16/09: que el detalle por lote se parezca más al Excel,
+       sobre todo en el % / S/. de desviación. */
+    const desvEtapa = (real - ppto)*factor;
+    const desvColor = desvEtapa>0.5?'#e53935':desvEtapa<-0.5?'#fb8c00':'#999';
+    const desvTxt = Math.abs(desvEtapa)<0.5 ? '—' : (desvEtapa>0?'+':'−')+Fmt(Math.abs(desvEtapa));
     h += '<div style="border:1.5px solid '+(esActual?'#2e7d32':'#e0e0e0')+';border-radius:10px;padding:12px 14px;margin-bottom:10px'+(esActual?';background:#f1f8f1':'')+'">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><strong style="font-size:.85rem;color:#333">'+et.n+(esActual?' <span style="font-size:.65rem;color:#2e7d32;font-weight:800">← AHORA</span>':'')+'</strong><span style="font-size:.8rem;font-weight:800;color:'+color+'">'+pct.toFixed(0)+'%</span></div>';
-    h += '<div style="background:#eee;border-radius:5px;height:6px;overflow:hidden;margin-bottom:8px"><div style="background:'+color+';height:100%;width:'+Math.min(pct,100)+'%"></div></div>';
+    h += '<div style="background:#eee;border-radius:5px;height:6px;overflow:hidden;margin-bottom:6px"><div style="background:'+color+';height:100%;width:'+Math.min(pct,100)+'%"></div></div>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:.68rem;color:#999;margin-bottom:8px;flex-wrap:wrap;gap:6px"><span>Ppto etapa: <b style="color:#777">'+Fmt(ppto*factor)+'</b> · Real etapa: <b style="color:#777">'+Fmt(real*factor)+'</b></span><span style="font-weight:800;color:'+desvColor+';font-size:.72rem">Desviación etapa: '+desvTxt+'</span></div>';
     // desglose por categoría de esta etapa, como tabla con encabezado
-    // (parecido a las columnas del Excel: Categoría / Presupuesto / Real / %)
+    // (parecido a las columnas del Excel: Categoría / Presupuesto / Real / % / Desviación)
     const cats = new Set([...Object.keys(pptoCat[i]), ...Object.keys(realCat[i])]);
     if(cats.size){
       h += '<table style="width:100%;font-size:.74rem;border-collapse:collapse">';
-      h += '<tr style="border-bottom:1.5px solid #ccc"><td style="padding:4px 0;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Categoría</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Presupuesto</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Real</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">%</td></tr>';
+      h += '<tr style="border-bottom:1.5px solid #ccc"><td style="padding:4px 0;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Categoría</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Presupuesto</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">Real</td><td style="padding:4px 0;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase">%</td><td style="padding:4px 0 4px 10px;text-align:right;color:#888;font-weight:700;font-size:.65rem;text-transform:uppercase;border-left:1px solid #ddd">Desviación</td></tr>';
       Array.from(cats).sort().forEach(cat=>{
         const pc = pptoCat[i][cat]||0, rc = realCat[i][cat]||0;
         const pctCat = pc>0 ? (rc/pc*100) : (rc>0?999:0);
-        h += '<tr style="border-bottom:1px solid #eee"><td style="padding:3px 0;color:#555">'+cat+'</td><td style="padding:3px 0;text-align:right;color:#888">'+Fmt(pc)+'</td><td style="padding:3px 0;text-align:right;font-weight:700;color:'+(rc>pc&&pc>0?'#e53935':'#2e7d32')+'">'+Fmt(rc)+'</td><td style="padding:3px 0;text-align:right;color:#999">'+(pc>0||rc>0?pctCat.toFixed(0)+'%':'—')+'</td></tr>';
+        const dCat = (rc - pc)*factor;
+        const dColor = dCat>0.5?'#e53935':dCat<-0.5?'#fb8c00':'#ccc';
+        const dTxt = Math.abs(dCat)<0.5 ? '—' : (dCat>0?'+':'−')+Fmt(Math.abs(dCat));
+        h += '<tr style="border-bottom:1px solid #eee"><td style="padding:3px 0;color:#555">'+cat+'</td><td style="padding:3px 0;text-align:right;color:#888">'+Fmt(pc*factor)+'</td><td style="padding:3px 0;text-align:right;font-weight:700;color:'+(rc>pc&&pc>0?'#e53935':'#2e7d32')+'">'+Fmt(rc*factor)+'</td><td style="padding:3px 0;text-align:right;color:#999">'+(pc>0||rc>0?pctCat.toFixed(0)+'%':'—')+'</td><td style="padding:3px 0 3px 10px;text-align:right;font-weight:800;color:'+dColor+';border-left:1px solid #eee">'+dTxt+'</td></tr>';
       });
       h += '</table>';
     } else {
@@ -1136,6 +1168,70 @@ function abrirDetalleEtapaLote(loteName){
 
   h += '</div></div>';
   document.body.insertAdjacentHTML('beforeend', h);
+}
+
+/* Pedido usuaria 16/09: botón "XLS" en la esquinita superior derecha del
+   detalle por etapa de un lote, para que quien lo necesite lo pueda
+   descargar en Excel. Reconstruye exactamente la misma info que se ve en
+   el modal (por etapa: categoría, presupuesto, real, % y desviación en S/.,
+   más la fila de subtotal de la etapa) usando la librería XLSX que ya está
+   incrustada en este archivo. */
+function exportarDetalleEtapaExcel(loteName){
+  const l = (DATA.resumen||[]).find(x=>x.lote===loteName);
+  if(!l) return;
+  const tabla = tablaEtapas(l.pk);
+  const pptoTot = pptoPorEtapa(l.pk);
+  const realTot = realPorEtapa(l);
+  const pptoCat = pptoPorEtapaCategoria(l.pk);
+  const realCat = realPorEtapaCategoria(l);
+  const etapaActual = etapaIdxPorDds(l.pk, l.dds);
+
+  const ha = l.ha||1;
+  const aoa = [];
+  aoa.push(['CONTROL PRESUPUESTAL POR ETAPA FENOLÓGICA — '+l.lote]);
+  aoa.push(['Día '+l.dds+' DDS · '+l.ha+' ha · Generado: '+new Date().toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'})]);
+  aoa.push([]);
+  aoa.push(['ETAPA','CATEGORÍA',
+    'PPTO S/.ha','REAL S/.ha',
+    'PPTO LOTE S/. ('+ha+' ha)','REAL LOTE S/. ('+ha+' ha)',
+    '% EJECUTADO','DESVIACIÓN LOTE (S/.)']);
+
+  tabla.forEach((et,i)=>{
+    const ppto = pptoTot[i], real = realTot[i];
+    const pct = ppto>0 ? (real/ppto*100) : (real>0?999:0);
+    const desvEtapaLote = (real - ppto)*ha;
+    const etTag = et.n + (i===etapaActual ? ' (AHORA)' : '');
+    const cats = new Set([...Object.keys(pptoCat[i]), ...Object.keys(realCat[i])]);
+    if(cats.size){
+      Array.from(cats).sort().forEach(cat=>{
+        const pc = pptoCat[i][cat]||0, rc = realCat[i][cat]||0;
+        const pctCat = pc>0 ? (rc/pc*100) : (rc>0?999:0);
+        aoa.push([etTag, cat,
+          Number(pc.toFixed(2)), Number(rc.toFixed(2)),
+          Number((pc*ha).toFixed(2)), Number((rc*ha).toFixed(2)),
+          Math.round(pctCat)+'%', Number(((rc-pc)*ha).toFixed(2))]);
+      });
+    } else {
+      aoa.push([etTag, 'Sin movimientos', 0, 0, 0, 0, '—', 0]);
+    }
+    aoa.push([etTag+' — SUBTOTAL', '',
+      Number(ppto.toFixed(2)), Number(real.toFixed(2)),
+      Number((ppto*ha).toFixed(2)), Number((real*ha).toFixed(2)),
+      Math.round(pct)+'%', Number(desvEtapaLote.toFixed(2))]);
+    aoa.push([]);
+  });
+
+  try{
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols'] = [{wch:34},{wch:26},{wch:14},{wch:14},{wch:16},{wch:16},{wch:12},{wch:18}];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Control x Etapa');
+    const fnameSafe = l.lote.replace(/[^a-z0-9]+/gi,'_');
+    XLSX.writeFile(wb, 'Control_Etapa_'+fnameSafe+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  }catch(e){
+    console.error('[exportarDetalleEtapaExcel] error', e);
+    alert('No se pudo generar el Excel. Intenta de nuevo.');
+  }
 }
 
 let _etapaSel = 0;
@@ -2553,7 +2649,7 @@ function drawCal(){
     document.getElementById('cal-cont').innerHTML=h;
     if(_hoyInWeek)showDayReport(_hoyStr);
     else if(!calLote){const sidEl=document.getElementById('cal-side');if(sidEl)sidEl.innerHTML='<h3>📋 Todos los lotes</h3><div style="color:#888;font-size:.72rem;margin-top:10px">👆 Haz clic en un día para ver las actividades de todos los lotes.</div>';}
-    renderCalTotales(_diasTotales,loteFil,'Semana: '+rng);
+    renderCalTotales(_diasTotales,calLote?loteFil:loteFil.filter(function(l){return !l.semillero;}),'Semana '+_semanaNum(sem0)+' ('+rng+')',calLote);
     return;
   }
 
@@ -2601,7 +2697,7 @@ function drawCal(){
       else if(sidEl){sidEl.innerHTML='<h3>📋 Todos los lotes</h3><div style="color:#888;font-size:.72rem;margin-top:10px">👆 Haz clic en un día para ver las actividades de todos los lotes.</div>';}
     },10);
   }
-  renderCalTotales(_diasTotalesM,loteFil,MESES[calMes]+' '+calAnio);
+  renderCalTotales(_diasTotalesM,calLote?loteFil:loteFil.filter(function(l){return !l.semillero;}),MESES[calMes]+' '+calAnio,calLote);
 }
 
 /* ── TOTALES DE GASTO POR DÍA (bloque debajo del calendario) ──
@@ -2610,6 +2706,16 @@ function drawCal(){
    Obra, Maquinaria y Agroquímicos (agroquímico+fertilizante+insumo van
    juntos en "Agroquímicos", como ella los nombró) — para poder cuadrar
    su planilla diaria y comparar lo presupuestado de la semana vs lo real. */
+/* Número de semana simple (semanas de Domingo a Sábado, igual que el
+   calendario semanal de esta pestaña) — para el rótulo "Semana 34" que
+   pidió la usuaria, más fácil de decir que un rango de fechas. */
+function _semanaNum(d){
+  const y=d.getFullYear();
+  const ene1=new Date(y,0,1);
+  const ene1Dow=ene1.getDay();
+  const diasPasados=Math.floor((d-ene1)/86400000);
+  return Math.ceil((diasPasados+ene1Dow+1)/7);
+}
 function _calRealDia(iso,lotes){
   let mo=0,maq=0,agro=0;
   lotes.forEach(l=>{
@@ -2651,7 +2757,7 @@ function _calPptoDia(iso,lotes){
   });
   return {mo,maq,agro};
 }
-function renderCalTotales(diasArr,lotes,periodoLbl){
+function renderCalTotales(diasArr,lotes,periodoLbl,loteUnico){
   const cont=document.getElementById('cal-totales');
   if(!cont)return;
   if(!diasArr||!diasArr.length){cont.innerHTML='';return;}
@@ -2659,58 +2765,77 @@ function renderCalTotales(diasArr,lotes,periodoLbl){
   const Fv0=v=>'S/. '+Number(v).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
   const COL={mo:'#bf360c',maq:'#4a148c',agro:'#e65100'};
   const sumR={mo:0,maq:0,agro:0},sumP={mo:0,maq:0,agro:0};
-  let rows='';
+  /* Pedido usuaria 16/09: ya no le interesa la lista día por día (ocupaba
+     mucho espacio) — solo el total del período. Se conserva el cálculo
+     por día (sumR/sumP) porque de ahí sale el total y la comparación por
+     categoría de más abajo; solo se dejó de armar la tabla con una fila
+     por día. */
   diasArr.forEach(dia=>{
     const r=_calRealDia(dia.iso,lotes);
     const p=_calPptoDia(dia.iso,lotes);
     sumR.mo+=r.mo;sumR.maq+=r.maq;sumR.agro+=r.agro;
     sumP.mo+=p.mo;sumP.maq+=p.maq;sumP.agro+=p.agro;
-    const totDia=r.mo+r.maq+r.agro;
-    rows+='<tr'+(dia.esH?' style="background:#e8f5e9"':'')+'>'
-      +'<td style="padding:5px 10px;font-weight:700;color:#333;white-space:nowrap;font-size:.72rem">'+dia.lbl+(dia.esH?' <span style="font-size:.55rem;background:#2e7d32;color:#fff;padding:1px 5px;border-radius:5px">HOY</span>':'')+'</td>'
-      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.mo+'">'+Fv(r.mo)+'</td>'
-      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.maq+'">'+Fv(r.maq)+'</td>'
-      +'<td style="padding:5px 10px;text-align:right;font-size:.72rem;color:'+COL.agro+'">'+Fv(r.agro)+'</td>'
-      +'<td style="padding:5px 10px;text-align:right;font-size:.74rem;font-weight:800;color:'+(totDia>0?'#1b5e20':'#ccc')+'">'+Fv(totDia)+'</td>'
-      +'</tr>';
   });
   const totR=sumR.mo+sumR.maq+sumR.agro, totP=sumP.mo+sumP.maq+sumP.agro;
-  const pctRow=(lbl,ico,r,p,c)=>{
-    const pct=p>0?Math.round(r/p*100):null;
-    const barC=pct===null?'#bbb':pct>110?'#b71c1c':pct>=90?'#2e7d32':'#f9a825';
-    return '<div style="flex:1;min-width:140px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px"><span style="font-size:.68rem;font-weight:700;color:'+c+'">'+ico+' '+lbl+'</span>'
-      +'<span style="font-size:.7rem;font-weight:800;color:'+barC+'">'+(pct===null?'—':pct+'%')+'</span></div>'
-      +'<div style="background:#eee;border-radius:4px;height:6px"><div style="width:'+(pct===null?0:Math.min(pct,100))+'%;height:6px;background:'+barC+';border-radius:4px'+(pct!==null&&pct>110?';box-shadow:0 0 0 2px #ef9a9a':'')+'"></div></div>'
-      +'<div style="font-size:.6rem;color:#888;margin-top:2px">Real '+Fv0(r)+' · Ppto '+Fv0(p)+'</div>'
-      +'</div>';
-  };
+  const tituloCorto=periodoLbl.split('(')[0].trim().toUpperCase();
   let h='<div style="background:#fff;border-radius:12px;border:1.5px solid #dcedc8;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)">';
-  h+='<div style="background:#1b5e20;color:#fff;padding:10px 16px;font-weight:800;font-size:.85rem">💰 Totales de gasto — '+periodoLbl+(lotes.length<((typeof DATA!=='undefined'&&DATA.resumen)?DATA.resumen.length:lotes.length)?' <span style="font-weight:500;opacity:.85;font-size:.68rem">('+lotes.length+' lote'+(lotes.length!==1?'s':'')+' filtrado'+(lotes.length!==1?'s':'')+')</span>':'')+'</div>';
-  h+='<div style="max-height:340px;overflow-y:auto;overflow-x:auto"><table style="width:100%;min-width:480px;border-collapse:collapse">';
-  h+='<thead style="position:sticky;top:0;background:#f1f8e9;z-index:1"><tr>'
-    +'<th style="padding:6px 10px;text-align:left;font-size:.63rem;color:#607d8b;text-transform:uppercase">Día</th>'
-    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.mo+';text-transform:uppercase">🧑‍🌾 M. Obra</th>'
-    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.maq+';text-transform:uppercase">🚜 Maquinaria</th>'
-    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:'+COL.agro+';text-transform:uppercase">🧪 Agroquímicos</th>'
-    +'<th style="padding:6px 10px;text-align:right;font-size:.63rem;color:#1b5e20;text-transform:uppercase">Total día</th>'
-    +'</tr></thead><tbody>'+rows+'</tbody>';
-  h+='<tfoot><tr style="background:#e8f5e9;border-top:2px solid #a5d6a7">'
-    +'<td style="padding:7px 10px;font-weight:800;font-size:.72rem;color:#1b5e20">TOTAL '+periodoLbl.split(':')[0].trim().toUpperCase()+'</td>'
-    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.mo+'">'+Fv0(sumR.mo)+'</td>'
-    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.maq+'">'+Fv0(sumR.maq)+'</td>'
-    +'<td style="padding:7px 10px;text-align:right;font-weight:800;font-size:.72rem;color:'+COL.agro+'">'+Fv0(sumR.agro)+'</td>'
-    +'<td style="padding:7px 10px;text-align:right;font-weight:900;font-size:.78rem;color:#1b5e20">'+Fv0(totR)+'</td>'
-    +'</tr></tfoot>';
-  h+='</table></div>';
-  h+='<div style="padding:12px 16px;border-top:1.5px solid #f0f0f0;display:flex;gap:18px;flex-wrap:wrap">';
-  h+=pctRow('Mano de Obra','🧑‍🌾',sumR.mo,sumP.mo,COL.mo);
-  h+=pctRow('Maquinaria','🚜',sumR.maq,sumP.maq,COL.maq);
-  h+=pctRow('Agroquímicos','🧪',sumR.agro,sumP.agro,COL.agro);
+  const _badge=loteUnico?' <span style="font-weight:500;opacity:.85;font-size:.68rem">(solo '+loteUnico+')</span>':' <span style="font-weight:500;opacity:.85;font-size:.68rem">('+lotes.length+' lote'+(lotes.length!==1?'s':'')+' de campo, sin semilleros)</span>';
+  h+='<div style="background:#1b5e20;color:#fff;padding:10px 16px;font-weight:800;font-size:.85rem">💰 Totales de gasto — '+periodoLbl+_badge+'</div>';
+  h+='<table style="width:100%;border-collapse:collapse"><tbody><tr style="background:#e8f5e9">'
+    +'<td style="padding:9px 16px;font-weight:800;font-size:.78rem;color:#1b5e20">TOTAL '+tituloCorto+'</td>'
+    +'<td style="padding:9px 10px;text-align:right;font-weight:800;font-size:.78rem;color:'+COL.mo+'">'+Fv0(sumR.mo)+'</td>'
+    +'<td style="padding:9px 10px;text-align:right;font-weight:800;font-size:.78rem;color:'+COL.maq+'">'+Fv0(sumR.maq)+'</td>'
+    +'<td style="padding:9px 10px;text-align:right;font-weight:800;font-size:.78rem;color:'+COL.agro+'">'+Fv0(sumR.agro)+'</td>'
+    +'<td style="padding:9px 16px;text-align:right;font-weight:900;font-size:.86rem;color:#1b5e20">'+Fv0(totR)+'</td>'
+    +'</tr></tbody></table>';
+  /* ── Comparativo presupuesto vs. real, por categoría, en una tabla ──
+     Pedido usuaria 15/09: "cuadrito comparativo en la misma fila" — lo que
+     siempre le pregunta su jefe: cuánto se presupuestó gastar en la semana
+     (o mes) en cada categoría grande, cuánto se gastó de verdad, y el %. */
+  const CATS=[
+    {lbl:'Mano de Obra',ico:'🧑‍🌾',r:sumR.mo,p:sumP.mo,c:COL.mo},
+    {lbl:'Maquinaria',ico:'🚜',r:sumR.maq,p:sumP.maq,c:COL.maq},
+    {lbl:'Agroquímicos',ico:'🧪',r:sumR.agro,p:sumP.agro,c:COL.agro}
+  ];
+  const pctColor=pct=>pct===null?'#999':pct>110?'#b71c1c':pct>=90?'#2e7d32':'#f9a825';
+  let cmp='';
+  CATS.forEach(function(cat){
+    const pct=cat.p>0?Math.round(cat.r/cat.p*100):null;
+    const pc=pctColor(pct);
+    cmp+='<tr>'
+      +'<td style="padding:8px 10px;font-weight:700;font-size:.74rem;color:'+cat.c+';white-space:nowrap">'+cat.ico+' '+cat.lbl+'</td>'
+      +'<td style="padding:8px 10px;text-align:right;font-size:.74rem;color:#555">'+Fv0(cat.p)+'</td>'
+      +'<td style="padding:8px 10px;text-align:right;font-size:.74rem;font-weight:700;color:#333">'+Fv0(cat.r)+'</td>'
+      +'<td style="padding:8px 10px;text-align:right;font-size:.8rem;font-weight:900;color:'+pc+'">'+(pct===null?'—':pct+'%')+'</td>'
+      +'</tr>';
+  });
+  const pctTot=totP>0?Math.round(totR/totP*100):null;
+  cmp+='<tr style="background:#f1f8e9;border-top:2px solid #a5d6a7">'
+    +'<td style="padding:8px 10px;font-weight:900;font-size:.76rem;color:#1b5e20">TOTAL</td>'
+    +'<td style="padding:8px 10px;text-align:right;font-weight:800;font-size:.76rem;color:#555">'+Fv0(totP)+'</td>'
+    +'<td style="padding:8px 10px;text-align:right;font-weight:900;font-size:.76rem;color:#1b5e20">'+Fv0(totR)+'</td>'
+    +'<td style="padding:8px 10px;text-align:right;font-weight:900;font-size:.85rem;color:'+pctColor(pctTot)+'">'+(pctTot===null?'—':pctTot+'%')+'</td>'
+    +'</tr>';
+  h+='<div style="padding:14px 16px;border-top:1.5px solid #f0f0f0">';
+  h+='<div style="font-size:.7rem;font-weight:800;color:#455a64;margin-bottom:8px">📊 '+tituloCorto+' — presupuesto vs. real, por categoría</div>';
+  h+='<div style="overflow-x:auto"><table style="width:100%;min-width:400px;border-collapse:collapse">';
+  h+='<thead><tr style="border-bottom:2px solid #e0e0e0">'
+    +'<th style="padding:5px 10px;text-align:left;font-size:.62rem;color:#90a4ae;text-transform:uppercase">Categoría</th>'
+    +'<th style="padding:5px 10px;text-align:right;font-size:.62rem;color:#90a4ae;text-transform:uppercase">Presupuesto</th>'
+    +'<th style="padding:5px 10px;text-align:right;font-size:.62rem;color:#90a4ae;text-transform:uppercase">Real gastado</th>'
+    +'<th style="padding:5px 10px;text-align:right;font-size:.62rem;color:#90a4ae;text-transform:uppercase">%</th>'
+    +'</tr></thead><tbody>'+cmp+'</tbody></table></div>';
+  h+='<div style="font-size:.6rem;color:#999;margin-top:6px">% = real gastado ÷ presupuesto de esa categoría · Solo lotes de campo (no semilleros/planta).</div>';
   h+='</div>';
-  h+='<div style="padding:0 16px 12px;font-size:.63rem;color:#999">Presupuestado total del período: '+Fv0(totP)+' · % = real ÷ presupuestado de cada categoría.</div>';
   h+='</div>';
   cont.innerHTML=h;
+}
+function irAPlanillaDia(iso){
+  showTab('gen');
+  if(!_genBuilt){_genBuilt=true;buildCalDiario();}
+  if(typeof genPlanillaMode!=='undefined'&&genPlanillaMode)toggleGenPlanilla();
+  navGenDayPick(iso);
+  setTimeout(function(){const panel=document.getElementById('panel-gen');if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});},60);
 }
 /* ── REPORTE DIARIO — click en celda del calendario ── */
 function calDayClick(dStr,evt){
@@ -4440,7 +4565,7 @@ function buildPptoGeneral(){
   let h='<div style="padding:18px 20px;max-width:1200px;margin:0 auto">';
   // ── Header ──
   h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap">';
-  h+='<div><div style="font-size:1.05rem;font-weight:800;color:#1b5e20">📊 Presupuesto General</div>';
+  h+='<div><div style="font-size:1.05rem;font-weight:800;color:#1b5e20">📊 Presupuesto</div>';
   h+='<div style="font-size:.7rem;color:#aaa;margin-top:2px">Costo estimado por hectárea — ciclo completo · sin filtro por fecha</div></div>';
   h+='</div>';
   // ── Tipo buttons ──
@@ -5301,6 +5426,13 @@ function buildCronoSummary(l){
       // cuando la fila no trae esa categoría (p.ej. entradas sintéticas de SIEMBRA que
       // vienen de TRABAJOS MAQUINARIA-TRACTOR).
       let act=e.catReal ? stripAcc(e.catReal) : normMO(e.sub||e.cat||'LABOR');
+      // Si la sub-labor dice explícitamente "Transplante" (siembra), pero la columna
+      // Categoría Sec del Excel/Drive trae otra cosa (ej. "Poda", típicamente por un
+      // copiado/pegado de la fila de arriba al tipear) — la sub-labor es una señal
+      // mucho más confiable que una Categoría Sec claramente inconsistente con ella,
+      // así que en ese caso puntual se prioriza la sub-labor (caso lote ESMERALDA
+      // CP-26, 17-abr, reporte usuaria 15/09).
+      if(/TRANSPLANTE/.test((e.sub||'').toUpperCase()) && !['SIEMBRA','RESIEMBRA','SEMILLA/SIEMBRA'].includes(act)) act='SIEMBRA';
       // 'Siembra'/'Resiembra' en LABORES (columna Categoría) es el mismo concepto que
       // 'Semilla/Siembra' en PRESUPUESTO — sin este alias salían como dos filas
       // separadas (una 100% presupuesto sin ejecutar, otra 100% real como Extra)
@@ -5313,20 +5445,30 @@ function buildCronoSummary(l){
       let broadMO='MANO DE OBRA';
       const catUpMO=(e.cat||'').toUpperCase();
       const subUpMO=(e.sub||'').toUpperCase();
+      // Palabras que indican que la labor la hace la máquina/tractor en sí (no una
+      // persona ayudando a mano). "TRACTOR" sola no alcanza: labores como "Rayado
+      // para siembra", "2 pasadas de grada" o "Arado" son trabajo de tractor pero no
+      // llevan la palabra "tractor" en el texto (pedido usuaria 15/09).
+      const esLaborMaquinaMO = /TRACTOR|MAQUINA|GRADA|RAYAD|SUBSOLAD|\bARADO\b|GRADEO|ROTOVA|SURCAD/.test(subUpMO);
+      // Labores de APOYO/AYUDANTE a la máquina (personal que asiste al maquinista,
+      // ej. "Apoyo maquinista/levantado de marcador", "Ayudante tractorista") siguen
+      // siendo mano de obra real — son personas trabajando a mano, no el tractor.
+      const esApoyoAMaquinaMO = /APOYO|AYUDANTE/.test(subUpMO);
       if(act==='PREPARACION DE TERRENO' && /GUANO|ROSIAD|HUMYS/i.test(e.sub||'')){
         broadMO='COSTOS DE ESTABLECIMIENTO';
         act='GUANO DE POLLO';
-      } else if(catUpMO==='TRABAJO CON MAQUINARIA' || (catUpMO==='MANO DE OBRA' && /TRACTOR/.test(subUpMO))){
+      } else if(catUpMO==='TRABAJO CON MAQUINARIA' || (catUpMO==='MANO DE OBRA' && esLaborMaquinaMO && !esApoyoAMaquinaMO)){
         // Labores con tractor (Cultivo con tractor, Aporque con tractor, Gradeo con
-        // tractor, Cosecha con tractor, etc.) son trabajo de maquinaria, sea que
-        // vengan ya bien etiquetadas como "TRABAJO CON MAQUINARIA" en el Excel/Drive,
-        // o etiquetadas como "MANO DE OBRA" con "tractor" en la sub-labor (caso ya
-        // conocido, personal que opera el tractor: Rubén, Ruddy, Pitoy). ANTES, una
-        // fila ya correctamente etiquetada como "TRABAJO CON MAQUINARIA" no tenía
-        // ninguna regla que la reconociera como tal y caía en "MANO DE OBRA" por
-        // defecto — inflando Mano de Obra y dejando "Cosechadora" siempre en "Sin
-        // ejecutar" aunque tuviera presupuesto (corregido 15/09, caso "Cosecha con
-        // Tractor" S/400, lote POZO-C).
+        // tractor, Cosecha con tractor, Rayado para siembra, 2 pasadas de grada,
+        // etc.) son trabajo de maquinaria, sea que vengan ya bien etiquetadas como
+        // "TRABAJO CON MAQUINARIA" en el Excel/Drive, o etiquetadas como "MANO DE
+        // OBRA" pero describiendo una labor que en realidad hace el tractor (personal
+        // que lo opera: Rubén, Ruddy, Pitoy). ANTES, una fila ya correctamente
+        // etiquetada como "TRABAJO CON MAQUINARIA" no tenía ninguna regla que la
+        // reconociera como tal y caía en "MANO DE OBRA" por defecto — inflando Mano
+        // de Obra y dejando "Cosechadora" siempre en "Sin ejecutar" aunque tuviera
+        // presupuesto (corregido 15/09, caso "Cosecha con Tractor" S/400, lote
+        // POZO-C, y caso "Rayado para siembra"/"2 pasadas de grada" S/86.99).
         broadMO='TRABAJO CON MAQUINARIA';
         // "Cosecha con tractor" debe comparar contra el presupuesto de "Cosechadora"
         // (la clave que usa PRESUPUESTO para esa línea) en vez de quedar como
@@ -5451,20 +5593,18 @@ function buildCronoSummary(l){
       d+='<div style="font-size:.72rem;font-weight:800;color:#37474f;margin-bottom:3px">'+_ddsLbl(dds)+(dateStr?' · '+dateStr:'')+'</div>';
       let dayTot=0,dayJrnP=0;
       items.forEach(it=>{
-        dayTot+=it.costo;
+        dayTot+=it.cph;
         const umUp=(it.um||'').toUpperCase();
         if(umUp==='JRN'&&it.cant>0)dayJrnP+=it.cant;
         d+='<div style="display:flex;justify-content:space-between;font-size:.68rem;padding:1px 0">';
         d+='<span style="color:#546e7a">'+tit(it.sub)+'</span>';
-        d+='<span style="color:#607d8b;font-weight:700">'+Fv2(Math.round(it.costo*100)/100)+'</span></div>';
+        d+='<span style="color:#607d8b;font-weight:700">'+Fv2(Math.round(it.cph*100)/100)+'/ha</span></div>';
         /* Quantity hint below product name */
         if(it.cant>0&&it.um&&umUp!=='HA'){
           d+='<div style="font-size:.6rem;color:#90a4ae;margin-bottom:1px">📦 '+it.cant+' '+it.um.toLowerCase()+'/ha</div>';
-        } else if(it.cph&&ha>1){
-          d+='<div style="font-size:.6rem;color:#90a4ae">'+Fv2(it.cph)+'/ha</div>';
         }
       });
-      let subLine='Subtotal: '+Fv2(Math.round(dayTot*100)/100);
+      let subLine='Subtotal: '+Fv2(Math.round(dayTot*100)/100)+'/ha';
       if(dayJrnP>0)subLine+=' · '+dayJrnP.toFixed(1)+' jrn';
       if(items.length>1)d+='<div style="font-size:.66rem;font-weight:800;color:#546e7a;border-top:1px dashed #ccc;padding-top:2px;margin-top:2px">'+subLine+'</div>';
       d+='</div>';
@@ -5619,7 +5759,7 @@ function buildCronoSummary(l){
     h+='<td style="padding:9px 14px;font-weight:800;font-size:.8rem;color:#283593;border-top:2px solid #c5cae9" colspan="6">';
     h+='<span id="crono-ico-'+bgId+'" style="display:inline-block;width:16px;height:16px;background:#3949ab;color:#fff;border-radius:3px;text-align:center;line-height:16px;font-size:.65rem;margin-right:6px;font-weight:900">▶</span>';
     h+=broad;
-    if(pct!==null)h+='<span style="margin-left:10px;font-size:.7rem;color:'+hClr+';font-weight:700">'+pct.toFixed(1)+'% ejecutado</span>';
+    if(pct!==null)h+='<span style="margin-left:10px;font-size:.8rem;color:'+hClr+';font-weight:800">'+Math.round(pct)+'% EJECUTADO</span>';
     h+='<button onclick="event.stopPropagation();toggleNota(\''+cNk+'\',\''+cNEditId+'\')" style="float:right;background:'+(cNota?'#fffde7':'#f5f5f5')+';border:1.5px solid '+(cNota?'#f9a825':'#9fa8da')+';border-radius:8px;padding:3px 9px;cursor:pointer;font-size:.75rem;color:#283593">'+(cNota?'📝':'➕')+'</button>';
     h+='</td></tr>';
     h+='<tr id="'+cNEditId+'" class="nota-edit-row" style="display:none;background:#f9fbe7;border-bottom:2px solid #aed581">';
@@ -5782,6 +5922,175 @@ function buildCronoSummary(l){
 
   h+='</tbody></table></div>';
   return h;
+}
+
+/* ── PESTAÑA "🎯 Control" ──────────────────────────────────────────────
+   Cuadro rápido, por lote, de: (1) hace cuántos días se aplicó por última
+   vez cada categoría de agroquímico/fertilizante foliar (Foliar,
+   Insecticida, Herbicida, Fungicida, etc. — TODAS las que aparezcan en la
+   hoja APLICACIONES, columna CLASE), con el día en rojo si pasaron más de
+   25 días sin aplicar esa categoría; y (2) el % del presupuesto de esa
+   categoría ya ejecutado (mismo cálculo que ya usa la pestaña Presupuesto/
+   Crono, columna "% del Ppto vs total cultivo"), más una columna final con
+   el % gastado del presupuesto TOTAL del lote. Pedido de la usuaria 16/09
+   para responder rápido la pregunta típica del jefe ("¿hace cuántos días
+   se aplicó insecticida/herbicida/foliar?") sin tener que entrar al
+   Presupuesto de cada lote. */
+const CTRL_UMBRAL_DIAS = 25;
+/* Lista FIJA y cerrada de columnas del cuadro de Control (pedido usuaria
+   16/09): solo estas categorías, en este orden. No se agregan columnas
+   "extra" automáticamente aunque aparezcan otras clases en APLICACIONES
+   (Acaricida, Combustible, Crrector de salinidad del suelo, etc. — esas
+   quedan fuera a propósito, no le interesa verlas aquí). */
+const CTRL_ORDEN_CATS = ['FOLIAR','INSECTICIDA','HERBICIDA','FUNGICIDA','FERTILIZANTE','ENMIENDA'];
+/* Normaliza la categoría (columna CLASE de APLICACIONES) para el cuadro de
+   Control: junta "Fertilizante soluble", "Fertilizante edafico", etc. en
+   una sola columna "FERTILIZANTE" (pedido usuaria 16/09 — no le sirve
+   separarlas), y quita del todo "Acidificante" (no es una columna que
+   quiera ver). Se aplica tanto a las categorías detectadas dinámicamente
+   como a las que ya vienen fijas en CTRL_ORDEN_CATS. */
+const normCatControl = raw=>{
+  const u = (raw||'').toUpperCase().trim();
+  if(!u) return null;
+  if(u==='ACIDIFICANTE') return null;
+  if(u.includes('FERTILIZANTE')) return 'FERTILIZANTE';
+  return u;
+};
+function buildControlTab(){
+  const cont = document.getElementById('panel-ctrl-inner');
+  if(!cont) return;
+  const hoy = new Date();
+  const hoyUTC = Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  const diasDesde = fechaStr => {
+    const d = new Date(fechaStr+'T12:00:00');
+    return Math.round((hoyUTC - Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  };
+
+  /* 1. Lotes a mostrar: los activos de la campaña actual, ordenados por
+     días desde siembra (DDS) — los más jóvenes (recién sembrados) arriba
+     (pedido usuaria 16/09). Se recalcula DDS al vuelo con ddsHoy() en vez
+     de usar l.dds guardado, para que quede siempre al día aunque no se
+     haya vuelto a cargar el Excel/Drive desde que se sembró. */
+  const lotes = (DATA.resumen||[]).filter(l=>l.activo!==false).slice().sort((a,b)=>{
+    const da = ddsHoy(a.siembra), db = ddsHoy(b.siembra);
+    if(da===null && db===null) return a.lote.localeCompare(b.lote);
+    if(da===null) return 1;
+    if(db===null) return -1;
+    return da-db;
+  });
+
+  /* 2. Categorías: SOLO las de CTRL_ORDEN_CATS (lista fija, ver arriba),
+     y de esas, solo las que realmente tengan algún dato en DATA.vales —
+     si un lote/campaña todavía no usa "Enmienda" en ningún lado, esa
+     columna no se muestra. Ya NO se agregan categorías "extra" que no
+     estén en la lista fija (pedido usuaria 16/09). */
+  const catsSet = new Set();
+  Object.values(DATA.vales||{}).forEach(porFecha=>{
+    Object.values(porFecha).forEach(entries=>{
+      entries.forEach(e=>{
+        const cat=normCatControl(e.clase);
+        if(cat) catsSet.add(cat);
+      });
+    });
+  });
+  const cats = CTRL_ORDEN_CATS.filter(c=>catsSet.has(c));
+
+  if(!lotes.length || !cats.length){
+    cont.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px;font-size:.9rem">Aún no hay datos suficientes (lotes activos / aplicaciones) para armar el cuadro de Control.</div>';
+    return;
+  }
+
+  /* 3. Por cada lote: última fecha de aplicación por categoría (de DATA.vales)
+     + % de presupuesto ejecutado por categoría (de buildCronoSummary, que
+     junta AGROQUIMICO+FERTILIZANTE por su "actividad" = misma categoría). */
+  const filas = lotes.map(l=>{
+    const porCat = {};
+    const valesLote = DATA.vales && DATA.vales[l.lote];
+    if(valesLote){
+      Object.entries(valesLote).forEach(([fecha,entries])=>{
+        entries.forEach(e=>{
+          const cat=normCatControl(e.clase);
+          if(!cat) return;
+          if(!porCat[cat] || fecha>porCat[cat].fecha) porCat[cat]={fecha};
+        });
+      });
+    }
+    /* % del ppto ejecutado por categoría — se suma ppto (pv) y real (rv) de
+       TODAS las actividades de buildCronoSummary que caigan en la misma
+       categoría normalizada (ej. "FERTILIZANTE SOLUBLE" + "FERTILIZANTE
+       EDAFICO" se suman antes de sacar el %, para que la columna unida
+       "FERTILIZANTE" muestre un solo % correcto y no el de una sola mitad). */
+    try{
+      buildCronoSummary(l);
+      const catAgg = {};
+      (window._lastCronoFilas||[]).forEach(f=>{
+        if(f.esTotal) return;
+        if(f.categoria!=='AGROQUIMICO' && f.categoria!=='FERTILIZANTE') return;
+        const cat = normCatControl(f.actividad);
+        if(!cat) return;
+        if(!catAgg[cat]) catAgg[cat]={pv:0,rv:0};
+        catAgg[cat].pv += f.pptoHa||0;
+        catAgg[cat].rv += f.realHa||0;
+      });
+      Object.keys(catAgg).forEach(cat=>{
+        const {pv,rv} = catAgg[cat];
+        const pctTxt = pv>0 ? (rv/pv*100).toFixed(1)+'%' : '—';
+        if(!porCat[cat]) porCat[cat] = {fecha:null};
+        porCat[cat].pct = pctTxt;
+      });
+    }catch(e){ console.error('[Control] Error calculando % ppto para', l.lote, e); }
+    const pctTotalLote = (l.ppto_ha>0) ? (l.costo_ha/l.ppto_ha*100) : null;
+    return {lote:l.lote, porCat, pctTotalLote, dds:ddsHoy(l.siembra)};
+  });
+
+  /* 4. Render */
+  const _escH = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let h = '<div style="max-width:1100px">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">';
+  h += '<h2 style="font-size:1rem;font-weight:800;color:#1b5e20;margin:0">🎯 Control — Último día de aplicación por lote</h2>';
+  h += '<span style="font-size:.68rem;color:#888">Últ. actualización: '+hoy.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'})+'</span>';
+  h += '</div>';
+  h += '<div style="background:#fff8e1;border:1.5px solid #ffd54f;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-size:.75rem;color:#5d4037">';
+  h += 'Cada celda muestra <b>días desde la última aplicación</b> de esa categoría y el <b>% del presupuesto</b> de esa categoría ya ejecutado. El día aparece en <span style="color:#c62828;font-weight:800">rojo</span> cuando pasaron más de '+CTRL_UMBRAL_DIAS+' días sin aplicar. "—" = esa categoría no aplica o no tiene presupuesto/aplicación registrada en este lote.';
+  h += '</div>';
+  h += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.78rem;min-width:'+(560+cats.length*100)+'px">';
+  h += '<thead><tr style="background:#37474f;color:#fff;position:sticky;top:0;z-index:4">';
+  h += '<th style="padding:9px 12px;text-align:left;background:#2e7d32">Lote<br><span style="font-size:.6rem;font-weight:400;color:#c8e6c9">(días) · más jóvenes arriba</span></th>';
+  cats.forEach(c=>{ h += '<th style="padding:9px 12px;text-align:center;background:#37474f">'+_escH(tituloCat(c))+'</th>'; });
+  h += '<th style="padding:9px 12px;text-align:center;background:#455a64">% Total Lote<br><span style="font-size:.6rem;font-weight:400;color:#cfd8dc">vs ppto. ciclo completo</span></th>';
+  h += '</tr></thead><tbody>';
+  filas.forEach((fila,i)=>{
+    h += '<tr style="background:'+(i%2?'#f7f9f6':'#fff')+'">';
+    const ddsTxt = fila.dds===null ? '' : fila.dds<0
+      ? ' <span style="font-weight:600;color:#9e9e9e;font-size:.82em">(siembra en '+Math.abs(fila.dds)+'d)</span>'
+      : ' <span style="font-weight:600;color:#607d8b;font-size:.82em">('+fila.dds+'d)</span>';
+    h += '<td style="padding:8px 12px;font-weight:800;color:#1b5e20;cursor:pointer" onclick="goToCrono(\''+fila.lote.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')" title="Ver presupuesto comparativo de este lote">🌱 '+_escH(fila.lote)+ddsTxt+'</td>';
+    cats.forEach(c=>{
+      const info = fila.porCat[c];
+      if(!info){ h += '<td style="padding:8px 12px;text-align:center;color:#bbb">—</td>'; return; }
+      const dd = info.fecha ? diasDesde(info.fecha) : null;
+      const ddTxt = dd===null ? '—' : dd+'d';
+      const ddColor = (dd!==null && dd>CTRL_UMBRAL_DIAS) ? '#c62828' : '#2e7d32';
+      const pctTxt = info.pct || '—';
+      h += '<td style="padding:8px 12px;text-align:center">';
+      h += '<span style="font-weight:800;color:'+ddColor+'">'+ddTxt+'</span> ';
+      h += '<span style="font-size:.85em;color:#666">'+_escH(pctTxt)+'</span>';
+      h += '</td>';
+    });
+    if(fila.pctTotalLote===null){
+      h += '<td style="padding:8px 12px;text-align:center;color:#bbb">—</td>';
+    } else {
+      const pc = fila.pctTotalLote;
+      const pcColor = pc>100?'#c62828':pc>=80?'#f57c00':'#2e7d32';
+      h += '<td style="padding:8px 12px;text-align:center;font-weight:800;color:'+pcColor+'">'+pc.toFixed(1)+'%</td>';
+    }
+    h += '</tr>';
+  });
+  h += '</tbody></table></div></div>';
+  cont.innerHTML = h;
+}
+function tituloCat(c){
+  return String(c).toLowerCase().replace(/(^|\s)([a-záéíóúñ])/g, (m,sp,ch)=>sp+ch.toUpperCase());
 }
 
 function buildCronoTab(){
@@ -6935,6 +7244,23 @@ for(let i=5; i<codigosRows.length; i++){
 }
 
 const lotesValidos = new Set(lotesMeta.map(l=>l.lote));
+// Normaliza un nombre de lote para poder comparar "RUDA-26" contra variantes
+// como "Ruda-26", "RUDA -26" o "RUDA-26 " (mayúsculas/tildes/espacios de más)
+// que a veces se escriben distinto en SERVICIOS o MANO DE OBRA respecto a como
+// están tipeadas en CÓDIGOS. Sin esto, una fila de SERVICIOS para un lote
+// válido pero escrito ligeramente distinto queda huérfana: se lee bien pero
+// nunca aparece en ese lote porque la clave no calza con la de CÓDIGOS
+// (pedido/reporte usuaria 15/09, caso RUDA-26 — gastos de Costos de
+// Establecimiento en SERVICIOS que no salían en el dashboard).
+const normLoteKey = s=>(s==null?'':String(s)).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[-_\s]+/g,' ').trim();
+const loteCanonMap = {};
+lotesMeta.forEach(lm=>{ loteCanonMap[normLoteKey(lm.lote)] = lm.lote; });
+const resolveLote = raw=>{
+  const s = (raw==null?'':String(raw)).trim();
+  if(!s) return s;
+  const canon = loteCanonMap[normLoteKey(s)];
+  return canon || s;
+};
 
 // Tabla de precios por producto, desde CÓDIGOS (columna PRODUCTO / COSTO UNITARIO)
 // OJO: "COSTO UNITARIO" viene como texto con coma DECIMAL (ej. "S/.62,05" = 62.05),
@@ -6974,7 +7300,7 @@ for(let i=1;i<aplicRows.length;i++){
   const row = aplicRows[i]||[];
   const estado = pyStr(row[0]).toUpperCase(); // col A: ESTADO ALMACEN (se eliminó SERIE)
   if(estado!=='VERIFICADO') continue; // solo lo que ya se confirmó que se hizo
-  const lote = pyStr(row[17]);   // col R: PARCELA (nueva posición, 13/09)
+  const lote = resolveLote(pyStr(row[17]));   // col R: PARCELA (nueva posición, 13/09)
   if(!lote || !lotesValidos.has(lote)) continue;
   const fechaObj = xdateObj(driveSerialToDate(row[8])) || xdateObj(driveSerialToDate(row[7])); // FECHA APLICACION, si no FECHA EMISION
   if(!fechaObj) continue;
@@ -7026,7 +7352,7 @@ const moOtrosDetail = {}; // mano de obra registrada contra "GENERAL"/"PLANTA"/e
 for(let i=1;i<moRows.length;i++){
   const row = moRows[i] || [];
   if(!row[4]) continue;
-  const lote = String(row[4]).trim();
+  const lote = resolveLote(row[4]);
   const esLoteValido = lotesValidos.has(lote);
   const fechaObj = xdateObj(row[2]);
   if(!fechaObj) continue;
@@ -7068,11 +7394,11 @@ for(const row of allMaqRows){
   if(MACH_SUBS.some(k=>d.includes(k))) lotesConSubs.add(String(row[2]).trim());
 }
 const maqDetail={}, maqCostByLote={}, estabDetail={}, estabCostByLote={};
-const ESTAB_KEYWORDS=['ARRIENDO','GUANO','AGUA','ABONO','ESQUEJES'];
+const ESTAB_KEYWORDS=['ARRIENDO','ALQUILER','GUANO','AGUA','ABONO','ESQUEJES'];
 const SIEMBRA_KEYWORDS=['SIEMBRA','TRANSPLANTE','SEMILLA'];
 for(const row of allMaqRows){
   if(!row || !row[2]) continue;
-  const lote = String(row[2]).trim();
+  const lote = resolveLote(row[2]);
   const fechaObj = xdateObj(row[0]);
   if(!fechaObj) continue;
   const fstr = `${fechaObj.y}-${String(fechaObj.m).padStart(2,'0')}-${String(fechaObj.d).padStart(2,'0')}`;
@@ -12350,6 +12676,7 @@ async function actualizarTodoDesdeDrive(silencioso){
   if(document.getElementById('crono-sel')) buildCronoTab();
   if(document.getElementById('ppto-gen-btns')) buildPptoGeneral();
   if(document.getElementById('panel-exc')) buildExcesos();
+  if(document.getElementById('panel-ctrl').classList.contains('active')) buildControlTab();
   buildComentarios();
 
   if(!silencioso) alert('✅ Datos actualizados desde Google Drive.');
