@@ -2125,9 +2125,7 @@ function buildCalUI(){
     '<div class="cal-toolbar"><label>🌿 Lote:</label><select class="sl" id="cal-sel" onchange="cambiarLote(this.value)">'+opts+'</select>'
     +'<button class="nav-btn" onclick="navM(-1)">&#8592; Anterior</button><span class="mes-lbl" id="mes-lbl"></span><button class="nav-btn" onclick="navM(1)">Siguiente &#8594;</button>'
     +'<button id="cal-btn-sem" class="nav-btn" onclick="toggleCalSemanal()" style="background:#e8f0fe;border-color:#7986cb;color:#3949ab;font-size:.75rem">📆 Semanal</button>'
-    +'<div style="margin-left:auto;display:flex;gap:6px">'
-    +'<span id="gh-sync-indicator" style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap"></span>'
-    +'</div></div>'
+    +'</div>'
     +'<div class="cal-layout" style="margin-top:6px"><div class="cal-side" id="cal-side"><div class="si-empty">Selecciona un lote para ver su información</div></div>'
     +'<div class="cal-main"><div id="cal-cont"></div></div></div>'
     +'<div id="cal-totales" style="margin-top:14px"></div>';
@@ -3570,6 +3568,86 @@ let _genPlanillaDate=null;
 let genPlanillaViewMode='semana';
 let _genWorkerFiltro=null; // Set de nombres a mostrar en la tabla Planilla (null = todos) — pedido usuaria 12/08
 let _genBuilt=false; // bandera de solo-sesión (no se guarda en el HTML) — evita que un "gen-cal-built" horneado en una versión guardada anteriormente congele la lista de trabajadores tras recargar
+
+/* ── Filtro de trabajadores de la tabla Planilla (botón 🔽 en el encabezado
+   "Trabajador" — pedido usuaria 17/09: "quiero poder seleccionar algunos
+   trabajadores para hacer un comparativo de sus pagos"). Reutiliza el mismo
+   _genWorkerFiltro (Set de nombres, null = todos) que ya usan
+   renderGenPlanillaSemanal/Diario desde el 12/08 — solo faltaba un control
+   para llenarlo con más de un nombre a la vez (antes solo existía el
+   buscador de UN trabajador, que abre su reporte individual aparte). ── */
+function _gftBotonHTML(filtroActivo, nMostrados){
+  const bg = filtroActivo ? '#ffd54f' : 'rgba(255,255,255,.22)';
+  const color = filtroActivo ? '#5d4037' : '#fff';
+  const badge = filtroActivo ? ' <span style="font-weight:900">'+nMostrados+'</span>' : '';
+  return '<button onclick="event.stopPropagation();abrirFiltroTrabajadoresGen()" title="Filtrar trabajadores para comparar" '
+    +'style="background:'+bg+';color:'+color+';border:none;border-radius:6px;cursor:pointer;font-size:.68rem;font-weight:800;padding:2px 7px;margin-left:6px;vertical-align:middle;line-height:1.5">🔽'+badge+'</button>';
+}
+function abrirFiltroTrabajadoresGen(){
+  cerrarFiltroTrabajadoresGen();
+  const workers = window._GEN_WORKERS || [];
+  window._gftSeleccion = _genWorkerFiltro ? new Set(_genWorkerFiltro) : new Set();
+  const renderLista = (q) => {
+    const qLow = (q||'').trim().toLowerCase();
+    const filtered = qLow ? workers.filter(w=>w.toLowerCase().includes(qLow)) : workers;
+    if(!filtered.length) return '<div style="padding:14px;color:#aaa;font-size:.8rem;text-align:center">Sin resultados</div>';
+    return filtered.map(w=>{
+      const id = 'gft-'+w.replace(/[^a-zA-Z0-9]/g,'_');
+      const checked = window._gftSeleccion.has(w) ? 'checked' : '';
+      const wEsc = pltEscHtml(w);
+      return '<label for="'+id+'" style="display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:.82rem;color:#37474f;border-bottom:1px solid #f5f5f5">'
+        +'<input type="checkbox" id="'+id+'" data-worker="'+wEsc.replace(/"/g,'&quot;')+'" '+checked+' onchange="_gftToggle(this)" style="width:16px;height:16px;cursor:pointer;flex-shrink:0">'
+        +'<span>'+wEsc+'</span></label>';
+    }).join('');
+  };
+  window._gftRenderLista = renderLista;
+  const html = '<div id="gft-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px" onclick="if(event.target===this)cerrarFiltroTrabajadoresGen()">'
+    +'<div style="background:#fff;border-radius:14px;max-width:420px;width:100%;max-height:82vh;display:flex;flex-direction:column;overflow:hidden">'
+    +'<div style="padding:16px 20px 8px;display:flex;justify-content:space-between;align-items:center">'
+    +'<h3 style="margin:0;color:#1b5e20;font-size:1rem">🔽 Filtrar trabajadores</h3>'
+    +'<button onclick="cerrarFiltroTrabajadoresGen()" style="background:#f5f5f5;border:1px solid #ddd;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:700;color:#666">✕</button>'
+    +'</div>'
+    +'<div style="padding:0 20px 10px;font-size:.74rem;color:#888">Elige a los trabajadores que quieres comparar. Sus filas seguirán abriéndose con un clic para ver el detalle, igual que siempre. Si no eliges a ninguno, se muestran todos.</div>'
+    +'<div style="padding:0 20px 10px">'
+    +'<input type="text" id="gft-search" placeholder="Buscar por nombre o apellido..." autocomplete="off" oninput="_gftBuscar(this.value)" style="width:100%;box-sizing:border-box;border:1.5px solid #81c784;border-radius:8px;padding:8px 12px;font-size:.82rem;outline:none">'
+    +'</div>'
+    +'<div id="gft-lista" style="flex:1;overflow-y:auto;border-top:1px solid #eee">'+renderLista('')+'</div>'
+    +'<div style="padding:12px 20px;display:flex;justify-content:space-between;gap:8px;border-top:1px solid #eee;background:#fafafa;flex-shrink:0">'
+    +'<button onclick="_gftLimpiar()" style="background:#fff;border:1.5px solid #ccc;color:#666;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:.8rem">Quitar filtro</button>'
+    +'<button onclick="_gftAplicar()" style="background:#2e7d32;color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-weight:800;font-size:.8rem">Aplicar<span id="gft-count"></span></button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  _gftActualizarContador();
+}
+function cerrarFiltroTrabajadoresGen(){
+  const m=document.getElementById('gft-modal'); if(m) m.remove();
+}
+function _gftToggle(cb){
+  const w = cb.getAttribute('data-worker');
+  if(!window._gftSeleccion) window._gftSeleccion=new Set();
+  if(cb.checked) window._gftSeleccion.add(w); else window._gftSeleccion.delete(w);
+  _gftActualizarContador();
+}
+function _gftBuscar(q){
+  const lista=document.getElementById('gft-lista');
+  if(lista && window._gftRenderLista) lista.innerHTML = window._gftRenderLista(q);
+}
+function _gftActualizarContador(){
+  const n = window._gftSeleccion ? window._gftSeleccion.size : 0;
+  const el = document.getElementById('gft-count');
+  if(el) el.textContent = n>0 ? ' ('+n+')' : '';
+}
+function _gftLimpiar(){
+  _genWorkerFiltro = null;
+  cerrarFiltroTrabajadoresGen();
+  renderGenPlanilla();
+}
+function _gftAplicar(){
+  const sel = window._gftSeleccion || new Set();
+  _genWorkerFiltro = sel.size ? new Set(sel) : null;
+  cerrarFiltroTrabajadoresGen();
+  renderGenPlanilla();
+}
 function setGenPlanillaView(mode){
   genPlanillaViewMode=mode;
   const bd=document.getElementById('gen-view-dia'),bs=document.getElementById('gen-view-sem');
@@ -3689,7 +3767,7 @@ function renderGenPlanillaDiario(){
     h+='<div style="background:#1b5e20;color:#fff;padding:9px 16px;font-weight:800;font-size:.85rem">📅 '+dlbl+'</div>';
     h+='<table style="width:100%;border-collapse:collapse;font-size:.78rem">';
     h+='<thead><tr style="background:#f1f8e9;color:#33691e">'
-      +'<th style="padding:7px 16px;text-align:left">Trabajador</th>'
+      +'<th style="padding:7px 16px;text-align:left">Trabajador '+_gftBotonHTML(filtroActivo,nombres.length,true)+'</th>'
       +'<th style="padding:7px 12px;text-align:right">Planilla</th>'
       +'<th style="padding:7px 12px;text-align:right">Eventual</th>'
       +'<th style="padding:7px 12px;text-align:right">Contrato</th>'
@@ -3822,9 +3900,17 @@ function renderGenPlanillaSemanal(){
     return;
   }
   let h='<div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);overflow:hidden">';
+  // Pedido usuaria 17/09: aviso arriba de la tabla cuando el filtro de
+  // trabajadores está activo, con la cantidad elegida y un link para
+  // quitarlo — para que no sea confuso por qué "faltan" trabajadores.
+  if(filtroActivo){
+    h+='<div style="background:#fff8e1;border-bottom:1.5px solid #ffe082;padding:8px 16px;font-size:.76rem;color:#8d6e63;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">'
+      +'<span>🔽 Filtro activo: mostrando '+nombres.length+' de '+nombresAll.length+' trabajador'+(nombresAll.length!==1?'es':'')+'</span>'
+      +'<a href="javascript:void(0)" onclick="_gftLimpiar()" style="color:#e65100;font-weight:700;text-decoration:underline">Quitar filtro</a></div>';
+  }
   h+='<table style="width:100%;border-collapse:collapse;font-size:.8rem">';
   h+='<thead><tr style="background:#1b5e20;color:#fff">'
-    +'<th style="padding:9px 16px;text-align:left">Trabajador</th>'
+    +'<th style="padding:9px 16px;text-align:left">Trabajador '+_gftBotonHTML(filtroActivo,nombres.length)+'</th>'
     +'<th style="padding:9px 12px;text-align:center">Días</th>'
     +'<th style="padding:9px 14px;text-align:right">Planilla</th>'
     +'<th style="padding:9px 14px;text-align:right">Eventual</th>'
@@ -9543,6 +9629,8 @@ function selectSemanaPlanta(v){ /* obsoleto: la vista semanal ahora es una sola 
 function selectDay(idx){
   window._pltDayIdx=idx;
   window._pltCliTab='todos';
+  window._pltMvTab=0;
+  window._pltMvTabExtra=0;
   document.querySelectorAll('.plt-day-panel').forEach((p,i)=>{
     p.classList.toggle('dp-active', i===idx);
   });
@@ -9702,7 +9790,21 @@ function pltMermaTab(n){
   var rec=window._pltDsMap && window._pltDsMap[di];
   if(rec){
     var panelEl=document.getElementById('day-panel-'+di);
-    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, n, window._pltCliTab||'todos', window._pltClientesEnvio||['SUPESA'], window._pltCalidadesExtra||[]);
+    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, n, window._pltCliTab||'todos', window._pltClientesEnvio||['SUPESA'], window._pltCalidadesExtra||[], window._pltMvTabExtra||0);
+  }
+}
+
+// Igual que pltMermaTab, pero para la pestaña "Selección N" propia de la
+// tabla de Tottus (pedido usuaria 17/09: antes compartía la pestaña de
+// Supesa y mostraba las 4 tandas del día para ambos clientes aunque cada
+// uno solo tuvo 2 tandas reales — ver nota en pltDayPanelBodyHTML).
+function pltMermaTabExtra(n){
+  window._pltMvTabExtra=n;
+  var di=window._pltDayIdx;
+  var rec=window._pltDsMap && window._pltDsMap[di];
+  if(rec){
+    var panelEl=document.getElementById('day-panel-'+di);
+    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, window._pltMvTab||0, window._pltCliTab||'todos', window._pltClientesEnvio||['SUPESA'], window._pltCalidadesExtra||[], n);
   }
 }
 
@@ -9716,7 +9818,7 @@ function pltClienteTab(cli){
   var rec=window._pltDsMap && window._pltDsMap[di];
   if(rec){
     var panelEl=document.getElementById('day-panel-'+di);
-    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, window._pltMvTab||0, cli, window._pltClientesEnvio||['SUPESA'], window._pltCalidadesExtra||[]);
+    if(panelEl) panelEl.innerHTML=pltDayPanelBodyHTML(di, rec.ds, rec.prev, rec.weekLabel, window._pltMvTab||0, cli, window._pltClientesEnvio||['SUPESA'], window._pltCalidadesExtra||[], window._pltMvTabExtra||0);
   }
 }
 
@@ -10430,7 +10532,7 @@ function pltDaySummary(fecha, pedidos, byDate, byDespachoDate, byProcesoDate){
 
 /* ── HTML del panel diario (Diario > panel de un día, id="day-panel-N") ── */
 function pltDayPanelInner(idx, ds, saPrev, weekLabel, clientesEnvio, calidadesExtra){
-  return `<div class="plt-day-panel" id="day-panel-${idx}">${pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, 0, 'todos', clientesEnvio, calidadesExtra)}
+  return `<div class="plt-day-panel" id="day-panel-${idx}">${pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, 0, 'todos', clientesEnvio, calidadesExtra, 0)}
             </div><!-- day-panel-${idx} -->`;
 }
 // Lee una cantidad de un mapa "extra" sin importar la forma con que se guardó:
@@ -10441,12 +10543,28 @@ function pltExtraCant(map, cal){
   const v = map[cal];
   return (typeof v === 'object') ? (v.cant||0) : v;
 }
-function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clientesEnvio, calidadesExtra){
+function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clientesEnvio, calidadesExtra, batchTabExtra){
   cliTab = cliTab || 'todos';
   clientesEnvio = clientesEnvio || window._pltClientesEnvio || ['SUPESA'];
   calidadesExtra = (calidadesExtra && calidadesExtra.length) ? calidadesExtra : (window._pltCalidadesExtra || []);
   const bs = (ds.procesoBatches||[]).filter(b=>b);
-  const activeBatch = (batchTab>0) ? bs.find(b=>b.n===batchTab) : null;
+  /* Pedido usuaria 17/09: un mismo día puede tener varias "COMPRA" (tandas/
+     selecciones), pero cada tanda casi siempre produce para UN solo cliente
+     — o Supesa (calidades A/P/C/M) o Tottus (Natural/Procesado/Natural
+     Norte), no ambos. Antes las pestañas "Selección 1/2/3/4" se compartían
+     entre la tabla de Supesa y la de Tottus usando TODAS las tandas del día,
+     así que si hubo 2 tandas de Supesa + 2 de Tottus, ambas tablas mostraban
+     "4 selecciones" — dando la impresión de que hubo 4 procesos para cada
+     cliente cuando en realidad cada uno tuvo solo 2 (bug real detectado con
+     datos del 16/09: Drive solo registra 2 tandas con A/P/C/M ese día, pero
+     el cuadro mostraba 4 pestañas también del lado Supesa). Ahora cada tabla
+     tiene su propio filtro de tandas (bsSupesa / bsTottus) y su propia
+     pestaña activa, para que el número de "Selección N" que ve cada cliente
+     sea el real de ESE cliente. */
+  const bsSupesa = bs.filter(b=>(b.prodA||0)+(b.prodP||0)+(b.prodC||0)+(b.prodM||0)>0);
+  const bsTottus = bs.filter(b=>b.extra && Object.values(b.extra).some(v=>v>0));
+  const activeBatch = (batchTab>0) ? bsSupesa.find(b=>b.n===batchTab) : null;
+  const activeBatchExtra = (batchTabExtra>0) ? bsTottus.find(b=>b.n===batchTabExtra) : null;
   // Despacho filtrado por cliente (pedido usuaria 10/09) — solo aplica en la vista
   // "Todo el día"; una Selección/tanda puntual (activeBatch) no distingue cliente
   // todavía, así que ahí siempre se ve el despacho combinado, como antes.
@@ -10506,9 +10624,9 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
   // Pestañas Todo el día / Selección N — pedido usuaria 19/08: al elegir una tanda
   // también debe cambiar esta tabla (Balance por Jornada), no solo el panel de arriba.
   const batchTabsHTML = (() => {
-    if(bs.length < 2) return '';
+    if(bsSupesa.length < 2) return '';
     const btn = (n, lbl) => `<button onclick="pltMermaTab(${n})" style="padding:4px 12px;border-radius:14px;border:1px solid ${batchTab===n?'#2e7d32':'#ccc'};background:${batchTab===n?'#2e7d32':'#fff'};color:${batchTab===n?'#fff':'#555'};font-size:.68rem;font-weight:700;cursor:pointer">${lbl}</button>`;
-    return `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">${btn(0,'Todo el día')}${bs.map(b=>btn(b.n,'Selección '+b.n)).join('')}</div>`;
+    return `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">${btn(0,'Todo el día')}${bsSupesa.map(b=>btn(b.n,'Selección '+b.n)).join('')}</div>`;
   })();
   const batchBanner = activeBatch ? `<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;background:#ede7f6;border:1.5px solid #9575cd;border-radius:8px;padding:6px 10px">`
     + `<span>🔀</span>`
@@ -10520,7 +10638,7 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
   // ya que en cada pestaña de Selección la tabla de arriba ya queda filtrada a esa tanda.
   const batchNote = (() => {
     if(activeBatch) return '';
-    if(bs.length < 2) return '';
+    if(bsSupesa.length < 2) return '';
     const linea = b => {
       const qs=[];
       if(b.prodA>0) qs.push(`A=${pltNfmt(b.prodA)}j`);
@@ -10536,7 +10654,7 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
       + `
     <span>🔀</span>`
       + `
-    <div style="font-size:.72rem;color:#4527a0;line-height:1.7">${bs.map(linea).join('<br>')}</div>`
+    <div style="font-size:.72rem;color:#4527a0;line-height:1.7">${bsSupesa.map(linea).join('<br>')}</div>`
       + `
   </div>`;
   })();
@@ -10577,13 +10695,43 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
     };
     // Selección: por tanda (b.extra, números planos por calidad) si hay una
     // Selección activa; si no, el día completo (ds.prodExtra, {cant,kgFactor}).
-    const prodExtraSrc = activeBatch ? (activeBatch.extra || {}) : (ds.prodExtra || {});
+    // Pedido usuaria 17/09: esta tabla ahora tiene SU PROPIA pestaña de Selección
+    // (activeBatchExtra, filtrada a bsTottus) en vez de compartir la de Supesa —
+    // así "Selección N" aquí solo cuenta las tandas donde SÍ hubo producción para
+    // Tottus, no las 4 tandas mezcladas del día.
+    const prodExtraSrc = activeBatchExtra ? (activeBatchExtra.extra || {}) : (ds.prodExtra || {});
     // Despacho: respeta el cliente elegido igual que la tabla de A/P/C/M — pero
     // solo en "Todo el día", porque el despacho extra todavía no se lleva por
     // tanda de Selección por separado.
-    const despExtraSrc = (!activeBatch && cliTab!=='todos' && ds.despPorCliente && ds.despPorCliente[cliTab])
+    const despExtraSrc = (!activeBatchExtra && cliTab!=='todos' && ds.despPorCliente && ds.despPorCliente[cliTab])
       ? (ds.despPorCliente[cliTab].extra || {})
       : (ds.despExtra || {});
+    const extraBatchTabsHTML = (() => {
+      if(bsTottus.length < 2) return '';
+      const btn = (n, lbl) => `<button onclick="pltMermaTabExtra(${n})" style="padding:4px 12px;border-radius:14px;border:1px solid ${batchTabExtra===n?'#2e7d32':'#ccc'};background:${batchTabExtra===n?'#2e7d32':'#fff'};color:${batchTabExtra===n?'#fff':'#555'};font-size:.68rem;font-weight:700;cursor:pointer">${lbl}</button>`;
+      return `<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">${btn(0,'Todo el día')}${bsTottus.map(b=>btn(b.n,'Selección '+b.n)).join('')}</div>`;
+    })();
+    const extraBatchBanner = activeBatchExtra ? `<div style="margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;background:#e0f2e9;border:1.5px solid #81c784;border-radius:8px;padding:6px 10px">`
+      + `<span>🔀</span>`
+      + `<div style="font-size:.7rem;color:#1b5e20">Mostrando solo la <strong>Selección ${activeBatchExtra.n}</strong> de este día. Saldo anterior y saldo cierre siguen siendo del día completo.</div>`
+      + `</div>` : '';
+    const extraBatchNote = (() => {
+      if(activeBatchExtra) return '';
+      if(bsTottus.length < 2) return '';
+      const linea = b => {
+        const qs = calidadesExtra.filter(cal=>(b.extra&&b.extra[cal]>0)).map(cal=>`${cal}=${pltNfmt(b.extra[cal])}j`);
+        const totKg = calidadesExtra.reduce((s,cal)=>s+((b.extra&&b.extra[cal]||0)*(qfExtra(cal)||16)),0);
+        return `<strong>Selección ${b.n}:</strong> ${qs.join(', ')||'—'} <span style="color:#888">(${pltFmt0(totKg)} kg)</span>`;
+      };
+      return `
+  <div style="margin-top:8px;display:flex;align-items:flex-start;gap:8px;background:#e0f2e9;border:1.5px solid #81c784;border-radius:8px;padding:8px 12px">`
+        + `
+    <span>🔀</span>`
+        + `
+    <div style="font-size:.72rem;color:#1b5e20;line-height:1.7">${bsTottus.map(linea).join('<br>')}</div>`
+        + `
+  </div>`;
+    })();
     const filas = calidadesExtra.map(cal=>{
       const kgF = qfExtra(cal) || 16;
       const ant = pltExtraCant(saPrev.saldoExtra, cal);
@@ -10601,6 +10749,8 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
       totCierre=totCant(ds.saldoExtra), totCierreKg=totCant(ds.saldoExtra,true);
     return `<div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:10px 14px;flex:1;min-width:280px">
   <div style="font-size:.72rem;font-weight:800;color:#2e7d32;margin-bottom:8px">📦 SELECCIÓN + 🚛 DESPACHO · Tottus (${calidadesExtra.join(' / ')})</div>
+  ${extraBatchTabsHTML}
+  ${extraBatchBanner}
   <table class="plt-bal-tbl" style="background:transparent">
     <thead><tr>
       <th>Calidad</th><th>Saldo ant.</th><th>Selección</th><th>Despacho</th><th style="background:#c8e6c9;color:#1b5e20">Saldo cierre</th>
@@ -10611,7 +10761,7 @@ function pltDayPanelBodyHTML(idx, ds, saPrev, weekLabel, batchTab, cliTab, clien
   </table>
   <div style="margin-top:8px;font-size:.68rem;color:#1b5e20;background:#fff;border-radius:6px;padding:6px 10px">
     Mismo almacén que Supesa (arriba) — estas jabas ya están incluidas en el Saldo cierre total del día, solo se muestran aparte porque Tottus usa sus propias calidades.
-  </div>
+  </div>${extraBatchNote}
 </div>`;
   })() : '';
 
