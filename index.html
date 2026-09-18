@@ -3585,7 +3585,12 @@ function _gftBotonHTML(filtroActivo, nMostrados){
 }
 function abrirFiltroTrabajadoresGen(){
   cerrarFiltroTrabajadoresGen();
-  const workers = window._GEN_WORKERS || [];
+  // Pedido usuaria 18/09: solo ofrecer para elegir a los trabajadores que
+  // tienen actividad EN LA SEMANA que se está viendo (window._genWeekWorkers,
+  // recalculado en cada render de renderGenPlanillaSemanal), no el roster
+  // completo de todo el año (window._GEN_WORKERS) — así no se puede marcar
+  // a alguien que esa semana no trabajó nada.
+  const workers = window._genWeekWorkers || window._GEN_WORKERS || [];
   window._gftSeleccion = _genWorkerFiltro ? new Set(_genWorkerFiltro) : new Set();
   const renderLista = (q) => {
     const qLow = (q||'').trim().toLowerCase();
@@ -3607,7 +3612,7 @@ function abrirFiltroTrabajadoresGen(){
     +'<h3 style="margin:0;color:#1b5e20;font-size:1rem">🔽 Filtrar trabajadores</h3>'
     +'<button onclick="cerrarFiltroTrabajadoresGen()" style="background:#f5f5f5;border:1px solid #ddd;border-radius:50%;width:28px;height:28px;cursor:pointer;font-weight:700;color:#666">✕</button>'
     +'</div>'
-    +'<div style="padding:0 20px 10px;font-size:.74rem;color:#888">Elige a los trabajadores que quieres comparar. Sus filas seguirán abriéndose con un clic para ver el detalle, igual que siempre. Si no eliges a ninguno, se muestran todos.</div>'
+    +'<div style="padding:0 20px 10px;font-size:.74rem;color:#888">Elige entre los trabajadores con actividad esta semana a quiénes quieres comparar. Sus filas seguirán abriéndose con un clic para ver el detalle, igual que siempre. Si no eliges a ninguno, se muestran todos.</div>'
     +'<div style="padding:0 20px 10px">'
     +'<input type="text" id="gft-search" placeholder="Buscar por nombre o apellido..." autocomplete="off" oninput="_gftBuscar(this.value)" style="width:100%;box-sizing:border-box;border:1.5px solid #81c784;border-radius:8px;padding:8px 12px;font-size:.82rem;outline:none">'
     +'</div>'
@@ -3892,7 +3897,19 @@ function renderGenPlanillaSemanal(){
     });
   });
   const nombresAll=Object.keys(porTrabajador).sort();
+  // Pedido usuaria 18/09: la lista de trabajadores que se puede ELEGIR en
+  // el modal 🔽 debe estar limitada a los que tienen actividad esta misma
+  // semana (antes salían los ~21 de todo el historial, y podía marcar a
+  // alguien que no trabajó nada estos días). Se guarda aparte de
+  // _GEN_WORKERS (el roster completo, que sigue usándose en el buscador
+  // de reporte individual) y se refresca cada vez que se pinta la semana.
+  window._genWeekWorkers = nombresAll;
   const filtroActivo=_genWorkerFiltro!==null;
+  // Pedido usuaria 18/09: el filtro debe mostrar SOLO a los seleccionados
+  // que sí trabajaron esa semana — nada de rellenar con filas en S/.0.00
+  // para los que no tuvieron actividad (eso se probó y no era lo que
+  // quería). Vuelve al comportamiento simple: intersección entre lo
+  // seleccionado y quienes de verdad tienen datos esa semana.
   const nombres=filtroActivo ? nombresAll.filter(n=>_genWorkerFiltro.has(n)) : nombresAll;
   if(filtroActivo){ anonPla=0;anonEve=0;anonCon=0; }
   if(!nombres.length&&(anonPla+anonEve+anonCon)===0){
@@ -3970,7 +3987,15 @@ function renderGenPlanillaSemanal(){
         // ese texto tal cual está en Drive. El texto va en un atributo
         // data-obs (escapado) en vez de mandarlo directo al onclick, para no
         // romper el HTML si la observación trae comillas u otros símbolos.
-        const obsBtn = lb.obs ? ' <button onclick="event.stopPropagation();verObservacion(this)" data-obs="'+_escAttr(lb.obs)+'" title="Ver observación" style="background:#fff9c4;border:1px solid #f9a825;border-radius:50%;width:17px;height:17px;line-height:15px;font-size:.62rem;cursor:pointer;padding:0;vertical-align:middle;margin-left:4px">💬</button>' : '';
+        // Pedido usuaria 18/09: si la Observación es un DESCUENTO a ese
+        // trabajador (no un comentario cualquiera), el botón se ve muy
+        // distinto al 💬 normal — rojo, con texto, para que salte a la
+        // vista de inmediato al abrir la Planilla y no se confunda con
+        // una nota cualquiera.
+        const _esDesc = _esObsDescuento(lb.obs);
+        const obsBtn = !lb.obs ? '' : (_esDesc
+          ? ' <button onclick="event.stopPropagation();verObservacion(this)" data-obs="'+_escAttr(lb.obs)+'" title="⚠️ Esta labor tiene un DESCUENTO anotado — clic para ver el detalle" style="background:#ffebee;border:1.5px solid #c62828;border-radius:7px;padding:1px 7px;font-size:.62rem;font-weight:800;color:#c62828;cursor:pointer;vertical-align:middle;margin-left:5px;letter-spacing:.2px">🚨 DESCUENTO</button>'
+          : ' <button onclick="event.stopPropagation();verObservacion(this)" data-obs="'+_escAttr(lb.obs)+'" title="Ver observación" style="background:#fff9c4;border:1px solid #f9a825;border-radius:50%;width:17px;height:17px;line-height:15px;font-size:.62rem;cursor:pointer;padding:0;vertical-align:middle;margin-left:4px">💬</button>');
         h+='<div style="font-size:.78rem;color:#616161;padding:2px 0 2px 14px;line-height:1.25">'
           +'🌱 '+lb.lote+(lb.hr>0?' <span style="color:#9e9e9e;font-size:.87em">('+lb.hr.toFixed(1)+' hr)</span>':'')+' · '+lb.labor+' <em style="color:#9e9e9e">('+lb.estado+')</em>'
           +' <span style="font-weight:700;color:#2e7d32">'+Fv(lb.monto)+'</span>'+obsBtn+'</div>';
@@ -6175,6 +6200,23 @@ function buildControlTab(){
   h += '</tbody></table></div></div>';
   cont.innerHTML = h;
 }
+
+/* Detecta si la Observación de una labor (columna R de LABORES en Drive)
+   es un DESCUENTO a un trabajador (no un comentario cualquiera), para
+   resaltarlo de forma distinta al botón 💬 normal en la Planilla
+   (pedido usuaria 18/09 — quitó la idea de una pestaña separada; el
+   costo/importe de la labor sigue intacto siempre, esto es solo para
+   que salte a la vista al abrir la Planilla). */
+function _esObsDescuento(obs){
+  return !!(obs && /descont|descuent/i.test(obs));
+}
+function _descParseMonto(obs){
+  let m = obs.match(/s\/\.?\s*(\d+(?:[.,]\d+)?)/i);
+  if(!m) m = obs.match(/(\d+(?:[.,]\d+)?)\s*soles/i);
+  if(!m) return null;
+  return parseFloat(m[1].replace(',','.'));
+}
+
 function tituloCat(c){
   return String(c).toLowerCase().replace(/(^|\s)([a-záéíóúñ])/g, (m,sp,ch)=>sp+ch.toUpperCase());
 }
