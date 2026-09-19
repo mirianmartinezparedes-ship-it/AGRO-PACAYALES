@@ -19,6 +19,14 @@ header p{font-size:.72rem;opacity:.75;margin-top:2px}
 .tab-active{color:#2e7d32!important;border-bottom-color:#2e7d32!important;background:#fff!important;box-shadow:0 -2px 8px rgba(0,0,0,.08),2px 0 6px rgba(0,0,0,.04),-2px 0 6px rgba(0,0,0,.04)!important}
 .panel{display:none;padding:16px 20px;max-width:1280px;margin:0 auto}
 .panel.active{display:block}
+/* Modo PLANILLA: módulo propio, independiente de Campo Camote. Reutiliza el
+   mismo panel-gen (Labores diarias) pero oculta el header/pestañas de Campo
+   Camote y muestra un header propio, para que no se sienta "dentro" de Campo
+   Camote (pedido usuaria 18/09). */
+#planilla-header{display:none}
+body.modo-planilla header, body.modo-planilla .tabs{display:none!important}
+body.modo-planilla #planilla-header{display:flex}
+body.modo-planilla .panel:not(#panel-gen){display:none!important}
 /* RESUMEN */
 .res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
 .rc{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.07);padding:15px 17px;border-left:5px solid #ccc}
@@ -422,6 +430,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="lnd-card-name">PLANTA</div>
       <div class="lnd-card-desc">Guías de Remisión · Despachos</div>
     </div>
+    <div class="lnd-card" onclick="enterPlanilla()">
+      <div class="lnd-card-ico">🧾</div>
+      <div class="lnd-card-name">PLANILLA</div>
+      <div class="lnd-card-desc">Labores diarias · Trabajadores</div>
+    </div>
   </div>
 </div>
 <header>
@@ -430,10 +443,13 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <button id="campo-back" onclick="backToLanding()" style=""><span style="font-size:1.35rem;line-height:1">🏠</span><span>Inicio</span></button>
     <input type="file" id="campo-file-input" accept=".xlsx" style="display:none" onchange="actualizarCampoDesdeExcel(this.files[0])">
     <button onclick="exportarNotas()" title="Guardar todos los comentarios (campo + calendario) para subir a GitHub" style="background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">💾 Guardar todo</button>
-    <button onclick="abrirPlanillaCampo()" title="Ver la planilla semanal de trabajadores de campo" style="background:#fff3e0;border:1.5px solid #ffb74d;color:#e65100;border-radius:8px;padding:5px 13px;font-size:.75rem;font-weight:700;cursor:pointer">🧾 Planilla Campo</button>
     <div style="font-size:.72rem;opacity:.8" id="hdr-fecha">31 ago. 2026</div>
   </div>
 </header>
+<div id="planilla-header" style="background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;padding:14px 24px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+  <div><h1 style="font-size:1.1rem;font-weight:700;margin:0">🧾 PLANILLA</h1><p style="font-size:.72rem;opacity:.75;margin-top:2px">Labores diarias · Trabajadores</p></div>
+  <button onclick="backToLandingPlanilla()" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:4px 14px;font-size:.6rem;font-weight:700;cursor:pointer;line-height:1.1"><span style="font-size:1.35rem;line-height:1">🏠</span><span>Inicio</span></button>
+</div>
 <div class="tabs">
   <button class="tab-btn" id="btn-tot" onclick="showTab('tot')">📈 Totales</button>
   <button class="tab-btn" id="btn-res" onclick="showTab('res')">📊 Resumen</button>
@@ -5585,6 +5601,13 @@ function buildCronoSummary(l){
         // (la clave que usa PRESUPUESTO para esa línea) en vez de quedar como
         // "COSECHA" suelta sin comparar contra ningún presupuesto.
         if(act==='COSECHA' && /TRACTOR/.test(subUpMO)) act='COSECHADORA';
+        // "Aporque con tractor" (LABORES) debe agruparse con "Aporque" (misma
+        // regla que ya existe para SERVICIOS en normMAQ más abajo) para que
+        // compare contra el presupuesto de "Aporque" en vez de aparecer suelta
+        // como "Labores de cultivo" ⚡ Extra sin presupuesto (caso lote ANGULO
+        // C126, fila 5463 Drive, "Aporque con tractor" S/.3,520, pedido usuaria
+        // 19/09).
+        if(/APORQ/.test(subUpMO)) act='APORQUE';
       } else if(catUpMO==='PETROLEO'){
         // El combustible (PETROLEO) de una labor con tractor/máquina es costo de
         // maquinaria, no de mano de obra — antes se quedaba metido en "Mano de Obra"
@@ -6181,7 +6204,11 @@ function buildControlTab(){
       if(!info){ h += '<td style="padding:8px 12px;text-align:center;color:#bbb">—</td>'; return; }
       const dd = info.fecha ? diasDesde(info.fecha) : null;
       const ddTxt = dd===null ? '—' : dd+'d';
-      const ddColor = (dd!==null && dd>CTRL_UMBRAL_DIAS) ? '#c62828' : '#2e7d32';
+      /* HERBICIDA normalmente se aplica UNA sola vez por campaña, así que no
+         tiene sentido marcarlo en rojo por "atraso" aunque pasen 100 días de
+         la última aplicación — a diferencia de Foliar/Insecticida/Fungicida/
+         Fertilizante, que sí son recurrentes (pedido usuaria 19/09). */
+      const ddColor = (dd!==null && dd>CTRL_UMBRAL_DIAS && c!=='HERBICIDA') ? '#c62828' : '#2e7d32';
       const pctTxt = info.pct || '—';
       h += '<td style="padding:8px 12px;text-align:center">';
       h += '<span style="font-weight:800;color:'+ddColor+'">'+ddTxt+'</span> ';
@@ -6955,6 +6982,14 @@ function openCostReport(loteName){
     Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([f,es])=>{
       if(!by[f])by[f]={fecha:f,agg:{},total:0};
       es.forEach(e=>{
+        /* Las labores ya categorizadas como "Trabajo con Maquinaria" (tractor,
+           subsolado, cosechadora, etc., venga de LABORES o de SERVICIOS) se
+           muestran en su propia pestaña "🚜 Trabajo con Maquinaria" más abajo,
+           no aquí — antes se colaban también en Mano de Obra aunque su
+           categoría dijera literalmente "Trabajo con Maquinaria" (caso lote
+           ANGULO C126, fila 5463 Drive, "Aporque con tractor" S/.3,520,
+           corregido 19/09). */
+        if(isMaqK(e.cat||''))return;
         const k=e.sub||e.cat||'Labor';
         if(!by[f].agg[k])by[f].agg[k]={totalCosto:0,totalJrn:0};
         by[f].agg[k].totalCosto+=e.costo||0;
@@ -6962,7 +6997,7 @@ function openCostReport(loteName){
         by[f].total+=e.costo||0;
       });
     });
-    return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(g=>({
+    return Object.values(by).filter(g=>Object.keys(g.agg).length>0).sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(g=>({
       fecha:g.fecha,total:g.total,
       items:Object.entries(g.agg).map(([k,v])=>{
         const jrnTxt=v.totalJrn>0?(v.totalJrn.toFixed(1)+' jrn'):'';
@@ -6998,7 +7033,32 @@ function openCostReport(loteName){
 
   /* MAQUINARIA */
   const maqPptoGrps=buildPptoGrps((cat)=>isMaqK(cat));
-  const maqRealGrps=(()=>{const by={};const NM=['ARRIENDO','AGUA','ALQUILER','GUANO','SEMILLA','SIEMBRA','TRANSPLANTE'];Object.entries((DATA.maquinaria&&DATA.maquinaria[loteName])||{}).forEach(([f,es])=>{es.filter(e=>!NM.some(k=>(e.actividad||'').toUpperCase().includes(k))).forEach(e=>{if(!by[f])by[f]={fecha:f,items:[],total:0};by[f].items.push({label:e.actividad||'Maquinaria',detail:e.subs||'',amount:e.costo_total||0});by[f].total+=e.costo_total||0;});});return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha));})();
+  const maqRealGrps=(()=>{
+    const by={};
+    const NM=['ARRIENDO','AGUA','ALQUILER','GUANO','SEMILLA','SIEMBRA','TRANSPLANTE'];
+    Object.entries((DATA.maquinaria&&DATA.maquinaria[loteName])||{}).forEach(([f,es])=>{
+      es.filter(e=>!NM.some(k=>(e.actividad||'').toUpperCase().includes(k))).forEach(e=>{
+        if(!by[f])by[f]={fecha:f,items:[],total:0};
+        by[f].items.push({label:e.actividad||'Maquinaria',detail:e.subs||'',amount:e.costo_total||0});
+        by[f].total+=e.costo_total||0;
+      });
+    });
+    /* Labores de LABORES/mano de obra ya etiquetadas como "Trabajo con
+       Maquinaria" (p.ej. contratos de tractor por "Aporque con tractor")
+       — antes solo pasaban por la hoja SERVICIOS/"TRABAJOS MAQUINARIA-
+       TRACTOR" para aparecer aquí; si venían de LABORES (columna
+       Categoría = "Trabajo con Maquinaria") se quedaban invisibles en esta
+       pestaña y aparecían solo en "Mano de Obra" (caso lote ANGULO C126,
+       fila 5463 Drive, "Aporque con tractor" S/.3,520, corregido 19/09). */
+    Object.entries((DATA.mano_obra&&DATA.mano_obra[loteName])||{}).forEach(([f,es])=>{
+      es.filter(e=>isMaqK(e.cat||'')).forEach(e=>{
+        if(!by[f])by[f]={fecha:f,items:[],total:0};
+        by[f].items.push({label:e.sub||e.cat||'Maquinaria',detail:e.trabajador||'',amount:e.costo||0});
+        by[f].total+=e.costo||0;
+      });
+    });
+    return Object.values(by).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  })();
 
   /* ── ASSEMBLE DYNAMIC TABS ── */
   const EXTRA_TABS=[
@@ -9641,12 +9701,25 @@ function enterCampo(){
   document.getElementById('campo-back').style.display='inline-flex';
   showTab('tot');
 }
+function enterPlanilla(){
+  // Módulo PLANILLA independiente: reutiliza el mismo panel-gen (Labores
+  // diarias) que ya existe dentro de Campo Camote, pero con su propio header
+  // y sin las pestañas de Campo Camote (pedido usuaria 18/09).
+  document.getElementById('landing').classList.add('hidden');
+  document.body.classList.add('modo-planilla');
+  showTab('gen');
+}
+function backToLandingPlanilla(){
+  document.body.classList.remove('modo-planilla');
+  document.getElementById('landing').classList.remove('hidden');
+}
 function enterPlanta(){
   document.getElementById('landing').classList.add('hidden');
   document.getElementById('planta-view').classList.add('active');
   initPlanta();
 }
 function backToLanding(){
+  document.body.classList.remove('modo-planilla');
   document.getElementById('landing').classList.remove('hidden');
   document.getElementById('campo-back').style.display='none';
   document.getElementById('planta-view').classList.remove('active');
