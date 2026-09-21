@@ -7688,18 +7688,36 @@ for(const lm of lotesMeta){
   lm.costo_ha = Math.round((totalReal/ha)*100)/100;
   lm.ppto_ha = Math.round((pptoTotalByPk[lm.pk]||0)*100)/100;
   // Lotes CULMINADOS (Estado=Culminado en CÓDIGOS): los DDS (días después de
-  // siembra) se congelan en la fecha de su última labor registrada (mano de
-  // obra / maquinaria / establecimiento / vales) en vez de seguir avanzando
-  // con la fecha de hoy — un lote ya cosechado no debe seguir "creciendo" en
-  // días como si siguiera activo (pedido usuaria 08/09, lotes POZO-C, RUDA-26,
-  // CASAS_2026).
+  // siembra) se congelan en vez de seguir avanzando con la fecha de hoy — un
+  // lote ya cosechado no debe seguir "creciendo" en días como si siguiera
+  // activo (pedido usuaria 08/09, lotes POZO-C, RUDA-26, CASAS_2026).
+  // Se congela en la fecha de la ÚLTIMA labor de COSECHA propiamente (mano de
+  // obra o maquinaria/tractor) — NO en la última actividad de cualquier tipo.
+  // Antes se usaba "cualquier actividad" (incluía vales/establecimiento), pero
+  // labores de "Eliminación de cultivo" pueden registrarse 2-3 meses después
+  // de la cosecha real, y la usuaria no quiere que esas labores tardías sigan
+  // corriendo el día (pedido usuaria 21/09, lotes MOD5C_26/CALAGUAC_2026).
   if(lm.activo===false && lm.siembra){
-    const fechas=[];
-    [moDetail[nombre],maqDetail[nombre],estabDetail[nombre],valDetail[nombre]].forEach(det=>{
-      if(det) fechas.push(...Object.keys(det));
+    const esCosechaTxt = s => /COSECH/i.test(s||'');
+    const fechasCosecha=[];
+    Object.entries(moDetail[nombre]||{}).forEach(([fecha,es])=>{
+      if(es.some(e=>esCosechaTxt(e.catReal)||esCosechaTxt(e.cat)||esCosechaTxt(e.sub))) fechasCosecha.push(fecha);
     });
-    if(fechas.length){
-      const ultimaFecha = fechas.sort().at(-1); // 'YYYY-MM-DD' → orden lexicográfico = cronológico
+    Object.entries(maqDetail[nombre]||{}).forEach(([fecha,es])=>{
+      if(es.some(e=>esCosechaTxt(e.desc)||esCosechaTxt(e.actividad)||esCosechaTxt(e.subs))) fechasCosecha.push(fecha);
+    });
+    let ultimaFecha = fechasCosecha.length ? fechasCosecha.sort().at(-1) : null;
+    if(!ultimaFecha){
+      // Sin ninguna labor de Cosecha registrada (caso raro): se cae al
+      // comportamiento anterior (última actividad de cualquier tipo) para no
+      // dejar el DDS sin congelar.
+      const fechas=[];
+      [moDetail[nombre],maqDetail[nombre],estabDetail[nombre],valDetail[nombre]].forEach(det=>{
+        if(det) fechas.push(...Object.keys(det));
+      });
+      if(fechas.length) ultimaFecha = fechas.sort().at(-1); // 'YYYY-MM-DD' → orden lexicográfico = cronológico
+    }
+    if(ultimaFecha){
       const [uy,umo,ud] = ultimaFecha.split('-').map(Number);
       const [sy,smo,sd] = lm.siembra.split('-').map(Number);
       lm.dds = daysBetween({y:uy,m:umo,d:ud},{y:sy,m:smo,d:sd});
